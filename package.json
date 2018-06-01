@@ -1,0 +1,10 @@
+{
+  "name": "tss",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "reflect-metadata": "^0.1.12",
+    "routing-controllers": "^0.7.7"
+  }
+}
