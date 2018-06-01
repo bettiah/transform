@@ -37,7 +37,7 @@ export class AuthenticationData {
   @IsDefined() type?: string;
 }
 export class DeactivateAccountBody {
-  auth?: AuthenticationData;
+  @IsDefined() auth?: AuthenticationData;
 }
 export class Flows {
   @IsDefined() stages?: string[];
@@ -53,7 +53,7 @@ export class ResponseDeactivateAccount429 {
   error?: string;
 }
 export class ChangePasswordBody {
-  auth?: AuthenticationData;
+  @IsDefined() auth?: AuthenticationData;
   @IsDefined() new_password?: string;
 }
 export class ResponseChangePassword429 {
@@ -94,7 +94,7 @@ export class CreateRoomBody {
   guest_can_join?: boolean;
   initial_state?: StateEvent[];
   invite?: string[];
-  invite_3pid?: Invite3pid[];
+  @IsDefined() invite_3pid?: Invite3pid[];
   is_direct?: boolean;
   name?: string;
   preset?: string;
@@ -106,7 +106,7 @@ export class ResponseCreateRoom200 {
   room_id?: string;
 }
 export class DeleteDevicesBody {
-  auth?: AuthenticationData;
+  @IsDefined() auth?: AuthenticationData;
   @IsDefined() devices?: string[];
 }
 export class ResponseDevice {
@@ -116,13 +116,13 @@ export class ResponseDevice {
   last_seen_ts?: number;
 }
 export class ResponseGetDevices200 {
-  devices?: ResponseDevice[];
+  @IsDefined() devices?: ResponseDevice[];
 }
 export class UpdateDeviceBody {
   display_name?: string;
 }
 export class DeleteDeviceBody {
-  auth?: AuthenticationData;
+  @IsDefined() auth?: AuthenticationData;
 }
 export class ResponseGetRoomIdByAlias200 {
   room_id?: string;
@@ -141,7 +141,7 @@ export class ResponseEvent {
   @IsDefined() type?: string;
 }
 export class ResponseGetEvents200 {
-  chunk?: ResponseEvent[];
+  @IsDefined() chunk?: ResponseEvent[];
   end?: string;
   start?: string;
 }
@@ -159,7 +159,7 @@ export class ResponseEventContent {
   displayname?: any;
   is_direct?: boolean;
   @IsDefined() membership?: string;
-  third_party_invite?: ResponseInvite;
+  @IsDefined() third_party_invite?: ResponseInvite;
 }
 export class ResponseStrippedState {
   @IsDefined() content?: any;
@@ -168,7 +168,7 @@ export class ResponseStrippedState {
 }
 export class ResponseInviteEvent {
   content?: any;
-  invite_room_state?: ResponseStrippedState[];
+  @IsDefined() invite_room_state?: ResponseStrippedState[];
   state_key?: string;
   type?: string;
 }
@@ -189,15 +189,15 @@ export class ResponseStateEvent {
   @IsDefined() state_key?: string;
 }
 export class ResponseRoomInfo {
-  account_data?: ResponseEvent[];
+  @IsDefined() account_data?: ResponseEvent[];
   membership?: string;
-  messages?: ResponsePaginationChunk;
+  @IsDefined() messages?: ResponsePaginationChunk;
   @IsDefined() room_id?: string;
-  state?: ResponseStateEvent[];
+  @IsDefined() state?: ResponseStateEvent[];
   visibility?: string;
 }
 export class ResponseInitialSync200 {
-  account_data?: ResponseEvent[];
+  @IsDefined() account_data?: ResponseEvent[];
   @IsDefined() end?: string;
   @IsDefined() presence?: ResponseEvent[];
   @IsDefined() rooms?: ResponseRoomInfo[];
@@ -215,7 +215,7 @@ export class ThirdPartySigned {
   @IsDefined() token?: string;
 }
 export class JoinRoomBody {
-  third_party_signed?: ThirdPartySigned;
+  @IsDefined() third_party_signed?: ThirdPartySigned;
 }
 export class ResponseJoinRoom429 {
   @IsDefined() errcode?: string;
@@ -245,8 +245,15 @@ export class ResponseQueryKeys200 {
   device_keys?: any;
   failures?: any;
 }
+export class DeviceKeys {
+  @IsDefined() algorithms?: string[];
+  @IsDefined() device_id?: string;
+  @IsDefined() keys?: any;
+  @IsDefined() signatures?: any;
+  @IsDefined() user_id?: string;
+}
 export class UploadKeysBody {
-  device_keys?: any;
+  @IsDefined() device_keys?: DeviceKeys;
   one_time_keys?: any;
 }
 export class ResponseUploadKeys200 {
@@ -354,7 +361,11 @@ export class ResponseGetPublicRooms200 {
   total_room_count_estimate?: number;
 }
 export class Filter {
-  generic_search_term?: string;
+  limit?: number;
+  not_senders?: string[];
+  not_types?: string[];
+  senders?: string[];
+  types?: string[];
 }
 export class QueryPublicRoomsBody {
   filter?: Filter;
@@ -409,18 +420,18 @@ export class ResponsePushCondition {
 }
 export class ResponsePushRule {
   @IsDefined() actions?: any[];
-  conditions?: ResponsePushCondition[];
+  @IsDefined() conditions?: ResponsePushCondition[];
   @IsDefined() default?: boolean;
   @IsDefined() enabled?: boolean;
   pattern?: string;
   @IsDefined() rule_id?: string;
 }
 export class ResponseRuleset {
-  content?: ResponsePushRule[];
-  override?: ResponsePushRule[];
-  room?: ResponsePushRule[];
-  sender?: ResponsePushRule[];
-  underride?: ResponsePushRule[];
+  @IsDefined() content?: ResponsePushRule[];
+  @IsDefined() override?: ResponsePushRule[];
+  @IsDefined() room?: ResponsePushRule[];
+  @IsDefined() sender?: ResponsePushRule[];
+  @IsDefined() underride?: ResponsePushRule[];
 }
 export class ResponseGetPushRules200 {
   @IsDefined() global?: ResponseRuleset;
@@ -433,7 +444,7 @@ export class PushCondition {
 }
 export class SetPushRuleBody {
   @IsDefined() actions?: string[];
-  conditions?: PushCondition[];
+  @IsDefined() conditions?: PushCondition[];
   pattern?: string;
 }
 export class ResponseSetPushRule429 {
@@ -447,12 +458,12 @@ export class SetPushRuleEnabledBody {
   @IsDefined() enabled?: boolean;
 }
 export class RegisterBody {
-  @Allow() auth?: AuthenticationData;
-  @Allow() bind_email?: boolean;
-  @Allow() device_id?: string;
-  @Allow() initial_device_display_name?: string;
-  @Allow() password?: string;
-  @Allow() username?: string;
+  @IsDefined() auth?: AuthenticationData;
+  bind_email?: boolean;
+  device_id?: string;
+  initial_device_display_name?: string;
+  password?: string;
+  username?: string;
 }
 export class ResponseRegister200 {
   access_token?: string;
@@ -477,11 +488,11 @@ export class BanBody {
 }
 export class ResponseGetEventContext200 {
   end?: string;
-  event?: any;
-  events_after?: ResponseRoomEvent[];
-  events_before?: ResponseRoomEvent[];
+  @IsDefined() event?: ResponseRoomEvent;
+  @IsDefined() events_after?: ResponseRoomEvent[];
+  @IsDefined() events_before?: ResponseRoomEvent[];
   start?: string;
-  state?: ResponseStateEvent[];
+  @IsDefined() state?: ResponseStateEvent[];
 }
 export class ResponseForgetRoom429 {
   @IsDefined() errcode?: string;
@@ -504,7 +515,7 @@ export class ResponseInviteUser429 {
   error?: string;
 }
 export class JoinRoomByIdBody {
-  third_party_signed?: ThirdPartySigned;
+  @IsDefined() third_party_signed?: ThirdPartySigned;
 }
 export class ResponseJoinRoomById429 {
   @IsDefined() errcode?: string;
@@ -523,12 +534,12 @@ export class ResponseLeaveRoom429 {
 }
 export class ResponseMemberEvent {
   content?: any;
-  invite_room_state?: ResponseStrippedState[];
+  @IsDefined() invite_room_state?: ResponseStrippedState[];
   state_key?: string;
   type?: string;
 }
 export class ResponseGetMembersByRoom200 {
-  chunk?: ResponseMemberEvent[];
+  @IsDefined() chunk?: ResponseMemberEvent[];
 }
 export class ResponseGetRoomEvents200 {
   chunk?: any[];
@@ -586,32 +597,32 @@ export class RoomEvents {
   @IsDefined() search_term?: string;
 }
 export class Categories {
-  room_events?: RoomEvents;
+  @IsDefined() room_events?: RoomEvents;
 }
 export class SearchBody {
   @IsDefined() search_categories?: Categories;
 }
 export class ResponseEventContext {
   end?: string;
-  events_after?: ResponseEvent[];
-  events_before?: ResponseEvent[];
+  @IsDefined() events_after?: ResponseEvent[];
+  @IsDefined() events_before?: ResponseEvent[];
   profile_info?: any;
   start?: string;
 }
 export class ResponseResult {
-  context?: ResponseEventContext;
+  @IsDefined() context?: ResponseEventContext;
   rank?: number;
-  result?: ResponseEvent;
+  @IsDefined() result?: ResponseEvent;
 }
 export class ResponseRoomEventResults {
   count?: number;
   groups?: any;
   next_batch?: string;
-  results?: ResponseResult[];
+  @IsDefined() results?: ResponseResult[];
   state?: any;
 }
 export class ResponseCategories {
-  room_events?: ResponseRoomEventResults;
+  @IsDefined() room_events?: ResponseRoomEventResults;
 }
 export class ResponseResults {
   @IsDefined() search_categories?: ResponseCategories;
@@ -624,10 +635,10 @@ export class SendToDeviceBody {
   messages?: any;
 }
 export class ResponseAccountData {
-  events?: ResponseEvent[];
+  @IsDefined() events?: ResponseEvent[];
 }
 export class ResponsePresence {
-  events?: ResponseEvent[];
+  @IsDefined() events?: ResponseEvent[];
 }
 export class ResponseRooms {
   invite?: any;
@@ -635,46 +646,73 @@ export class ResponseRooms {
   leave?: any;
 }
 export class ResponseSync200 {
-  account_data?: ResponseAccountData;
+  @IsDefined() account_data?: ResponseAccountData;
   device_lists?: any;
   next_batch?: string;
-  presence?: ResponsePresence;
+  @IsDefined() presence?: ResponsePresence;
   rooms?: ResponseRooms;
   to_device?: any;
 }
+export class RoomEventFilter {
+  contains_url?: boolean;
+  not_rooms?: string[];
+  rooms?: string[];
+  limit?: number;
+  not_senders?: string[];
+  not_types?: string[];
+  senders?: string[];
+  types?: string[];
+}
 export class RoomFilter {
-  account_data?: any;
-  ephemeral?: any;
+  account_data?: RoomEventFilter;
+  ephemeral?: RoomEventFilter;
   include_leave?: boolean;
   not_rooms?: string[];
   rooms?: string[];
-  state?: any;
-  timeline?: any;
+  state?: RoomEventFilter;
+  timeline?: RoomEventFilter;
 }
 export class DefineFilterBody {
-  account_data?: any;
+  account_data?: Filter;
   event_fields?: string[];
   event_format?: string;
-  presence?: any;
+  presence?: Filter;
   room?: RoomFilter;
 }
 export class ResponseDefineFilter200 {
   filter_id?: string;
 }
+export class ResponseFilter {
+  limit?: number;
+  not_senders?: string[];
+  not_types?: string[];
+  senders?: string[];
+  types?: string[];
+}
+export class ResponseRoomEventFilter {
+  contains_url?: boolean;
+  not_rooms?: string[];
+  rooms?: string[];
+  limit?: number;
+  not_senders?: string[];
+  not_types?: string[];
+  senders?: string[];
+  types?: string[];
+}
 export class ResponseRoomFilter {
-  account_data?: any;
-  ephemeral?: any;
+  account_data?: ResponseRoomEventFilter;
+  ephemeral?: ResponseRoomEventFilter;
   include_leave?: boolean;
   not_rooms?: string[];
   rooms?: string[];
-  state?: any;
-  timeline?: any;
+  state?: ResponseRoomEventFilter;
+  timeline?: ResponseRoomEventFilter;
 }
 export class ResponseGetFilter200 {
-  account_data?: any;
+  account_data?: ResponseFilter;
   event_fields?: string[];
   event_format?: string;
-  presence?: any;
+  presence?: ResponseFilter;
   room?: ResponseRoomFilter;
 }
 export class ResponseGetRoomTags200 {
