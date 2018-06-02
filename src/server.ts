@@ -36,7 +36,7 @@ init().catch(error => {
 useExpressServer(app, {
   // routePrefix: '/api2',
   cors: true,
-  validation: { whitelist: true },
+  validation: { whitelist: true, skipMissingProperties: true },
   authorizationChecker: (action: Action, roles: string[]) => {
     const token = action.request.headers['jwt'];
     if (!token) {
