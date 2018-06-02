@@ -32,7 +32,10 @@ export class ResponseThirdPartyIdentifier {
   @IsString() medium?: string;
 }
 export class ResponseGetAccount3PIDs200 {
-  @IsArray() threepids?: ResponseThirdPartyIdentifier[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseThirdPartyIdentifier)
+  threepids?: ResponseThirdPartyIdentifier[];
 }
 export class ThreePidCredentials {
   @IsDefined()
@@ -67,12 +70,17 @@ export class DeactivateAccountBody {
 export class Flows {
   @IsDefined()
   @IsArray()
+  @IsString({ each: true })
   stages?: string[];
 }
 export class ResponseAuthenticationResponse {
-  @IsArray() completed?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  completed?: string[];
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Flows)
   flows?: Flows[];
   params?: any;
   @IsString() session?: string;
@@ -144,11 +152,22 @@ export class Invite3pid {
 export class CreateRoomBody {
   creation_content?: any;
   @IsBoolean() guest_can_join?: boolean;
-  @IsArray() initial_state?: StateEvent[];
-  @IsArray() invite?: string[];
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => StateEvent)
+  initial_state?: StateEvent[];
+
+  @IsArray()
+  @IsString({ each: true })
+  invite?: string[];
+
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Invite3pid)
   invite_3pid?: Invite3pid[];
+
   @IsBoolean() is_direct?: boolean;
   @IsString() name?: string;
   @IsString() preset?: string;
@@ -166,6 +185,7 @@ export class DeleteDevicesBody {
   auth?: AuthenticationData;
   @IsDefined()
   @IsArray()
+  @IsString({ each: true })
   devices?: string[];
 }
 export class ResponseDevice {
@@ -179,6 +199,8 @@ export class ResponseDevice {
 export class ResponseGetDevices200 {
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseDevice)
   devices?: ResponseDevice[];
 }
 export class UpdateDeviceBody {
@@ -192,7 +214,9 @@ export class DeleteDeviceBody {
 }
 export class ResponseGetRoomIdByAlias200 {
   @IsString() room_id?: string;
-  @IsArray() servers?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  servers?: string[];
 }
 export class SetRoomAliasBody {
   @IsString() room_id?: string;
@@ -211,6 +235,8 @@ export class ResponseEvent {
 export class ResponseGetEvents200 {
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseEvent)
   chunk?: ResponseEvent[];
   @IsString() end?: string;
   @IsString() start?: string;
@@ -258,6 +284,8 @@ export class ResponseInviteEvent {
   content?: any;
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseStrippedState)
   invite_room_state?: ResponseStrippedState[];
   @IsString() state_key?: string;
   @IsString() type?: string;
@@ -280,6 +308,8 @@ export class ResponseRoomEvent {
 export class ResponsePaginationChunk {
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseRoomEvent)
   chunk?: ResponseRoomEvent[];
   @IsDefined()
   @IsString()
@@ -297,6 +327,8 @@ export class ResponseStateEvent {
 export class ResponseRoomInfo {
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseEvent)
   account_data?: ResponseEvent[];
   @IsString() membership?: string;
   @IsDefined()
@@ -308,21 +340,29 @@ export class ResponseRoomInfo {
   room_id?: string;
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseStateEvent)
   state?: ResponseStateEvent[];
   @IsString() visibility?: string;
 }
 export class ResponseInitialSync200 {
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseEvent)
   account_data?: ResponseEvent[];
   @IsDefined()
   @IsString()
   end?: string;
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseEvent)
   presence?: ResponseEvent[];
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseRoomInfo)
   rooms?: ResponseRoomInfo[];
 }
 export class Signed {
@@ -364,11 +404,16 @@ export class ResponseJoinRoom429 {
 export class ResponseGetJoinedRooms200 {
   @IsDefined()
   @IsArray()
+  @IsString({ each: true })
   joined_rooms?: string[];
 }
 export class ResponseGetKeysChanges200 {
-  @IsArray() changed?: string[];
-  @IsArray() left?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  changed?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  left?: string[];
 }
 export class ClaimKeysBody {
   @IsDefined() one_time_keys?: any;
@@ -390,6 +435,7 @@ export class ResponseQueryKeys200 {
 export class DeviceKeys {
   @IsDefined()
   @IsArray()
+  @IsString({ each: true })
   algorithms?: string[];
   @IsDefined()
   @IsString()
@@ -463,11 +509,17 @@ export class ResponseGetNotifications200 {
   @IsString() next_token?: string;
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseNotification)
   notifications?: ResponseNotification[];
 }
 export class ModifyPresenceListBody {
-  @IsArray() drop?: string[];
-  @IsArray() invite?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  drop?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  invite?: string[];
 }
 export class ResponseModifyPresenceList429 {
   @IsDefined()
@@ -524,7 +576,9 @@ export class ResponseSetDisplayName429 {
   @IsString() error?: string;
 }
 export class ResponsePublicRoomsChunk {
-  @IsArray() aliases?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  aliases?: string[];
   @IsString() avatar_url?: string;
   @IsString() canonical_alias?: string;
   @IsDefined()
@@ -543,6 +597,8 @@ export class ResponsePublicRoomsChunk {
 export class ResponseGetPublicRooms200 {
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponsePublicRoomsChunk)
   chunk?: ResponsePublicRoomsChunk[];
   @IsString() next_batch?: string;
   @IsString() prev_batch?: string;
@@ -550,10 +606,18 @@ export class ResponseGetPublicRooms200 {
 }
 export class Filter {
   @IsInt() limit?: number;
-  @IsArray() not_senders?: string[];
-  @IsArray() not_types?: string[];
-  @IsArray() senders?: string[];
-  @IsArray() types?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  not_senders?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  not_types?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  senders?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  types?: string[];
 }
 export class QueryPublicRoomsBody {
   @ValidateNested()
@@ -565,6 +629,8 @@ export class QueryPublicRoomsBody {
 export class ResponseQueryPublicRooms200 {
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponsePublicRoomsChunk)
   chunk?: ResponsePublicRoomsChunk[];
   @IsString() next_batch?: string;
   @IsString() prev_batch?: string;
@@ -586,7 +652,10 @@ export class ResponsePusher {
   @IsString() pushkey?: string;
 }
 export class ResponseGetPushers200 {
-  @IsArray() pushers?: ResponsePusher[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponsePusher)
+  pushers?: ResponsePusher[];
 }
 export class PusherData {
   @IsString() url?: string;
@@ -637,6 +706,8 @@ export class ResponsePushRule {
   actions?: any[];
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponsePushCondition)
   conditions?: ResponsePushCondition[];
   @IsDefined()
   @IsBoolean()
@@ -652,18 +723,28 @@ export class ResponsePushRule {
 export class ResponseRuleset {
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponsePushRule)
   content?: ResponsePushRule[];
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponsePushRule)
   override?: ResponsePushRule[];
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponsePushRule)
   room?: ResponsePushRule[];
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponsePushRule)
   sender?: ResponsePushRule[];
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponsePushRule)
   underride?: ResponsePushRule[];
 }
 export class ResponseGetPushRules200 {
@@ -683,9 +764,12 @@ export class PushCondition {
 export class SetPushRuleBody {
   @IsDefined()
   @IsArray()
+  @IsString({ each: true })
   actions?: string[];
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PushCondition)
   conditions?: PushCondition[];
   @IsString() pattern?: string;
 }
@@ -698,6 +782,7 @@ export class ResponseSetPushRule429 {
 export class SetPushRuleActionsBody {
   @IsDefined()
   @IsArray()
+  @IsString({ each: true })
   actions?: string[];
 }
 export class SetPushRuleEnabledBody {
@@ -751,13 +836,19 @@ export class ResponseGetEventContext200 {
   event?: ResponseRoomEvent;
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseRoomEvent)
   events_after?: ResponseRoomEvent[];
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseRoomEvent)
   events_before?: ResponseRoomEvent[];
   @IsString() start?: string;
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseStateEvent)
   state?: ResponseStateEvent[];
 }
 export class ResponseForgetRoom429 {
@@ -825,6 +916,8 @@ export class ResponseMemberEvent {
   content?: any;
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseStrippedState)
   invite_room_state?: ResponseStrippedState[];
   @IsString() state_key?: string;
   @IsString() type?: string;
@@ -832,6 +925,8 @@ export class ResponseMemberEvent {
 export class ResponseGetMembersByRoom200 {
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseMemberEvent)
   chunk?: ResponseMemberEvent[];
 }
 export class ResponseGetRoomEvents200 {
@@ -886,7 +981,10 @@ export class Group {
   @IsString() key?: string;
 }
 export class Groupings {
-  @IsArray() group_by?: Group[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Group)
+  group_by?: Group[];
 }
 export class RoomEvents {
   @ValidateNested()
@@ -897,7 +995,9 @@ export class RoomEvents {
   @Type(() => Groupings)
   groupings?: Groupings;
   @IsBoolean() include_state?: boolean;
-  @IsArray() keys?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  keys?: string[];
   @IsString() order_by?: string;
   @IsDefined()
   @IsString()
@@ -919,9 +1019,13 @@ export class ResponseEventContext {
   @IsString() end?: string;
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseEvent)
   events_after?: ResponseEvent[];
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseEvent)
   events_before?: ResponseEvent[];
   profile_info?: any;
   @IsString() start?: string;
@@ -943,6 +1047,8 @@ export class ResponseRoomEventResults {
   @IsString() next_batch?: string;
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseResult)
   results?: ResponseResult[];
   state?: any;
 }
@@ -970,11 +1076,15 @@ export class SendToDeviceBody {
 export class ResponseAccountData {
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseEvent)
   events?: ResponseEvent[];
 }
 export class ResponsePresence {
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseEvent)
   events?: ResponseEvent[];
 }
 export class ResponseRooms {
@@ -1000,13 +1110,25 @@ export class ResponseSync200 {
 }
 export class RoomEventFilter {
   @IsBoolean() contains_url?: boolean;
-  @IsArray() not_rooms?: string[];
-  @IsArray() rooms?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  not_rooms?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  rooms?: string[];
   @IsInt() limit?: number;
-  @IsArray() not_senders?: string[];
-  @IsArray() not_types?: string[];
-  @IsArray() senders?: string[];
-  @IsArray() types?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  not_senders?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  not_types?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  senders?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  types?: string[];
 }
 export class RoomFilter {
   @ValidateNested()
@@ -1016,8 +1138,12 @@ export class RoomFilter {
   @Type(() => RoomEventFilter)
   ephemeral?: RoomEventFilter;
   @IsBoolean() include_leave?: boolean;
-  @IsArray() not_rooms?: string[];
-  @IsArray() rooms?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  not_rooms?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  rooms?: string[];
   @ValidateNested()
   @Type(() => RoomEventFilter)
   state?: RoomEventFilter;
@@ -1029,7 +1155,9 @@ export class DefineFilterBody {
   @ValidateNested()
   @Type(() => Filter)
   account_data?: Filter;
-  @IsArray() event_fields?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  event_fields?: string[];
   @IsString() event_format?: string;
   @ValidateNested()
   @Type(() => Filter)
@@ -1043,20 +1171,40 @@ export class ResponseDefineFilter200 {
 }
 export class ResponseFilter {
   @IsInt() limit?: number;
-  @IsArray() not_senders?: string[];
-  @IsArray() not_types?: string[];
-  @IsArray() senders?: string[];
-  @IsArray() types?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  not_senders?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  not_types?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  senders?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  types?: string[];
 }
 export class ResponseRoomEventFilter {
   @IsBoolean() contains_url?: boolean;
-  @IsArray() not_rooms?: string[];
-  @IsArray() rooms?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  not_rooms?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  rooms?: string[];
   @IsInt() limit?: number;
-  @IsArray() not_senders?: string[];
-  @IsArray() not_types?: string[];
-  @IsArray() senders?: string[];
-  @IsArray() types?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  not_senders?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  not_types?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  senders?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  types?: string[];
 }
 export class ResponseRoomFilter {
   @ValidateNested()
@@ -1066,8 +1214,12 @@ export class ResponseRoomFilter {
   @Type(() => ResponseRoomEventFilter)
   ephemeral?: ResponseRoomEventFilter;
   @IsBoolean() include_leave?: boolean;
-  @IsArray() not_rooms?: string[];
-  @IsArray() rooms?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  not_rooms?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  rooms?: string[];
   @ValidateNested()
   @Type(() => ResponseRoomEventFilter)
   state?: ResponseRoomEventFilter;
@@ -1079,7 +1231,9 @@ export class ResponseGetFilter200 {
   @ValidateNested()
   @Type(() => ResponseFilter)
   account_data?: ResponseFilter;
-  @IsArray() event_fields?: string[];
+  @IsArray()
+  @IsString({ each: true })
+  event_fields?: string[];
   @IsString() event_format?: string;
   @ValidateNested()
   @Type(() => ResponseFilter)
@@ -1110,6 +1264,8 @@ export class ResponseSearchUserDirectory200 {
   limited?: boolean;
   @IsDefined()
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ResponseUser)
   results?: ResponseUser[];
 }
 export class ResponseSearchUserDirectory429 {
@@ -1127,6 +1283,7 @@ export class ResponseGetTurnServer200 {
   ttl?: number;
   @IsDefined()
   @IsArray()
+  @IsString({ each: true })
   uris?: string[];
   @IsDefined()
   @IsString()
