@@ -241,15 +241,15 @@ export class DeleteDeviceBody {
   @Type(() => AuthenticationData)
   auth?: AuthenticationData;
 }
+export class SetRoomAliasBody {
+  @IsString() room_id?: string;
+}
 export class ResponseGetRoomIdByAlias200 {
   @IsString() room_id?: string;
 
   @IsArray()
   @IsString({ each: true })
   servers?: string[];
-}
-export class SetRoomAliasBody {
-  @IsString() room_id?: string;
 }
 export class ResponseUnsignedData {
   @IsInt() age?: number;
@@ -629,17 +629,6 @@ export class ResponseModifyPresenceList429 {
 
   @IsString() error?: string;
 }
-export class ResponseGetPresence200 {
-  @IsBoolean() currently_active?: boolean;
-
-  @IsInt() last_active_ago?: number;
-
-  @IsDefined()
-  @IsString()
-  presence?: string;
-
-  status_msg?: any;
-}
 export class SetPresenceBody {
   @IsDefined()
   @IsString()
@@ -654,13 +643,21 @@ export class ResponseSetPresence429 {
 
   @IsString() error?: string;
 }
+export class ResponseGetPresence200 {
+  @IsBoolean() currently_active?: boolean;
+
+  @IsInt() last_active_ago?: number;
+
+  @IsDefined()
+  @IsString()
+  presence?: string;
+
+  status_msg?: any;
+}
 export class ResponseGetUserProfile200 {
   @IsString() avatar_url?: string;
 
   @IsString() displayname?: string;
-}
-export class ResponseGetAvatarUrl200 {
-  @IsString() avatar_url?: string;
 }
 export class SetAvatarUrlBody {
   @IsString() avatar_url?: string;
@@ -672,8 +669,8 @@ export class ResponseSetAvatarUrl429 {
 
   @IsString() error?: string;
 }
-export class ResponseGetDisplayName200 {
-  @IsString() displayname?: string;
+export class ResponseGetAvatarUrl200 {
+  @IsString() avatar_url?: string;
 }
 export class SetDisplayNameBody {
   @IsString() displayname?: string;
@@ -684,6 +681,9 @@ export class ResponseSetDisplayName429 {
   errcode?: string;
 
   @IsString() error?: string;
+}
+export class ResponseGetDisplayName200 {
+  @IsString() displayname?: string;
 }
 export class ResponsePublicRoomsChunk {
   @IsArray()
@@ -1564,6 +1564,11 @@ export class ResponseGetTurnServer429 {
 
   @IsString() error?: string;
 }
+export class ResponseGetVersions200 {
+  @IsArray()
+  @IsString({ each: true })
+  versions?: string[];
+}
 export class ResponseGetContent429 {
   @IsDefined()
   @IsString()
@@ -1616,6 +1621,7 @@ export class MatrixController {
   async getAccount3PIDs() {
     throw new HttpError(501);
   }
+
   @Post('/account/3pid')
   async post3PIDs(
     @Body({ required: true })
@@ -1623,6 +1629,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/account/deactivate')
   async deactivateAccount(
     @Body({ required: true })
@@ -1630,6 +1637,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/account/password')
   async changePassword(
     @Body({ required: true })
@@ -1637,14 +1645,17 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/account/whoami')
   async getTokenOwner() {
     throw new HttpError(501);
   }
+
   @Get('/admin/whois/{userId}')
   async getWhoIs(@Param('userId') userId: string) {
     throw new HttpError(501);
   }
+
   @Post('/createRoom')
   async createRoom(
     @Body({ required: true })
@@ -1652,6 +1663,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/delete_devices')
   async deleteDevices(
     @Body({ required: true })
@@ -1659,14 +1671,17 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/devices')
   async getDevices() {
     throw new HttpError(501);
   }
+
   @Get('/devices/{deviceId}')
   async getDevice(@Param('deviceId') deviceId: string) {
     throw new HttpError(501);
   }
+
   @Put('/devices/{deviceId}')
   async updateDevice(
     @Param('deviceId') deviceId: string,
@@ -1675,6 +1690,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Delete('/devices/{deviceId}')
   async deleteDevice(
     @Param('deviceId') deviceId: string,
@@ -1683,10 +1699,12 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/directory/room/{roomAlias}')
   async getRoomIdByAlias(@Param('roomAlias') roomAlias: string) {
     throw new HttpError(501);
   }
+
   @Put('/directory/room/{roomAlias}')
   async setRoomAlias(
     @Param('roomAlias') roomAlias: string,
@@ -1695,10 +1713,12 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Delete('/directory/room/{roomAlias}')
   async deleteRoomAlias(@Param('roomAlias') roomAlias: string) {
     throw new HttpError(501);
   }
+
   @Get('/events')
   async getEvents(
     @QueryParam('from') from: string,
@@ -1706,10 +1726,12 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/events/{eventId}')
   async getOneEvent(@Param('eventId') eventId: string) {
     throw new HttpError(501);
   }
+
   @Get('/initialSync')
   async initialSync(
     @QueryParam('limit') limit: number,
@@ -1717,6 +1739,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/join/{roomIdOrAlias}')
   async joinRoom(
     @Param('roomIdOrAlias') roomIdOrAlias: string,
@@ -1725,10 +1748,12 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/joined_rooms')
   async getJoinedRooms() {
     throw new HttpError(501);
   }
+
   @Get('/keys/changes')
   async getKeysChanges(
     @QueryParam('from', { required: true })
@@ -1738,6 +1763,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/keys/claim')
   async claimKeys(
     @Body({ required: true })
@@ -1745,6 +1771,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/keys/query')
   async queryKeys(
     @Body({ required: true })
@@ -1752,6 +1779,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/keys/upload')
   async uploadKeys(
     @Body({ required: true })
@@ -1759,6 +1787,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/login')
   async login(
     @Body({ required: true })
@@ -1766,10 +1795,12 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/logout')
   async logout() {
     throw new HttpError(501);
   }
+
   @Get('/notifications')
   async getNotifications(
     @QueryParam('from') from: string,
@@ -1778,10 +1809,12 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/presence/list/{userId}')
   async getPresenceForList(@Param('userId') userId: string) {
     throw new HttpError(501);
   }
+
   @Post('/presence/list/{userId}')
   async modifyPresenceList(
     @Param('userId') userId: string,
@@ -1790,10 +1823,12 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/presence/{userId}/status')
   async getPresence(@Param('userId') userId: string) {
     throw new HttpError(501);
   }
+
   @Put('/presence/{userId}/status')
   async setPresence(
     @Param('userId') userId: string,
@@ -1802,14 +1837,17 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/profile/{userId}')
   async getUserProfile(@Param('userId') userId: string) {
     throw new HttpError(501);
   }
+
   @Get('/profile/{userId}/avatar_url')
   async getAvatarUrl(@Param('userId') userId: string) {
     throw new HttpError(501);
   }
+
   @Put('/profile/{userId}/avatar_url')
   async setAvatarUrl(
     @Param('userId') userId: string,
@@ -1818,10 +1856,12 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/profile/{userId}/displayname')
   async getDisplayName(@Param('userId') userId: string) {
     throw new HttpError(501);
   }
+
   @Put('/profile/{userId}/displayname')
   async setDisplayName(
     @Param('userId') userId: string,
@@ -1830,6 +1870,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/publicRooms')
   async getPublicRooms(
     @QueryParam('limit', { required: true })
@@ -1841,6 +1882,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/publicRooms')
   async queryPublicRooms(
     @QueryParam('server', { required: true })
@@ -1850,10 +1892,12 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/pushers')
   async getPushers() {
     throw new HttpError(501);
   }
+
   @Post('/pushers/set')
   async postPusher(
     @Body({ required: true })
@@ -1861,10 +1905,12 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/pushrules/')
   async getPushRules() {
     throw new HttpError(501);
   }
+
   @Get('/pushrules/{scope}/{kind}/{ruleId}')
   async getPushRule(
     @Param('scope') scope: string,
@@ -1873,6 +1919,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Put('/pushrules/{scope}/{kind}/{ruleId}')
   async setPushRule(
     @Param('scope') scope: string,
@@ -1885,6 +1932,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Delete('/pushrules/{scope}/{kind}/{ruleId}')
   async deletePushRule(
     @Param('scope') scope: string,
@@ -1893,6 +1941,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Put('/pushrules/{scope}/{kind}/{ruleId}/actions')
   async setPushRuleActions(
     @Param('scope') scope: string,
@@ -1903,6 +1952,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Put('/pushrules/{scope}/{kind}/{ruleId}/enabled')
   async setPushRuleEnabled(
     @Param('scope') scope: string,
@@ -1913,6 +1963,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/register')
   async register(
     @QueryParam('kind') kind: string,
@@ -1921,6 +1972,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/register/available')
   async checkUsernameAvailability(
     @QueryParam('username', { required: true })
@@ -1928,6 +1980,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/rooms/{roomId}/ban')
   async ban(
     @Param('roomId') roomId: string,
@@ -1936,6 +1989,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/rooms/{roomId}/context/{eventId}')
   async getEventContext(
     @Param('roomId') roomId: string,
@@ -1945,6 +1999,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/rooms/{roomId}/event/{eventId}')
   async getOneRoomEvent(
     @Param('roomId') roomId: string,
@@ -1952,14 +2007,17 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/rooms/{roomId}/forget')
   async forgetRoom(@Param('roomId') roomId: string) {
     throw new HttpError(501);
   }
+
   @Get('/rooms/{roomId}/initialSync')
   async roomInitialSync(@Param('roomId') roomId: string) {
     throw new HttpError(501);
   }
+
   @Post('/rooms/{roomId}/invite')
   async inviteBy3PID(
     @Param('roomId') roomId: string,
@@ -1968,6 +2026,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/rooms/{roomId}/invite ')
   async inviteUser(
     @Param('roomId') roomId: string,
@@ -1976,6 +2035,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/rooms/{roomId}/join')
   async joinRoomById(
     @Param('roomId') roomId: string,
@@ -1984,10 +2044,12 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/rooms/{roomId}/joined_members')
   async getJoinedMembersByRoom(@Param('roomId') roomId: string) {
     throw new HttpError(501);
   }
+
   @Post('/rooms/{roomId}/kick')
   async kick(
     @Param('roomId') roomId: string,
@@ -1996,14 +2058,17 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/rooms/{roomId}/leave')
   async leaveRoom(@Param('roomId') roomId: string) {
     throw new HttpError(501);
   }
+
   @Get('/rooms/{roomId}/members')
   async getMembersByRoom(@Param('roomId') roomId: string) {
     throw new HttpError(501);
   }
+
   @Get('/rooms/{roomId}/messages')
   async getRoomEvents(
     @Param('roomId') roomId: string,
@@ -2019,6 +2084,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/rooms/{roomId}/receipt/{receiptType}/{eventId}')
   async postReceipt(
     @Param('roomId') roomId: string,
@@ -2029,6 +2095,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Put('/rooms/{roomId}/redact/{eventId}/{txnId}')
   async redactEvent(
     @Param('roomId') roomId: string,
@@ -2039,6 +2106,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Put('/rooms/{roomId}/send/{eventType}/{txnId}')
   async sendMessage(
     @Param('roomId') roomId: string,
@@ -2049,10 +2117,12 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/rooms/{roomId}/state')
   async getRoomState(@Param('roomId') roomId: string) {
     throw new HttpError(501);
   }
+
   @Get('/rooms/{roomId}/state/{eventType}')
   async getRoomStateByType(
     @Param('roomId') roomId: string,
@@ -2060,6 +2130,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Put('/rooms/{roomId}/state/{eventType}')
   async setRoomState(
     @Param('roomId') roomId: string,
@@ -2069,6 +2140,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/rooms/{roomId}/state/{eventType}/{stateKey}')
   async getRoomStateWithKey(
     @Param('roomId') roomId: string,
@@ -2077,6 +2149,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Put('/rooms/{roomId}/state/{eventType}/{stateKey}')
   async setRoomStateWithKey(
     @Param('roomId') roomId: string,
@@ -2087,6 +2160,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Put('/rooms/{roomId}/typing/{userId}')
   async setTyping(
     @Param('userId') userId: string,
@@ -2096,6 +2170,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/rooms/{roomId}/unban')
   async unban(
     @Param('roomId') roomId: string,
@@ -2104,6 +2179,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/search')
   async search(
     @QueryParam('next_batch', { required: true })
@@ -2113,6 +2189,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Put('/sendToDevice/{eventType}/{txnId}')
   async sendToDevice(
     @Param('eventType') eventType: string,
@@ -2122,6 +2199,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/sync')
   async sync(
     @QueryParam('filter', { required: true })
@@ -2137,6 +2215,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Put('/user/{userId}/account_data/{type}')
   async setAccountData(
     @Param('userId') userId: string,
@@ -2146,6 +2225,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/user/{userId}/filter')
   async defineFilter(
     @Param('userId') userId: string,
@@ -2154,6 +2234,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/user/{userId}/filter/{filterId}')
   async getFilter(
     @Param('userId') userId: string,
@@ -2161,6 +2242,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Put('/user/{userId}/rooms/{roomId}/account_data/{type}')
   async setAccountDataPerRoom(
     @Param('userId') userId: string,
@@ -2171,6 +2253,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/user/{userId}/rooms/{roomId}/tags')
   async getRoomTags(
     @Param('userId') userId: string,
@@ -2178,6 +2261,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Put('/user/{userId}/rooms/{roomId}/tags/{tag}')
   async setRoomTag(
     @Param('userId') userId: string,
@@ -2188,6 +2272,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Delete('/user/{userId}/rooms/{roomId}/tags/{tag}')
   async deleteRoomTag(
     @Param('userId') userId: string,
@@ -2196,6 +2281,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/user_directory/search')
   async searchUserDirectory(
     @Body({ required: true })
@@ -2203,6 +2289,7 @@ export class MatrixController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/voip/turnServer')
   async getTurnServer() {
     throw new HttpError(501);
@@ -2218,6 +2305,7 @@ export class MatrixMediaController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/download/{serverName}/{mediaId}/{fileName}')
   async getContentOverrideName(
     @Param('serverName') serverName: string,
@@ -2226,6 +2314,7 @@ export class MatrixMediaController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/preview_url')
   async getUrlPreview(
     @QueryParam('url', { required: true })
@@ -2235,6 +2324,7 @@ export class MatrixMediaController {
   ) {
     throw new HttpError(501);
   }
+
   @Get('/thumbnail/{serverName}/{mediaId}')
   async getContentThumbnail(
     @Param('serverName') serverName: string,
@@ -2248,6 +2338,7 @@ export class MatrixMediaController {
   ) {
     throw new HttpError(501);
   }
+
   @Post('/upload')
   async uploadContent(
     @HeaderParam('Content-Type', { required: true })
