@@ -11,11 +11,13 @@ import { MatrixController, MatrixMediaController } from './tss';
 
 const debug = require('debug')('server');
 const bodyParser = require('body-parser');
-const morgan = require('morgan');
+// const morgan = require('morgan');
+const morganBody = require('morgan-body');
 
 const app = express();
-app.use(morgan('dev'));
 app.use(bodyParser.json());
+// app.use(morgan('dev'));
+morganBody(app);
 
 async function init() {
   debug('initialized');
