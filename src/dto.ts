@@ -133,11 +133,11 @@ export class GetWhoIsResponse {
   @IsString() user_id?: string;
 }
 export class StateEvent {
-  prev_content?: any;
+  content?: any;
 
-  @IsDefined()
-  @IsString()
-  state_key?: string;
+  @IsString() state_key?: string;
+
+  @IsString() type?: string;
 }
 export class Invite3pid {
   @IsDefined()
@@ -157,7 +157,6 @@ export class CreateRoomBody {
 
   @IsBoolean() guest_can_join?: boolean;
 
-  @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => StateEvent)
@@ -310,10 +309,7 @@ export class StrippedStateResponse {
   type?: string;
 }
 export class InviteEventResponse {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => EventContentResponse)
-  content?: EventContentResponse;
+  content?: any;
 
   @IsDefined()
   @IsArray()
@@ -321,13 +317,9 @@ export class InviteEventResponse {
   @Type(() => StrippedStateResponse)
   invite_room_state?: StrippedStateResponse[];
 
-  @IsDefined()
-  @IsString()
-  state_key?: string;
+  @IsString() state_key?: string;
 
   @IsString() type?: string;
-
-  prev_content?: any;
 }
 export class RoomEventResponse {
   @IsDefined()
@@ -605,7 +597,7 @@ export class GetNotificationsResponse {
   @Type(() => NotificationResponse)
   notifications?: NotificationResponse[];
 }
-export class PresenceEvent {
+export class PresenceEventResponse {
   content?: any;
 
   @IsDefined()
@@ -1100,10 +1092,7 @@ export class LeaveRoomResponse429 {
   @IsString() error?: string;
 }
 export class MemberEventResponse {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => EventContentResponse)
-  content?: EventContentResponse;
+  content?: any;
 
   @IsDefined()
   @IsArray()
@@ -1111,13 +1100,9 @@ export class MemberEventResponse {
   @Type(() => StrippedStateResponse)
   invite_room_state?: StrippedStateResponse[];
 
-  @IsDefined()
-  @IsString()
-  state_key?: string;
+  @IsString() state_key?: string;
 
   @IsString() type?: string;
-
-  prev_content?: any;
 }
 export class GetMembersByRoomResponse {
   @IsDefined()

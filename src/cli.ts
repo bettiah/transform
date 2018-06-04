@@ -204,7 +204,7 @@ export class MatrixClient {
   @Get('/_matrix/client/r0/presence/list/{userId}')
   async getPresenceForList(
     @Param('userId') userId: string
-  ): Promise<dto.PresenceEvent[] | any> {}
+  ): Promise<dto.PresenceEventResponse[] | any> {}
 
   @Post('/_matrix/client/r0/presence/list/{userId}')
   async modifyPresenceList(
@@ -467,7 +467,7 @@ export class MatrixClient {
   @Get('/_matrix/client/r0/rooms/{roomId}/state')
   async getRoomState(
     @Param('roomId') roomId: string
-  ): Promise<dto.StateEvent[] | any> {}
+  ): Promise<dto.StateEventResponse[] | any> {}
 
   @Get('/_matrix/client/r0/rooms/{roomId}/state/{eventType}')
   async getRoomStateByType(

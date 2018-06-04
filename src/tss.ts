@@ -231,7 +231,7 @@ export class MatrixController {
   @Get('/presence/list/{userId}')
   async getPresenceForList(
     @Param('userId') userId: string
-  ): Promise<dto.PresenceEvent[] | any> {
+  ): Promise<dto.PresenceEventResponse[] | any> {
     throw new HttpError(501);
   }
 
@@ -568,7 +568,7 @@ export class MatrixController {
   @Get('/rooms/{roomId}/state')
   async getRoomState(
     @Param('roomId') roomId: string
-  ): Promise<dto.StateEvent[] | any> {
+  ): Promise<dto.StateEventResponse[] | any> {
     throw new HttpError(501);
   }
 
