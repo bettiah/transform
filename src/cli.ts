@@ -1,34 +1,9 @@
-import 'reflect-metadata';
 require('isomorphic-fetch');
 require('isomorphic-form-data');
 
-import { Pretend, Get, Put, Delete, Post, Headers } from 'pretend';
+import { Get, Put, Delete, Post } from 'pretend';
+
 import * as dto from './dto';
-
-class TestCli {
-  @Post('/_matrix/client/r0/createRoom')
-  async createRoom(
-    body: dto.CreateRoomBody
-  ): Promise<dto.CreateRoomResponse | any> {}
-}
-
-async function call() {
-  const client = Pretend.builder()
-    .requestInterceptor(request => {
-      request.options.headers = {
-        'Content-Type': 'application/json;charset=UTF-8'
-      };
-      return request;
-    })
-    .target(TestCli, 'http://localhost:1234/');
-
-  const result = await client.createRoom({
-    invite_3pid: [{ address: '', id_server: '', medium: '' }]
-  });
-  console.dir(result.errors);
-}
-
-call();
 
 function Body(options?: any): Function {
   return () => {};
