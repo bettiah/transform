@@ -149,11 +149,11 @@ export class GetWhoIsResponse {
   @IsString() user_id?: string;
 }
 export class StateEvent {
-  content?: any;
+  prev_content?: any;
 
-  @IsString() state_key?: string;
-
-  @IsString() type?: string;
+  @IsDefined()
+  @IsString()
+  state_key?: string;
 }
 export class Invite3pid {
   @IsDefined()
@@ -173,6 +173,7 @@ export class CreateRoomBody {
 
   @IsBoolean() guest_can_join?: boolean;
 
+  @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => StateEvent)
@@ -325,7 +326,10 @@ export class StrippedStateResponse {
   type?: string;
 }
 export class InviteEventResponse {
-  content?: any;
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => EventContentResponse)
+  content?: EventContentResponse;
 
   @IsDefined()
   @IsArray()
@@ -333,9 +337,13 @@ export class InviteEventResponse {
   @Type(() => StrippedStateResponse)
   invite_room_state?: StrippedStateResponse[];
 
-  @IsString() state_key?: string;
+  @IsDefined()
+  @IsString()
+  state_key?: string;
 
   @IsString() type?: string;
+
+  prev_content?: any;
 }
 export class RoomEventResponse {
   @IsDefined()
@@ -612,6 +620,13 @@ export class GetNotificationsResponse {
   @ValidateNested({ each: true })
   @Type(() => NotificationResponse)
   notifications?: NotificationResponse[];
+}
+export class PresenceEvent {
+  content?: any;
+
+  @IsDefined()
+  @IsString()
+  type?: string;
 }
 export class ModifyPresenceListBody {
   @IsArray()
@@ -1101,7 +1116,10 @@ export class LeaveRoomResponse429 {
   @IsString() error?: string;
 }
 export class MemberEventResponse {
-  content?: any;
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => EventContentResponse)
+  content?: EventContentResponse;
 
   @IsDefined()
   @IsArray()
@@ -1109,9 +1127,13 @@ export class MemberEventResponse {
   @Type(() => StrippedStateResponse)
   invite_room_state?: StrippedStateResponse[];
 
-  @IsString() state_key?: string;
+  @IsDefined()
+  @IsString()
+  state_key?: string;
 
   @IsString() type?: string;
+
+  prev_content?: any;
 }
 export class GetMembersByRoomResponse {
   @IsDefined()
@@ -1618,7 +1640,7 @@ export class UploadContentResponse429 {
 @JsonController('/_matrix/client/r0')
 export class MatrixController {
   @Get('/account/3pid')
-  async getAccount3PIDs() {
+  async getAccount3PIDs(): Promise<GetAccount3PIDsResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1626,7 +1648,7 @@ export class MatrixController {
   async post3PIDs(
     @Body({ required: true })
     body: Post3PIDsBody
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -1634,7 +1656,7 @@ export class MatrixController {
   async deactivateAccount(
     @Body({ required: true })
     body: DeactivateAccountBody
-  ) {
+  ): Promise<AuthenticationResponse | DeactivateAccountResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -1642,17 +1664,25 @@ export class MatrixController {
   async changePassword(
     @Body({ required: true })
     body: ChangePasswordBody
-  ) {
+  ): Promise<AuthenticationResponse | ChangePasswordResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/account/whoami')
-  async getTokenOwner() {
+  async getTokenOwner(): Promise<
+    | GetTokenOwnerResponse
+    | GetTokenOwnerResponse401
+    | GetTokenOwnerResponse403
+    | GetTokenOwnerResponse429
+    | any
+  > {
     throw new HttpError(501);
   }
 
   @Get('/admin/whois/{userId}')
-  async getWhoIs(@Param('userId') userId: string) {
+  async getWhoIs(
+    @Param('userId') userId: string
+  ): Promise<GetWhoIsResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1660,7 +1690,7 @@ export class MatrixController {
   async createRoom(
     @Body({ required: true })
     body: CreateRoomBody
-  ) {
+  ): Promise<CreateRoomResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1668,17 +1698,19 @@ export class MatrixController {
   async deleteDevices(
     @Body({ required: true })
     body: DeleteDevicesBody
-  ) {
+  ): Promise<AuthenticationResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/devices')
-  async getDevices() {
+  async getDevices(): Promise<GetDevicesResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/devices/{deviceId}')
-  async getDevice(@Param('deviceId') deviceId: string) {
+  async getDevice(
+    @Param('deviceId') deviceId: string
+  ): Promise<DeviceResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1687,7 +1719,7 @@ export class MatrixController {
     @Param('deviceId') deviceId: string,
     @Body({ required: true })
     body: UpdateDeviceBody
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -1696,12 +1728,14 @@ export class MatrixController {
     @Param('deviceId') deviceId: string,
     @Body({ required: true })
     body: DeleteDeviceBody
-  ) {
+  ): Promise<AuthenticationResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/directory/room/{roomAlias}')
-  async getRoomIdByAlias(@Param('roomAlias') roomAlias: string) {
+  async getRoomIdByAlias(
+    @Param('roomAlias') roomAlias: string
+  ): Promise<GetRoomIdByAliasResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1710,12 +1744,12 @@ export class MatrixController {
     @Param('roomAlias') roomAlias: string,
     @Body({ required: true })
     body: SetRoomAliasBody
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
   @Delete('/directory/room/{roomAlias}')
-  async deleteRoomAlias(@Param('roomAlias') roomAlias: string) {
+  async deleteRoomAlias(@Param('roomAlias') roomAlias: string): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -1723,12 +1757,14 @@ export class MatrixController {
   async getEvents(
     @QueryParam('from') from: string,
     @QueryParam('timeout') timeout: number
-  ) {
+  ): Promise<GetEventsResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/events/{eventId}')
-  async getOneEvent(@Param('eventId') eventId: string) {
+  async getOneEvent(
+    @Param('eventId') eventId: string
+  ): Promise<EventResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1736,7 +1772,7 @@ export class MatrixController {
   async initialSync(
     @QueryParam('limit') limit: number,
     @QueryParam('archived') archived: boolean
-  ) {
+  ): Promise<InitialSyncResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1745,12 +1781,12 @@ export class MatrixController {
     @Param('roomIdOrAlias') roomIdOrAlias: string,
     @Body({ required: true })
     body: JoinRoomBody
-  ) {
+  ): Promise<JoinRoomResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/joined_rooms')
-  async getJoinedRooms() {
+  async getJoinedRooms(): Promise<GetJoinedRoomsResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1760,7 +1796,7 @@ export class MatrixController {
     from: string,
     @QueryParam('to', { required: true })
     to: string
-  ) {
+  ): Promise<GetKeysChangesResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1768,7 +1804,7 @@ export class MatrixController {
   async claimKeys(
     @Body({ required: true })
     body: ClaimKeysBody
-  ) {
+  ): Promise<ClaimKeysResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1776,7 +1812,7 @@ export class MatrixController {
   async queryKeys(
     @Body({ required: true })
     body: QueryKeysBody
-  ) {
+  ): Promise<QueryKeysResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1784,7 +1820,7 @@ export class MatrixController {
   async uploadKeys(
     @Body({ required: true })
     body: UploadKeysBody
-  ) {
+  ): Promise<UploadKeysResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1792,12 +1828,12 @@ export class MatrixController {
   async login(
     @Body({ required: true })
     body: LoginBody
-  ) {
+  ): Promise<LoginResponse | LoginResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Post('/logout')
-  async logout() {
+  async logout(): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -1806,12 +1842,14 @@ export class MatrixController {
     @QueryParam('from') from: string,
     @QueryParam('limit') limit: number,
     @QueryParam('only') only: string
-  ) {
+  ): Promise<GetNotificationsResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/presence/list/{userId}')
-  async getPresenceForList(@Param('userId') userId: string) {
+  async getPresenceForList(
+    @Param('userId') userId: string
+  ): Promise<PresenceEvent[] | any> {
     throw new HttpError(501);
   }
 
@@ -1820,12 +1858,14 @@ export class MatrixController {
     @Param('userId') userId: string,
     @Body({ required: true })
     body: ModifyPresenceListBody
-  ) {
+  ): Promise<ModifyPresenceListResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/presence/{userId}/status')
-  async getPresence(@Param('userId') userId: string) {
+  async getPresence(
+    @Param('userId') userId: string
+  ): Promise<GetPresenceResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1834,17 +1874,21 @@ export class MatrixController {
     @Param('userId') userId: string,
     @Body({ required: true })
     body: SetPresenceBody
-  ) {
+  ): Promise<SetPresenceResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/profile/{userId}')
-  async getUserProfile(@Param('userId') userId: string) {
+  async getUserProfile(
+    @Param('userId') userId: string
+  ): Promise<GetUserProfileResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/profile/{userId}/avatar_url')
-  async getAvatarUrl(@Param('userId') userId: string) {
+  async getAvatarUrl(
+    @Param('userId') userId: string
+  ): Promise<GetAvatarUrlResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1853,12 +1897,14 @@ export class MatrixController {
     @Param('userId') userId: string,
     @Body({ required: true })
     body: SetAvatarUrlBody
-  ) {
+  ): Promise<SetAvatarUrlResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/profile/{userId}/displayname')
-  async getDisplayName(@Param('userId') userId: string) {
+  async getDisplayName(
+    @Param('userId') userId: string
+  ): Promise<GetDisplayNameResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1867,7 +1913,7 @@ export class MatrixController {
     @Param('userId') userId: string,
     @Body({ required: true })
     body: SetDisplayNameBody
-  ) {
+  ): Promise<SetDisplayNameResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -1879,7 +1925,7 @@ export class MatrixController {
     since: string,
     @QueryParam('server', { required: true })
     server: string
-  ) {
+  ): Promise<GetPublicRoomsResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1889,12 +1935,12 @@ export class MatrixController {
     server: string,
     @Body({ required: true })
     body: QueryPublicRoomsBody
-  ) {
+  ): Promise<QueryPublicRoomsResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/pushers')
-  async getPushers() {
+  async getPushers(): Promise<GetPushersResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1902,12 +1948,12 @@ export class MatrixController {
   async postPusher(
     @Body({ required: true })
     body: PostPusherBody
-  ) {
+  ): Promise<PostPusherResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/pushrules/')
-  async getPushRules() {
+  async getPushRules(): Promise<GetPushRulesResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1916,7 +1962,7 @@ export class MatrixController {
     @Param('scope') scope: string,
     @Param('kind') kind: string,
     @Param('ruleId') ruleId: string
-  ) {
+  ): Promise<PushRuleResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1929,7 +1975,7 @@ export class MatrixController {
     @QueryParam('after') after: string,
     @Body({ required: true })
     body: SetPushRuleBody
-  ) {
+  ): Promise<SetPushRuleResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -1938,7 +1984,7 @@ export class MatrixController {
     @Param('scope') scope: string,
     @Param('kind') kind: string,
     @Param('ruleId') ruleId: string
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -1949,7 +1995,7 @@ export class MatrixController {
     @Param('ruleId') ruleId: string,
     @Body({ required: true })
     body: SetPushRuleActionsBody
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -1960,7 +2006,7 @@ export class MatrixController {
     @Param('ruleId') ruleId: string,
     @Body({ required: true })
     body: SetPushRuleEnabledBody
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -1969,7 +2015,9 @@ export class MatrixController {
     @QueryParam('kind') kind: string,
     @Body({ required: true })
     body: RegisterBody
-  ) {
+  ): Promise<
+    RegisterResponse | AuthenticationResponse | RegisterResponse429 | any
+  > {
     throw new HttpError(501);
   }
 
@@ -1977,7 +2025,11 @@ export class MatrixController {
   async checkUsernameAvailability(
     @QueryParam('username', { required: true })
     username: string
-  ) {
+  ): Promise<
+    | CheckUsernameAvailabilityResponse
+    | CheckUsernameAvailabilityResponse429
+    | any
+  > {
     throw new HttpError(501);
   }
 
@@ -1986,7 +2038,7 @@ export class MatrixController {
     @Param('roomId') roomId: string,
     @Body({ required: true })
     body: BanBody
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -1996,7 +2048,7 @@ export class MatrixController {
     @Param('eventId') eventId: string,
     @QueryParam('limit', { required: true })
     limit: number
-  ) {
+  ): Promise<GetEventContextResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2004,17 +2056,21 @@ export class MatrixController {
   async getOneRoomEvent(
     @Param('roomId') roomId: string,
     @Param('eventId') eventId: string
-  ) {
+  ): Promise<EventResponse | any> {
     throw new HttpError(501);
   }
 
   @Post('/rooms/{roomId}/forget')
-  async forgetRoom(@Param('roomId') roomId: string) {
+  async forgetRoom(
+    @Param('roomId') roomId: string
+  ): Promise<ForgetRoomResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/rooms/{roomId}/initialSync')
-  async roomInitialSync(@Param('roomId') roomId: string) {
+  async roomInitialSync(
+    @Param('roomId') roomId: string
+  ): Promise<RoomInfoResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2023,7 +2079,7 @@ export class MatrixController {
     @Param('roomId') roomId: string,
     @Body({ required: true })
     body: InviteBy3PIDBody
-  ) {
+  ): Promise<InviteBy3PIDResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2032,7 +2088,7 @@ export class MatrixController {
     @Param('roomId') roomId: string,
     @Body({ required: true })
     body: InviteUserBody
-  ) {
+  ): Promise<InviteUserResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2041,12 +2097,14 @@ export class MatrixController {
     @Param('roomId') roomId: string,
     @Body({ required: true })
     body: JoinRoomByIdBody
-  ) {
+  ): Promise<JoinRoomByIdResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/rooms/{roomId}/joined_members')
-  async getJoinedMembersByRoom(@Param('roomId') roomId: string) {
+  async getJoinedMembersByRoom(
+    @Param('roomId') roomId: string
+  ): Promise<GetJoinedMembersByRoomResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2055,17 +2113,21 @@ export class MatrixController {
     @Param('roomId') roomId: string,
     @Body({ required: true })
     body: KickBody
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
   @Post('/rooms/{roomId}/leave')
-  async leaveRoom(@Param('roomId') roomId: string) {
+  async leaveRoom(
+    @Param('roomId') roomId: string
+  ): Promise<LeaveRoomResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/rooms/{roomId}/members')
-  async getMembersByRoom(@Param('roomId') roomId: string) {
+  async getMembersByRoom(
+    @Param('roomId') roomId: string
+  ): Promise<GetMembersByRoomResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2081,7 +2143,7 @@ export class MatrixController {
     limit: number,
     @QueryParam('filter', { required: true })
     filter: string
-  ) {
+  ): Promise<GetRoomEventsResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2092,7 +2154,7 @@ export class MatrixController {
     @Param('eventId') eventId: string,
     @Body({ required: true })
     body: any
-  ) {
+  ): Promise<PostReceiptResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2103,7 +2165,7 @@ export class MatrixController {
     @Param('txnId') txnId: string,
     @Body({ required: true })
     body: RedactEventBody
-  ) {
+  ): Promise<RedactEventResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2114,12 +2176,14 @@ export class MatrixController {
     @Param('txnId') txnId: string,
     @Body({ required: true })
     body: any
-  ) {
+  ): Promise<SendMessageResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/rooms/{roomId}/state')
-  async getRoomState(@Param('roomId') roomId: string) {
+  async getRoomState(
+    @Param('roomId') roomId: string
+  ): Promise<StateEvent[] | any> {
     throw new HttpError(501);
   }
 
@@ -2127,7 +2191,7 @@ export class MatrixController {
   async getRoomStateByType(
     @Param('roomId') roomId: string,
     @Param('eventType') eventType: string
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -2137,7 +2201,7 @@ export class MatrixController {
     @Param('eventType') eventType: string,
     @Body({ required: true })
     body: any
-  ) {
+  ): Promise<SetRoomStateResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2146,7 +2210,7 @@ export class MatrixController {
     @Param('roomId') roomId: string,
     @Param('eventType') eventType: string,
     @Param('stateKey') stateKey: string
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -2157,7 +2221,7 @@ export class MatrixController {
     @Param('stateKey') stateKey: string,
     @Body({ required: true })
     body: any
-  ) {
+  ): Promise<SetRoomStateWithKeyResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2167,7 +2231,7 @@ export class MatrixController {
     @Param('roomId') roomId: string,
     @Body({ required: true })
     body: SetTypingBody
-  ) {
+  ): Promise<SetTypingResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2176,7 +2240,7 @@ export class MatrixController {
     @Param('roomId') roomId: string,
     @Body({ required: true })
     body: UnbanBody
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -2186,7 +2250,7 @@ export class MatrixController {
     nextBatch: string,
     @Body({ required: true })
     body: SearchBody
-  ) {
+  ): Promise<ResultsResponse | SearchResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2196,7 +2260,7 @@ export class MatrixController {
     @Param('txnId') txnId: string,
     @Body({ required: true })
     body: SendToDeviceBody
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -2212,7 +2276,7 @@ export class MatrixController {
     setPresence: string,
     @QueryParam('timeout', { required: true })
     timeout: number
-  ) {
+  ): Promise<SyncResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2222,7 +2286,7 @@ export class MatrixController {
     @Param('type') type: string,
     @Body({ required: true })
     body: any
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -2231,7 +2295,7 @@ export class MatrixController {
     @Param('userId') userId: string,
     @Body({ required: true })
     body: DefineFilterBody
-  ) {
+  ): Promise<DefineFilterResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2239,7 +2303,7 @@ export class MatrixController {
   async getFilter(
     @Param('userId') userId: string,
     @Param('filterId') filterId: string
-  ) {
+  ): Promise<GetFilterResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2250,7 +2314,7 @@ export class MatrixController {
     @Param('type') type: string,
     @Body({ required: true })
     body: any
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -2258,7 +2322,7 @@ export class MatrixController {
   async getRoomTags(
     @Param('userId') userId: string,
     @Param('roomId') roomId: string
-  ) {
+  ): Promise<GetRoomTagsResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2269,7 +2333,7 @@ export class MatrixController {
     @Param('tag') tag: string,
     @Body({ required: true })
     body: any
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -2278,7 +2342,7 @@ export class MatrixController {
     @Param('userId') userId: string,
     @Param('roomId') roomId: string,
     @Param('tag') tag: string
-  ) {
+  ): Promise<any> {
     throw new HttpError(501);
   }
 
@@ -2286,12 +2350,16 @@ export class MatrixController {
   async searchUserDirectory(
     @Body({ required: true })
     body: SearchUserDirectoryBody
-  ) {
+  ): Promise<
+    SearchUserDirectoryResponse | SearchUserDirectoryResponse429 | any
+  > {
     throw new HttpError(501);
   }
 
   @Get('/voip/turnServer')
-  async getTurnServer() {
+  async getTurnServer(): Promise<
+    GetTurnServerResponse | GetTurnServerResponse429 | any
+  > {
     throw new HttpError(501);
   }
 }
@@ -2302,7 +2370,7 @@ export class MatrixMediaController {
   async getContent(
     @Param('serverName') serverName: string,
     @Param('mediaId') mediaId: string
-  ) {
+  ): Promise<GetContentResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2311,7 +2379,7 @@ export class MatrixMediaController {
     @Param('serverName') serverName: string,
     @Param('mediaId') mediaId: string,
     @Param('fileName') fileName: string
-  ) {
+  ): Promise<GetContentOverrideNameResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2321,7 +2389,7 @@ export class MatrixMediaController {
     url: string,
     @QueryParam('ts', { required: true })
     ts: number
-  ) {
+  ): Promise<GetUrlPreviewResponse | GetUrlPreviewResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2335,7 +2403,7 @@ export class MatrixMediaController {
     height: number,
     @QueryParam('method', { required: true })
     method: string
-  ) {
+  ): Promise<GetContentThumbnailResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2347,7 +2415,7 @@ export class MatrixMediaController {
     filename: string,
     @Body({ required: true })
     body: string
-  ) {
+  ): Promise<UploadContentResponse | UploadContentResponse429 | any> {
     throw new HttpError(501);
   }
 }
