@@ -14,1640 +14,20 @@ import {
   QueryParam,
   HeaderParam
 } from 'routing-controllers';
-import {
-  IsDefined,
-  IsNotEmpty,
-  IsInstance,
-  Allow,
-  ValidateNested,
-  IsString,
-  IsInt,
-  IsBoolean,
-  IsArray
-} from 'class-validator';
-import { Type } from 'class-transformer';
 
-export class ThirdPartyIdentifierResponse {
-  @IsString() address?: string;
-
-  @IsString() medium?: string;
-}
-export class GetAccount3PIDsResponse {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ThirdPartyIdentifierResponse)
-  threepids?: ThirdPartyIdentifierResponse[];
-}
-export class ThreePidCredentials {
-  @IsDefined()
-  @IsString()
-  client_secret?: string;
-
-  @IsDefined()
-  @IsString()
-  id_server?: string;
-
-  @IsDefined()
-  @IsString()
-  sid?: string;
-}
-export class Post3PIDsBody {
-  @IsBoolean() bind?: boolean;
-
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => ThreePidCredentials)
-  three_pid_creds?: ThreePidCredentials;
-}
-export class AuthenticationData {
-  @IsString() session?: string;
-
-  @IsDefined()
-  @IsString()
-  type?: string;
-}
-export class DeactivateAccountBody {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => AuthenticationData)
-  auth?: AuthenticationData;
-}
-export class Flows {
-  @IsDefined()
-  @IsArray()
-  @IsString({ each: true })
-  stages?: string[];
-}
-export class AuthenticationResponse {
-  @IsArray()
-  @IsString({ each: true })
-  completed?: string[];
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => Flows)
-  flows?: Flows[];
-
-  params?: any;
-
-  @IsString() session?: string;
-}
-export class DeactivateAccountResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class ChangePasswordBody {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => AuthenticationData)
-  auth?: AuthenticationData;
-
-  @IsDefined()
-  @IsString()
-  new_password?: string;
-}
-export class ChangePasswordResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetTokenOwnerResponse {
-  @IsDefined()
-  @IsString()
-  user_id?: string;
-}
-export class GetTokenOwnerResponse401 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetTokenOwnerResponse403 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetTokenOwnerResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetWhoIsResponse {
-  devices?: any;
-
-  @IsString() user_id?: string;
-}
-export class StateEvent {
-  prev_content?: any;
-
-  @IsDefined()
-  @IsString()
-  state_key?: string;
-}
-export class Invite3pid {
-  @IsDefined()
-  @IsString()
-  address?: string;
-
-  @IsDefined()
-  @IsString()
-  id_server?: string;
-
-  @IsDefined()
-  @IsString()
-  medium?: string;
-}
-export class CreateRoomBody {
-  creation_content?: any;
-
-  @IsBoolean() guest_can_join?: boolean;
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => StateEvent)
-  initial_state?: StateEvent[];
-
-  @IsArray()
-  @IsString({ each: true })
-  invite?: string[];
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => Invite3pid)
-  invite_3pid?: Invite3pid[];
-
-  @IsBoolean() is_direct?: boolean;
-
-  @IsString() name?: string;
-
-  @IsString() preset?: string;
-
-  @IsString() room_alias_name?: string;
-
-  @IsString() topic?: string;
-
-  @IsString() visibility?: string;
-}
-export class CreateRoomResponse {
-  @IsString() room_id?: string;
-}
-export class DeleteDevicesBody {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => AuthenticationData)
-  auth?: AuthenticationData;
-
-  @IsDefined()
-  @IsArray()
-  @IsString({ each: true })
-  devices?: string[];
-}
-export class DeviceResponse {
-  @IsDefined()
-  @IsString()
-  device_id?: string;
-
-  @IsString() display_name?: string;
-
-  @IsString() last_seen_ip?: string;
-
-  @IsInt() last_seen_ts?: number;
-}
-export class GetDevicesResponse {
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => DeviceResponse)
-  devices?: DeviceResponse[];
-}
-export class UpdateDeviceBody {
-  @IsString() display_name?: string;
-}
-export class DeleteDeviceBody {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => AuthenticationData)
-  auth?: AuthenticationData;
-}
-export class SetRoomAliasBody {
-  @IsString() room_id?: string;
-}
-export class GetRoomIdByAliasResponse {
-  @IsString() room_id?: string;
-
-  @IsArray()
-  @IsString({ each: true })
-  servers?: string[];
-}
-export class UnsignedDataResponse {
-  @IsInt() age?: number;
-
-  redacted_because?: any;
-
-  @IsString() transaction_id?: string;
-}
-export class EventResponse {
-  content?: any;
-
-  @IsDefined()
-  @IsString()
-  type?: string;
-}
-export class GetEventsResponse {
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => EventResponse)
-  chunk?: EventResponse[];
-
-  @IsString() end?: string;
-
-  @IsString() start?: string;
-}
-export class SignedResponse {
-  @IsDefined()
-  @IsString()
-  mxid?: string;
-
-  @IsDefined() signatures?: any;
-
-  @IsDefined()
-  @IsString()
-  token?: string;
-}
-export class InviteResponse {
-  @IsDefined()
-  @IsString()
-  display_name?: string;
-
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => SignedResponse)
-  signed?: SignedResponse;
-}
-export class EventContentResponse {
-  @IsString() avatar_url?: string;
-
-  displayname?: any;
-
-  @IsBoolean() is_direct?: boolean;
-
-  @IsDefined()
-  @IsString()
-  membership?: string;
-
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => InviteResponse)
-  third_party_invite?: InviteResponse;
-}
-export class StrippedStateResponse {
-  @IsDefined() content?: any;
-
-  @IsDefined()
-  @IsString()
-  state_key?: string;
-
-  @IsDefined()
-  @IsString()
-  type?: string;
-}
-export class InviteEventResponse {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => EventContentResponse)
-  content?: EventContentResponse;
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => StrippedStateResponse)
-  invite_room_state?: StrippedStateResponse[];
-
-  @IsDefined()
-  @IsString()
-  state_key?: string;
-
-  @IsString() type?: string;
-
-  prev_content?: any;
-}
-export class RoomEventResponse {
-  @IsDefined()
-  @IsString()
-  event_id?: string;
-
-  @IsDefined() origin_server_ts?: number;
-
-  @IsDefined()
-  @IsString()
-  room_id?: string;
-
-  @IsDefined()
-  @IsString()
-  sender?: string;
-
-  @ValidateNested()
-  @Type(() => UnsignedDataResponse)
-  unsigned?: UnsignedDataResponse;
-}
-export class PaginationChunkResponse {
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => RoomEventResponse)
-  chunk?: RoomEventResponse[];
-
-  @IsDefined()
-  @IsString()
-  end?: string;
-
-  @IsDefined()
-  @IsString()
-  start?: string;
-}
-export class StateEventResponse {
-  prev_content?: any;
-
-  @IsDefined()
-  @IsString()
-  state_key?: string;
-}
-export class RoomInfoResponse {
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => EventResponse)
-  account_data?: EventResponse[];
-
-  @IsString() membership?: string;
-
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => PaginationChunkResponse)
-  messages?: PaginationChunkResponse;
-
-  @IsDefined()
-  @IsString()
-  room_id?: string;
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => StateEventResponse)
-  state?: StateEventResponse[];
-
-  @IsString() visibility?: string;
-}
-export class InitialSyncResponse {
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => EventResponse)
-  account_data?: EventResponse[];
-
-  @IsDefined()
-  @IsString()
-  end?: string;
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => EventResponse)
-  presence?: EventResponse[];
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => RoomInfoResponse)
-  rooms?: RoomInfoResponse[];
-}
-export class Signed {
-  @IsDefined()
-  @IsString()
-  mxid?: string;
-
-  @IsDefined()
-  @IsString()
-  sender?: string;
-
-  @IsDefined() signatures?: any;
-
-  @IsDefined()
-  @IsString()
-  token?: string;
-}
-export class ThirdPartySigned {
-  @IsDefined()
-  @IsString()
-  mxid?: string;
-
-  @IsDefined()
-  @IsString()
-  sender?: string;
-
-  @IsDefined() signatures?: any;
-
-  @IsDefined()
-  @IsString()
-  token?: string;
-}
-export class JoinRoomBody {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => ThirdPartySigned)
-  third_party_signed?: ThirdPartySigned;
-}
-export class JoinRoomResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetJoinedRoomsResponse {
-  @IsDefined()
-  @IsArray()
-  @IsString({ each: true })
-  joined_rooms?: string[];
-}
-export class GetKeysChangesResponse {
-  @IsArray()
-  @IsString({ each: true })
-  changed?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  left?: string[];
-}
-export class ClaimKeysBody {
-  @IsDefined() one_time_keys?: any;
-
-  @IsInt() timeout?: number;
-}
-export class ClaimKeysResponse {
-  failures?: any;
-
-  one_time_keys?: any;
-}
-export class QueryKeysBody {
-  @IsDefined() device_keys?: any;
-
-  @IsInt() timeout?: number;
-
-  @IsString() token?: string;
-}
-export class QueryKeysResponse {
-  device_keys?: any;
-
-  failures?: any;
-}
-export class DeviceKeys {
-  @IsDefined()
-  @IsArray()
-  @IsString({ each: true })
-  algorithms?: string[];
-
-  @IsDefined()
-  @IsString()
-  device_id?: string;
-
-  @IsDefined() keys?: any;
-
-  @IsDefined() signatures?: any;
-
-  @IsDefined()
-  @IsString()
-  user_id?: string;
-}
-export class UploadKeysBody {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => DeviceKeys)
-  device_keys?: DeviceKeys;
-
-  one_time_keys?: any;
-}
-export class UploadKeysResponse {
-  @IsDefined() one_time_key_counts?: any;
-}
-export class LoginBody {
-  @IsString() address?: string;
-
-  @IsString() device_id?: string;
-
-  @IsString() initial_device_display_name?: string;
-
-  @IsString() medium?: string;
-
-  @IsString() password?: string;
-
-  @IsString() token?: string;
-
-  @IsDefined()
-  @IsString()
-  type?: string;
-
-  @IsString() user?: string;
-}
-export class LoginResponse {
-  @IsString() access_token?: string;
-
-  @IsString() device_id?: string;
-
-  @IsString() home_server?: string;
-
-  @IsString() user_id?: string;
-}
-export class LoginResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class UnsignedResponse {
-  @IsInt() age?: number;
-
-  prev_content?: any;
-
-  redacted_because?: any;
-
-  @IsString() transaction_id?: string;
-}
-export class NotificationResponse {
-  @IsDefined()
-  @IsArray()
-  actions?: any[];
-
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => EventResponse)
-  event?: EventResponse;
-
-  @IsString() profile_tag?: string;
-
-  @IsDefined()
-  @IsBoolean()
-  read?: boolean;
-
-  @IsDefined()
-  @IsString()
-  room_id?: string;
-
-  @IsDefined()
-  @IsInt()
-  ts?: number;
-}
-export class GetNotificationsResponse {
-  @IsString() next_token?: string;
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => NotificationResponse)
-  notifications?: NotificationResponse[];
-}
-export class PresenceEvent {
-  content?: any;
-
-  @IsDefined()
-  @IsString()
-  type?: string;
-}
-export class ModifyPresenceListBody {
-  @IsArray()
-  @IsString({ each: true })
-  drop?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  invite?: string[];
-}
-export class ModifyPresenceListResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class SetPresenceBody {
-  @IsDefined()
-  @IsString()
-  presence?: string;
-
-  @IsString() status_msg?: string;
-}
-export class SetPresenceResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetPresenceResponse {
-  @IsBoolean() currently_active?: boolean;
-
-  @IsInt() last_active_ago?: number;
-
-  @IsDefined()
-  @IsString()
-  presence?: string;
-
-  status_msg?: any;
-}
-export class GetUserProfileResponse {
-  @IsString() avatar_url?: string;
-
-  @IsString() displayname?: string;
-}
-export class SetAvatarUrlBody {
-  @IsString() avatar_url?: string;
-}
-export class SetAvatarUrlResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetAvatarUrlResponse {
-  @IsString() avatar_url?: string;
-}
-export class SetDisplayNameBody {
-  @IsString() displayname?: string;
-}
-export class SetDisplayNameResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetDisplayNameResponse {
-  @IsString() displayname?: string;
-}
-export class PublicRoomsChunkResponse {
-  @IsArray()
-  @IsString({ each: true })
-  aliases?: string[];
-
-  @IsString() avatar_url?: string;
-
-  @IsString() canonical_alias?: string;
-
-  @IsDefined()
-  @IsBoolean()
-  guest_can_join?: boolean;
-
-  @IsString() name?: string;
-
-  @IsDefined() num_joined_members?: number;
-
-  @IsDefined()
-  @IsString()
-  room_id?: string;
-
-  @IsString() topic?: string;
-
-  @IsDefined()
-  @IsBoolean()
-  world_readable?: boolean;
-}
-export class GetPublicRoomsResponse {
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PublicRoomsChunkResponse)
-  chunk?: PublicRoomsChunkResponse[];
-
-  @IsString() next_batch?: string;
-
-  @IsString() prev_batch?: string;
-
-  total_room_count_estimate?: number;
-}
-export class Filter {
-  @IsInt() limit?: number;
-
-  @IsArray()
-  @IsString({ each: true })
-  not_senders?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  not_types?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  senders?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  types?: string[];
-}
-export class QueryPublicRoomsBody {
-  @ValidateNested()
-  @Type(() => Filter)
-  filter?: Filter;
-
-  limit?: number;
-
-  @IsString() since?: string;
-}
-export class QueryPublicRoomsResponse {
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PublicRoomsChunkResponse)
-  chunk?: PublicRoomsChunkResponse[];
-
-  @IsString() next_batch?: string;
-
-  @IsString() prev_batch?: string;
-
-  total_room_count_estimate?: number;
-}
-export class PusherDataResponse {
-  @IsString() url?: string;
-}
-export class PusherResponse {
-  @IsString() app_display_name?: string;
-
-  @IsString() app_id?: string;
-
-  @ValidateNested()
-  @Type(() => PusherDataResponse)
-  data?: PusherDataResponse;
-
-  @IsString() device_display_name?: string;
-
-  @IsString() kind?: string;
-
-  @IsString() lang?: string;
-
-  @IsString() profile_tag?: string;
-
-  @IsString() pushkey?: string;
-}
-export class GetPushersResponse {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PusherResponse)
-  pushers?: PusherResponse[];
-}
-export class PusherData {
-  @IsString() url?: string;
-}
-export class PostPusherBody {
-  @IsDefined()
-  @IsString()
-  app_display_name?: string;
-
-  @IsDefined()
-  @IsString()
-  app_id?: string;
-
-  @IsBoolean() append?: boolean;
-
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => PusherData)
-  data?: PusherData;
-
-  @IsDefined()
-  @IsString()
-  device_display_name?: string;
-
-  @IsDefined()
-  @IsString()
-  kind?: string;
-
-  @IsDefined()
-  @IsString()
-  lang?: string;
-
-  @IsString() profile_tag?: string;
-
-  @IsDefined()
-  @IsString()
-  pushkey?: string;
-}
-export class PostPusherResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class PushConditionResponse {
-  @IsString() is?: string;
-
-  @IsString() key?: string;
-
-  @IsDefined()
-  @IsString()
-  kind?: string;
-
-  @IsString() pattern?: string;
-}
-export class PushRuleResponse {
-  @IsDefined()
-  @IsArray()
-  actions?: any[];
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PushConditionResponse)
-  conditions?: PushConditionResponse[];
-
-  @IsDefined()
-  @IsBoolean()
-  default?: boolean;
-
-  @IsDefined()
-  @IsBoolean()
-  enabled?: boolean;
-
-  @IsString() pattern?: string;
-
-  @IsDefined()
-  @IsString()
-  rule_id?: string;
-}
-export class RulesetResponse {
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PushRuleResponse)
-  content?: PushRuleResponse[];
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PushRuleResponse)
-  override?: PushRuleResponse[];
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PushRuleResponse)
-  room?: PushRuleResponse[];
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PushRuleResponse)
-  sender?: PushRuleResponse[];
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PushRuleResponse)
-  underride?: PushRuleResponse[];
-}
-export class GetPushRulesResponse {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => RulesetResponse)
-  global?: RulesetResponse;
-}
-export class PushCondition {
-  @IsString() is?: string;
-
-  @IsString() key?: string;
-
-  @IsDefined()
-  @IsString()
-  kind?: string;
-
-  @IsString() pattern?: string;
-}
-export class SetPushRuleBody {
-  @IsDefined()
-  @IsArray()
-  @IsString({ each: true })
-  actions?: string[];
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => PushCondition)
-  conditions?: PushCondition[];
-
-  @IsString() pattern?: string;
-}
-export class SetPushRuleResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class SetPushRuleActionsBody {
-  @IsDefined()
-  @IsArray()
-  @IsString({ each: true })
-  actions?: string[];
-}
-export class SetPushRuleEnabledBody {
-  @IsDefined()
-  @IsBoolean()
-  enabled?: boolean;
-}
-export class RegisterBody {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => AuthenticationData)
-  auth?: AuthenticationData;
-
-  @IsBoolean() bind_email?: boolean;
-
-  @IsString() device_id?: string;
-
-  @IsString() initial_device_display_name?: string;
-
-  @IsString() password?: string;
-
-  @IsString() username?: string;
-}
-export class RegisterResponse {
-  @IsString() access_token?: string;
-
-  @IsString() device_id?: string;
-
-  @IsString() home_server?: string;
-
-  @IsString() user_id?: string;
-}
-export class RegisterResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class CheckUsernameAvailabilityResponse {
-  @IsBoolean() available?: boolean;
-}
-export class CheckUsernameAvailabilityResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class BanBody {
-  @IsString() reason?: string;
-
-  @IsDefined()
-  @IsString()
-  user_id?: string;
-}
-export class GetEventContextResponse {
-  @IsString() end?: string;
-
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => RoomEventResponse)
-  event?: RoomEventResponse;
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => RoomEventResponse)
-  events_after?: RoomEventResponse[];
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => RoomEventResponse)
-  events_before?: RoomEventResponse[];
-
-  @IsString() start?: string;
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => StateEventResponse)
-  state?: StateEventResponse[];
-}
-export class ForgetRoomResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class InviteBy3PIDBody {
-  @IsDefined()
-  @IsString()
-  address?: string;
-
-  @IsDefined()
-  @IsString()
-  id_server?: string;
-
-  @IsDefined()
-  @IsString()
-  medium?: string;
-}
-export class InviteBy3PIDResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class InviteUserBody {
-  @IsDefined()
-  @IsString()
-  user_id?: string;
-}
-export class InviteUserResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class JoinRoomByIdBody {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => ThirdPartySigned)
-  third_party_signed?: ThirdPartySigned;
-}
-export class JoinRoomByIdResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetJoinedMembersByRoomResponse {
-  joined?: any;
-}
-export class KickBody {
-  @IsString() reason?: string;
-
-  @IsDefined()
-  @IsString()
-  user_id?: string;
-}
-export class LeaveRoomResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class MemberEventResponse {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => EventContentResponse)
-  content?: EventContentResponse;
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => StrippedStateResponse)
-  invite_room_state?: StrippedStateResponse[];
-
-  @IsDefined()
-  @IsString()
-  state_key?: string;
-
-  @IsString() type?: string;
-
-  prev_content?: any;
-}
-export class GetMembersByRoomResponse {
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => MemberEventResponse)
-  chunk?: MemberEventResponse[];
-}
-export class GetRoomEventsResponse {
-  @IsArray() chunk?: any[];
-
-  @IsString() end?: string;
-
-  @IsString() start?: string;
-}
-export class PostReceiptResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class RedactEventBody {
-  @IsString() reason?: string;
-}
-export class RedactEventResponse {
-  @IsString() event_id?: string;
-}
-export class SendMessageResponse {
-  @IsString() event_id?: string;
-}
-export class SetRoomStateResponse {
-  @IsString() event_id?: string;
-}
-export class SetRoomStateWithKeyResponse {
-  @IsString() event_id?: string;
-}
-export class SetTypingBody {
-  @IsInt() timeout?: number;
-
-  @IsDefined()
-  @IsBoolean()
-  typing?: boolean;
-}
-export class SetTypingResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class UnbanBody {
-  @IsDefined()
-  @IsString()
-  user_id?: string;
-}
-export class EventContext {
-  @IsInt() after_limit?: number;
-
-  @IsInt() before_limit?: number;
-
-  @IsBoolean() include_profile?: boolean;
-}
-export class Group {
-  @IsString() key?: string;
-}
-export class Groupings {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => Group)
-  group_by?: Group[];
-}
-export class RoomEvents {
-  @ValidateNested()
-  @Type(() => EventContext)
-  event_context?: EventContext;
-
-  filter?: any;
-
-  @ValidateNested()
-  @Type(() => Groupings)
-  groupings?: Groupings;
-
-  @IsBoolean() include_state?: boolean;
-
-  @IsArray()
-  @IsString({ each: true })
-  keys?: string[];
-
-  @IsString() order_by?: string;
-
-  @IsDefined()
-  @IsString()
-  search_term?: string;
-}
-export class Categories {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => RoomEvents)
-  room_events?: RoomEvents;
-}
-export class SearchBody {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => Categories)
-  search_categories?: Categories;
-}
-export class EventContextResponse {
-  @IsString() end?: string;
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => EventResponse)
-  events_after?: EventResponse[];
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => EventResponse)
-  events_before?: EventResponse[];
-
-  profile_info?: any;
-
-  @IsString() start?: string;
-}
-export class ResultResponse {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => EventContextResponse)
-  context?: EventContextResponse;
-
-  rank?: number;
-
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => EventResponse)
-  result?: EventResponse;
-}
-export class RoomEventResultsResponse {
-  count?: number;
-
-  groups?: any;
-
-  @IsString() next_batch?: string;
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ResultResponse)
-  results?: ResultResponse[];
-
-  state?: any;
-}
-export class CategoriesResponse {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => RoomEventResultsResponse)
-  room_events?: RoomEventResultsResponse;
-}
-export class ResultsResponse {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => CategoriesResponse)
-  search_categories?: CategoriesResponse;
-}
-export class SearchResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class SendToDeviceBody {
-  messages?: any;
-}
-export class AccountDataResponse {
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => EventResponse)
-  events?: EventResponse[];
-}
-export class PresenceResponse {
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => EventResponse)
-  events?: EventResponse[];
-}
-export class RoomsResponse {
-  invite?: any;
-
-  join?: any;
-
-  leave?: any;
-}
-export class SyncResponse {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => AccountDataResponse)
-  account_data?: AccountDataResponse;
-
-  device_lists?: any;
-
-  @IsString() next_batch?: string;
-
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => PresenceResponse)
-  presence?: PresenceResponse;
-
-  @ValidateNested()
-  @Type(() => RoomsResponse)
-  rooms?: RoomsResponse;
-
-  to_device?: any;
-}
-export class RoomEventFilter {
-  @IsBoolean() contains_url?: boolean;
-
-  @IsArray()
-  @IsString({ each: true })
-  not_rooms?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  rooms?: string[];
-
-  @IsInt() limit?: number;
-
-  @IsArray()
-  @IsString({ each: true })
-  not_senders?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  not_types?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  senders?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  types?: string[];
-}
-export class RoomFilter {
-  @ValidateNested()
-  @Type(() => RoomEventFilter)
-  account_data?: RoomEventFilter;
-
-  @ValidateNested()
-  @Type(() => RoomEventFilter)
-  ephemeral?: RoomEventFilter;
-
-  @IsBoolean() include_leave?: boolean;
-
-  @IsArray()
-  @IsString({ each: true })
-  not_rooms?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  rooms?: string[];
-
-  @ValidateNested()
-  @Type(() => RoomEventFilter)
-  state?: RoomEventFilter;
-
-  @ValidateNested()
-  @Type(() => RoomEventFilter)
-  timeline?: RoomEventFilter;
-}
-export class DefineFilterBody {
-  @ValidateNested()
-  @Type(() => Filter)
-  account_data?: Filter;
-
-  @IsArray()
-  @IsString({ each: true })
-  event_fields?: string[];
-
-  @IsString() event_format?: string;
-
-  @ValidateNested()
-  @Type(() => Filter)
-  presence?: Filter;
-
-  @ValidateNested()
-  @Type(() => RoomFilter)
-  room?: RoomFilter;
-}
-export class DefineFilterResponse {
-  @IsString() filter_id?: string;
-}
-export class FilterResponse {
-  @IsInt() limit?: number;
-
-  @IsArray()
-  @IsString({ each: true })
-  not_senders?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  not_types?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  senders?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  types?: string[];
-}
-export class RoomEventFilterResponse {
-  @IsBoolean() contains_url?: boolean;
-
-  @IsArray()
-  @IsString({ each: true })
-  not_rooms?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  rooms?: string[];
-
-  @IsInt() limit?: number;
-
-  @IsArray()
-  @IsString({ each: true })
-  not_senders?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  not_types?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  senders?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  types?: string[];
-}
-export class RoomFilterResponse {
-  @ValidateNested()
-  @Type(() => RoomEventFilterResponse)
-  account_data?: RoomEventFilterResponse;
-
-  @ValidateNested()
-  @Type(() => RoomEventFilterResponse)
-  ephemeral?: RoomEventFilterResponse;
-
-  @IsBoolean() include_leave?: boolean;
-
-  @IsArray()
-  @IsString({ each: true })
-  not_rooms?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  rooms?: string[];
-
-  @ValidateNested()
-  @Type(() => RoomEventFilterResponse)
-  state?: RoomEventFilterResponse;
-
-  @ValidateNested()
-  @Type(() => RoomEventFilterResponse)
-  timeline?: RoomEventFilterResponse;
-}
-export class GetFilterResponse {
-  @ValidateNested()
-  @Type(() => FilterResponse)
-  account_data?: FilterResponse;
-
-  @IsArray()
-  @IsString({ each: true })
-  event_fields?: string[];
-
-  @IsString() event_format?: string;
-
-  @ValidateNested()
-  @Type(() => FilterResponse)
-  presence?: FilterResponse;
-
-  @ValidateNested()
-  @Type(() => RoomFilterResponse)
-  room?: RoomFilterResponse;
-}
-export class GetRoomTagsResponse {
-  tags?: any;
-}
-export class SearchUserDirectoryBody {
-  limit?: number;
-
-  @IsDefined()
-  @IsString()
-  search_term?: string;
-}
-export class UserResponse {
-  @IsString() avatar_url?: string;
-
-  @IsString() display_name?: string;
-
-  @IsDefined()
-  @IsString()
-  user_id?: string;
-}
-export class SearchUserDirectoryResponse {
-  @IsDefined()
-  @IsBoolean()
-  limited?: boolean;
-
-  @IsDefined()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => UserResponse)
-  results?: UserResponse[];
-}
-export class SearchUserDirectoryResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetTurnServerResponse {
-  @IsDefined()
-  @IsString()
-  password?: string;
-
-  @IsDefined()
-  @IsInt()
-  ttl?: number;
-
-  @IsDefined()
-  @IsArray()
-  @IsString({ each: true })
-  uris?: string[];
-
-  @IsDefined()
-  @IsString()
-  username?: string;
-}
-export class GetTurnServerResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetVersionsResponse {
-  @IsArray()
-  @IsString({ each: true })
-  versions?: string[];
-}
-export class GetContentResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetContentOverrideNameResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetUrlPreviewResponse {
-  'matrix:image:size': number;
-
-  @IsString() 'og:image': string;
-}
-export class GetUrlPreviewResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class GetContentThumbnailResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
-export class UploadContentResponse {
-  @IsDefined()
-  @IsString()
-  content_uri?: string;
-}
-export class UploadContentResponse429 {
-  @IsDefined()
-  @IsString()
-  errcode?: string;
-
-  @IsString() error?: string;
-}
+import * as dto from './dto';
 
 @JsonController('/_matrix/client/r0')
 export class MatrixController {
   @Get('/account/3pid')
-  async getAccount3PIDs(): Promise<GetAccount3PIDsResponse | any> {
+  async getAccount3PIDs(): Promise<dto.GetAccount3PIDsResponse | any> {
     throw new HttpError(501);
   }
 
   @Post('/account/3pid')
   async post3PIDs(
     @Body({ required: true })
-    body: Post3PIDsBody
+    body: dto.Post3PIDsBody
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -1655,25 +35,27 @@ export class MatrixController {
   @Post('/account/deactivate')
   async deactivateAccount(
     @Body({ required: true })
-    body: DeactivateAccountBody
-  ): Promise<AuthenticationResponse | DeactivateAccountResponse429 | any> {
+    body: dto.DeactivateAccountBody
+  ): Promise<
+    dto.AuthenticationResponse | dto.DeactivateAccountResponse429 | any
+  > {
     throw new HttpError(501);
   }
 
   @Post('/account/password')
   async changePassword(
     @Body({ required: true })
-    body: ChangePasswordBody
-  ): Promise<AuthenticationResponse | ChangePasswordResponse429 | any> {
+    body: dto.ChangePasswordBody
+  ): Promise<dto.AuthenticationResponse | dto.ChangePasswordResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/account/whoami')
   async getTokenOwner(): Promise<
-    | GetTokenOwnerResponse
-    | GetTokenOwnerResponse401
-    | GetTokenOwnerResponse403
-    | GetTokenOwnerResponse429
+    | dto.GetTokenOwnerResponse
+    | dto.GetTokenOwnerResponse401
+    | dto.GetTokenOwnerResponse403
+    | dto.GetTokenOwnerResponse429
     | any
   > {
     throw new HttpError(501);
@@ -1682,35 +64,35 @@ export class MatrixController {
   @Get('/admin/whois/{userId}')
   async getWhoIs(
     @Param('userId') userId: string
-  ): Promise<GetWhoIsResponse | any> {
+  ): Promise<dto.GetWhoIsResponse | any> {
     throw new HttpError(501);
   }
 
   @Post('/createRoom')
   async createRoom(
     @Body({ required: true })
-    body: CreateRoomBody
-  ): Promise<CreateRoomResponse | any> {
+    body: dto.CreateRoomBody
+  ): Promise<dto.CreateRoomResponse | any> {
     throw new HttpError(501);
   }
 
   @Post('/delete_devices')
   async deleteDevices(
     @Body({ required: true })
-    body: DeleteDevicesBody
-  ): Promise<AuthenticationResponse | any> {
+    body: dto.DeleteDevicesBody
+  ): Promise<dto.AuthenticationResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/devices')
-  async getDevices(): Promise<GetDevicesResponse | any> {
+  async getDevices(): Promise<dto.GetDevicesResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/devices/{deviceId}')
   async getDevice(
     @Param('deviceId') deviceId: string
-  ): Promise<DeviceResponse | any> {
+  ): Promise<dto.DeviceResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1718,7 +100,7 @@ export class MatrixController {
   async updateDevice(
     @Param('deviceId') deviceId: string,
     @Body({ required: true })
-    body: UpdateDeviceBody
+    body: dto.UpdateDeviceBody
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -1727,15 +109,15 @@ export class MatrixController {
   async deleteDevice(
     @Param('deviceId') deviceId: string,
     @Body({ required: true })
-    body: DeleteDeviceBody
-  ): Promise<AuthenticationResponse | any> {
+    body: dto.DeleteDeviceBody
+  ): Promise<dto.AuthenticationResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/directory/room/{roomAlias}')
   async getRoomIdByAlias(
     @Param('roomAlias') roomAlias: string
-  ): Promise<GetRoomIdByAliasResponse | any> {
+  ): Promise<dto.GetRoomIdByAliasResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1743,7 +125,7 @@ export class MatrixController {
   async setRoomAlias(
     @Param('roomAlias') roomAlias: string,
     @Body({ required: true })
-    body: SetRoomAliasBody
+    body: dto.SetRoomAliasBody
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -1757,14 +139,14 @@ export class MatrixController {
   async getEvents(
     @QueryParam('from') from: string,
     @QueryParam('timeout') timeout: number
-  ): Promise<GetEventsResponse | any> {
+  ): Promise<dto.GetEventsResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/events/{eventId}')
   async getOneEvent(
     @Param('eventId') eventId: string
-  ): Promise<EventResponse | any> {
+  ): Promise<dto.EventResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1772,7 +154,7 @@ export class MatrixController {
   async initialSync(
     @QueryParam('limit') limit: number,
     @QueryParam('archived') archived: boolean
-  ): Promise<InitialSyncResponse | any> {
+  ): Promise<dto.InitialSyncResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1780,13 +162,13 @@ export class MatrixController {
   async joinRoom(
     @Param('roomIdOrAlias') roomIdOrAlias: string,
     @Body({ required: true })
-    body: JoinRoomBody
-  ): Promise<JoinRoomResponse429 | any> {
+    body: dto.JoinRoomBody
+  ): Promise<dto.JoinRoomResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/joined_rooms')
-  async getJoinedRooms(): Promise<GetJoinedRoomsResponse | any> {
+  async getJoinedRooms(): Promise<dto.GetJoinedRoomsResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1796,39 +178,39 @@ export class MatrixController {
     from: string,
     @QueryParam('to', { required: true })
     to: string
-  ): Promise<GetKeysChangesResponse | any> {
+  ): Promise<dto.GetKeysChangesResponse | any> {
     throw new HttpError(501);
   }
 
   @Post('/keys/claim')
   async claimKeys(
     @Body({ required: true })
-    body: ClaimKeysBody
-  ): Promise<ClaimKeysResponse | any> {
+    body: dto.ClaimKeysBody
+  ): Promise<dto.ClaimKeysResponse | any> {
     throw new HttpError(501);
   }
 
   @Post('/keys/query')
   async queryKeys(
     @Body({ required: true })
-    body: QueryKeysBody
-  ): Promise<QueryKeysResponse | any> {
+    body: dto.QueryKeysBody
+  ): Promise<dto.QueryKeysResponse | any> {
     throw new HttpError(501);
   }
 
   @Post('/keys/upload')
   async uploadKeys(
     @Body({ required: true })
-    body: UploadKeysBody
-  ): Promise<UploadKeysResponse | any> {
+    body: dto.UploadKeysBody
+  ): Promise<dto.UploadKeysResponse | any> {
     throw new HttpError(501);
   }
 
   @Post('/login')
   async login(
     @Body({ required: true })
-    body: LoginBody
-  ): Promise<LoginResponse | LoginResponse429 | any> {
+    body: dto.LoginBody
+  ): Promise<dto.LoginResponse | dto.LoginResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -1842,14 +224,14 @@ export class MatrixController {
     @QueryParam('from') from: string,
     @QueryParam('limit') limit: number,
     @QueryParam('only') only: string
-  ): Promise<GetNotificationsResponse | any> {
+  ): Promise<dto.GetNotificationsResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/presence/list/{userId}')
   async getPresenceForList(
     @Param('userId') userId: string
-  ): Promise<PresenceEvent[] | any> {
+  ): Promise<dto.PresenceEvent[] | any> {
     throw new HttpError(501);
   }
 
@@ -1857,15 +239,15 @@ export class MatrixController {
   async modifyPresenceList(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: ModifyPresenceListBody
-  ): Promise<ModifyPresenceListResponse429 | any> {
+    body: dto.ModifyPresenceListBody
+  ): Promise<dto.ModifyPresenceListResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/presence/{userId}/status')
   async getPresence(
     @Param('userId') userId: string
-  ): Promise<GetPresenceResponse | any> {
+  ): Promise<dto.GetPresenceResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1873,22 +255,22 @@ export class MatrixController {
   async setPresence(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: SetPresenceBody
-  ): Promise<SetPresenceResponse429 | any> {
+    body: dto.SetPresenceBody
+  ): Promise<dto.SetPresenceResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/profile/{userId}')
   async getUserProfile(
     @Param('userId') userId: string
-  ): Promise<GetUserProfileResponse | any> {
+  ): Promise<dto.GetUserProfileResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/profile/{userId}/avatar_url')
   async getAvatarUrl(
     @Param('userId') userId: string
-  ): Promise<GetAvatarUrlResponse | any> {
+  ): Promise<dto.GetAvatarUrlResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1896,15 +278,15 @@ export class MatrixController {
   async setAvatarUrl(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: SetAvatarUrlBody
-  ): Promise<SetAvatarUrlResponse429 | any> {
+    body: dto.SetAvatarUrlBody
+  ): Promise<dto.SetAvatarUrlResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/profile/{userId}/displayname')
   async getDisplayName(
     @Param('userId') userId: string
-  ): Promise<GetDisplayNameResponse | any> {
+  ): Promise<dto.GetDisplayNameResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1912,8 +294,8 @@ export class MatrixController {
   async setDisplayName(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: SetDisplayNameBody
-  ): Promise<SetDisplayNameResponse429 | any> {
+    body: dto.SetDisplayNameBody
+  ): Promise<dto.SetDisplayNameResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -1925,7 +307,7 @@ export class MatrixController {
     since: string,
     @QueryParam('server', { required: true })
     server: string
-  ): Promise<GetPublicRoomsResponse | any> {
+  ): Promise<dto.GetPublicRoomsResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1934,26 +316,26 @@ export class MatrixController {
     @QueryParam('server', { required: true })
     server: string,
     @Body({ required: true })
-    body: QueryPublicRoomsBody
-  ): Promise<QueryPublicRoomsResponse | any> {
+    body: dto.QueryPublicRoomsBody
+  ): Promise<dto.QueryPublicRoomsResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/pushers')
-  async getPushers(): Promise<GetPushersResponse | any> {
+  async getPushers(): Promise<dto.GetPushersResponse | any> {
     throw new HttpError(501);
   }
 
   @Post('/pushers/set')
   async postPusher(
     @Body({ required: true })
-    body: PostPusherBody
-  ): Promise<PostPusherResponse429 | any> {
+    body: dto.PostPusherBody
+  ): Promise<dto.PostPusherResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/pushrules/')
-  async getPushRules(): Promise<GetPushRulesResponse | any> {
+  async getPushRules(): Promise<dto.GetPushRulesResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1962,7 +344,7 @@ export class MatrixController {
     @Param('scope') scope: string,
     @Param('kind') kind: string,
     @Param('ruleId') ruleId: string
-  ): Promise<PushRuleResponse | any> {
+  ): Promise<dto.PushRuleResponse | any> {
     throw new HttpError(501);
   }
 
@@ -1974,8 +356,8 @@ export class MatrixController {
     @QueryParam('before') before: string,
     @QueryParam('after') after: string,
     @Body({ required: true })
-    body: SetPushRuleBody
-  ): Promise<SetPushRuleResponse429 | any> {
+    body: dto.SetPushRuleBody
+  ): Promise<dto.SetPushRuleResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -1994,7 +376,7 @@ export class MatrixController {
     @Param('kind') kind: string,
     @Param('ruleId') ruleId: string,
     @Body({ required: true })
-    body: SetPushRuleActionsBody
+    body: dto.SetPushRuleActionsBody
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -2005,7 +387,7 @@ export class MatrixController {
     @Param('kind') kind: string,
     @Param('ruleId') ruleId: string,
     @Body({ required: true })
-    body: SetPushRuleEnabledBody
+    body: dto.SetPushRuleEnabledBody
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -2014,9 +396,12 @@ export class MatrixController {
   async register(
     @QueryParam('kind') kind: string,
     @Body({ required: true })
-    body: RegisterBody
+    body: dto.RegisterBody
   ): Promise<
-    RegisterResponse | AuthenticationResponse | RegisterResponse429 | any
+    | dto.RegisterResponse
+    | dto.AuthenticationResponse
+    | dto.RegisterResponse429
+    | any
   > {
     throw new HttpError(501);
   }
@@ -2026,8 +411,8 @@ export class MatrixController {
     @QueryParam('username', { required: true })
     username: string
   ): Promise<
-    | CheckUsernameAvailabilityResponse
-    | CheckUsernameAvailabilityResponse429
+    | dto.CheckUsernameAvailabilityResponse
+    | dto.CheckUsernameAvailabilityResponse429
     | any
   > {
     throw new HttpError(501);
@@ -2037,7 +422,7 @@ export class MatrixController {
   async ban(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: BanBody
+    body: dto.BanBody
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -2048,7 +433,7 @@ export class MatrixController {
     @Param('eventId') eventId: string,
     @QueryParam('limit', { required: true })
     limit: number
-  ): Promise<GetEventContextResponse | any> {
+  ): Promise<dto.GetEventContextResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2056,21 +441,21 @@ export class MatrixController {
   async getOneRoomEvent(
     @Param('roomId') roomId: string,
     @Param('eventId') eventId: string
-  ): Promise<EventResponse | any> {
+  ): Promise<dto.EventResponse | any> {
     throw new HttpError(501);
   }
 
   @Post('/rooms/{roomId}/forget')
   async forgetRoom(
     @Param('roomId') roomId: string
-  ): Promise<ForgetRoomResponse429 | any> {
+  ): Promise<dto.ForgetRoomResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/rooms/{roomId}/initialSync')
   async roomInitialSync(
     @Param('roomId') roomId: string
-  ): Promise<RoomInfoResponse | any> {
+  ): Promise<dto.RoomInfoResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2078,8 +463,8 @@ export class MatrixController {
   async inviteBy3PID(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: InviteBy3PIDBody
-  ): Promise<InviteBy3PIDResponse429 | any> {
+    body: dto.InviteBy3PIDBody
+  ): Promise<dto.InviteBy3PIDResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2087,8 +472,8 @@ export class MatrixController {
   async inviteUser(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: InviteUserBody
-  ): Promise<InviteUserResponse429 | any> {
+    body: dto.InviteUserBody
+  ): Promise<dto.InviteUserResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2096,15 +481,15 @@ export class MatrixController {
   async joinRoomById(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: JoinRoomByIdBody
-  ): Promise<JoinRoomByIdResponse429 | any> {
+    body: dto.JoinRoomByIdBody
+  ): Promise<dto.JoinRoomByIdResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/rooms/{roomId}/joined_members')
   async getJoinedMembersByRoom(
     @Param('roomId') roomId: string
-  ): Promise<GetJoinedMembersByRoomResponse | any> {
+  ): Promise<dto.GetJoinedMembersByRoomResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2112,7 +497,7 @@ export class MatrixController {
   async kick(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: KickBody
+    body: dto.KickBody
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -2120,14 +505,14 @@ export class MatrixController {
   @Post('/rooms/{roomId}/leave')
   async leaveRoom(
     @Param('roomId') roomId: string
-  ): Promise<LeaveRoomResponse429 | any> {
+  ): Promise<dto.LeaveRoomResponse429 | any> {
     throw new HttpError(501);
   }
 
   @Get('/rooms/{roomId}/members')
   async getMembersByRoom(
     @Param('roomId') roomId: string
-  ): Promise<GetMembersByRoomResponse | any> {
+  ): Promise<dto.GetMembersByRoomResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2143,7 +528,7 @@ export class MatrixController {
     limit: number,
     @QueryParam('filter', { required: true })
     filter: string
-  ): Promise<GetRoomEventsResponse | any> {
+  ): Promise<dto.GetRoomEventsResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2154,7 +539,7 @@ export class MatrixController {
     @Param('eventId') eventId: string,
     @Body({ required: true })
     body: any
-  ): Promise<PostReceiptResponse429 | any> {
+  ): Promise<dto.PostReceiptResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2164,8 +549,8 @@ export class MatrixController {
     @Param('eventId') eventId: string,
     @Param('txnId') txnId: string,
     @Body({ required: true })
-    body: RedactEventBody
-  ): Promise<RedactEventResponse | any> {
+    body: dto.RedactEventBody
+  ): Promise<dto.RedactEventResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2176,14 +561,14 @@ export class MatrixController {
     @Param('txnId') txnId: string,
     @Body({ required: true })
     body: any
-  ): Promise<SendMessageResponse | any> {
+  ): Promise<dto.SendMessageResponse | any> {
     throw new HttpError(501);
   }
 
   @Get('/rooms/{roomId}/state')
   async getRoomState(
     @Param('roomId') roomId: string
-  ): Promise<StateEvent[] | any> {
+  ): Promise<dto.StateEvent[] | any> {
     throw new HttpError(501);
   }
 
@@ -2201,7 +586,7 @@ export class MatrixController {
     @Param('eventType') eventType: string,
     @Body({ required: true })
     body: any
-  ): Promise<SetRoomStateResponse | any> {
+  ): Promise<dto.SetRoomStateResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2221,7 +606,7 @@ export class MatrixController {
     @Param('stateKey') stateKey: string,
     @Body({ required: true })
     body: any
-  ): Promise<SetRoomStateWithKeyResponse | any> {
+  ): Promise<dto.SetRoomStateWithKeyResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2230,8 +615,8 @@ export class MatrixController {
     @Param('userId') userId: string,
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: SetTypingBody
-  ): Promise<SetTypingResponse429 | any> {
+    body: dto.SetTypingBody
+  ): Promise<dto.SetTypingResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2239,7 +624,7 @@ export class MatrixController {
   async unban(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: UnbanBody
+    body: dto.UnbanBody
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -2249,8 +634,8 @@ export class MatrixController {
     @QueryParam('next_batch', { required: true })
     nextBatch: string,
     @Body({ required: true })
-    body: SearchBody
-  ): Promise<ResultsResponse | SearchResponse429 | any> {
+    body: dto.SearchBody
+  ): Promise<dto.ResultsResponse | dto.SearchResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2259,7 +644,7 @@ export class MatrixController {
     @Param('eventType') eventType: string,
     @Param('txnId') txnId: string,
     @Body({ required: true })
-    body: SendToDeviceBody
+    body: dto.SendToDeviceBody
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -2276,7 +661,7 @@ export class MatrixController {
     setPresence: string,
     @QueryParam('timeout', { required: true })
     timeout: number
-  ): Promise<SyncResponse | any> {
+  ): Promise<dto.SyncResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2294,8 +679,8 @@ export class MatrixController {
   async defineFilter(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: DefineFilterBody
-  ): Promise<DefineFilterResponse | any> {
+    body: dto.DefineFilterBody
+  ): Promise<dto.DefineFilterResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2303,7 +688,7 @@ export class MatrixController {
   async getFilter(
     @Param('userId') userId: string,
     @Param('filterId') filterId: string
-  ): Promise<GetFilterResponse | any> {
+  ): Promise<dto.GetFilterResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2322,7 +707,7 @@ export class MatrixController {
   async getRoomTags(
     @Param('userId') userId: string,
     @Param('roomId') roomId: string
-  ): Promise<GetRoomTagsResponse | any> {
+  ): Promise<dto.GetRoomTagsResponse | any> {
     throw new HttpError(501);
   }
 
@@ -2349,16 +734,16 @@ export class MatrixController {
   @Post('/user_directory/search')
   async searchUserDirectory(
     @Body({ required: true })
-    body: SearchUserDirectoryBody
+    body: dto.SearchUserDirectoryBody
   ): Promise<
-    SearchUserDirectoryResponse | SearchUserDirectoryResponse429 | any
+    dto.SearchUserDirectoryResponse | dto.SearchUserDirectoryResponse429 | any
   > {
     throw new HttpError(501);
   }
 
   @Get('/voip/turnServer')
   async getTurnServer(): Promise<
-    GetTurnServerResponse | GetTurnServerResponse429 | any
+    dto.GetTurnServerResponse | dto.GetTurnServerResponse429 | any
   > {
     throw new HttpError(501);
   }
@@ -2370,7 +755,7 @@ export class MatrixMediaController {
   async getContent(
     @Param('serverName') serverName: string,
     @Param('mediaId') mediaId: string
-  ): Promise<GetContentResponse429 | any> {
+  ): Promise<dto.GetContentResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2379,7 +764,7 @@ export class MatrixMediaController {
     @Param('serverName') serverName: string,
     @Param('mediaId') mediaId: string,
     @Param('fileName') fileName: string
-  ): Promise<GetContentOverrideNameResponse429 | any> {
+  ): Promise<dto.GetContentOverrideNameResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2389,7 +774,7 @@ export class MatrixMediaController {
     url: string,
     @QueryParam('ts', { required: true })
     ts: number
-  ): Promise<GetUrlPreviewResponse | GetUrlPreviewResponse429 | any> {
+  ): Promise<dto.GetUrlPreviewResponse | dto.GetUrlPreviewResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2403,7 +788,7 @@ export class MatrixMediaController {
     height: number,
     @QueryParam('method', { required: true })
     method: string
-  ): Promise<GetContentThumbnailResponse429 | any> {
+  ): Promise<dto.GetContentThumbnailResponse429 | any> {
     throw new HttpError(501);
   }
 
@@ -2415,7 +800,7 @@ export class MatrixMediaController {
     filename: string,
     @Body({ required: true })
     body: string
-  ): Promise<UploadContentResponse | UploadContentResponse429 | any> {
+  ): Promise<dto.UploadContentResponse | dto.UploadContentResponse429 | any> {
     throw new HttpError(501);
   }
 }

@@ -3,13 +3,13 @@ require('isomorphic-fetch');
 require('isomorphic-form-data');
 
 import { Pretend, Get, Put, Delete, Post, Headers } from 'pretend';
-import * as Tx from './tss';
+import * as dto from './dto';
 
 class TestCli {
   @Post('/_matrix/client/r0/createRoom')
   async createRoom(
-    body: Tx.CreateRoomBody
-  ): Promise<Tx.CreateRoomResponse | any> {}
+    body: dto.CreateRoomBody
+  ): Promise<dto.CreateRoomResponse | any> {}
 }
 
 async function call() {
@@ -45,86 +45,88 @@ function HeaderParam(name: string, options?: any): Function {
 
 export class MatrixClient {
   @Get('/_matrix/client/r0/account/3pid')
-  async getAccount3PIDs(): Promise<Tx.GetAccount3PIDsResponse | any> {}
+  async getAccount3PIDs(): Promise<dto.GetAccount3PIDsResponse | any> {}
 
   @Post('/_matrix/client/r0/account/3pid')
   async post3PIDs(
     @Body({ required: true })
-    body: Tx.Post3PIDsBody
+    body: dto.Post3PIDsBody
   ): Promise<any> {}
 
   @Post('/_matrix/client/r0/account/deactivate')
   async deactivateAccount(
     @Body({ required: true })
-    body: Tx.DeactivateAccountBody
+    body: dto.DeactivateAccountBody
   ): Promise<
-    Tx.AuthenticationResponse | Tx.DeactivateAccountResponse429 | any
+    dto.AuthenticationResponse | dto.DeactivateAccountResponse429 | any
   > {}
 
   @Post('/_matrix/client/r0/account/password')
   async changePassword(
     @Body({ required: true })
-    body: Tx.ChangePasswordBody
-  ): Promise<Tx.AuthenticationResponse | Tx.ChangePasswordResponse429 | any> {}
+    body: dto.ChangePasswordBody
+  ): Promise<
+    dto.AuthenticationResponse | dto.ChangePasswordResponse429 | any
+  > {}
 
   @Get('/_matrix/client/r0/account/whoami')
   async getTokenOwner(): Promise<
-    | Tx.GetTokenOwnerResponse
-    | Tx.GetTokenOwnerResponse401
-    | Tx.GetTokenOwnerResponse403
-    | Tx.GetTokenOwnerResponse429
+    | dto.GetTokenOwnerResponse
+    | dto.GetTokenOwnerResponse401
+    | dto.GetTokenOwnerResponse403
+    | dto.GetTokenOwnerResponse429
     | any
   > {}
 
   @Get('/_matrix/client/r0/admin/whois/{userId}')
   async getWhoIs(
     @Param('userId') userId: string
-  ): Promise<Tx.GetWhoIsResponse | any> {}
+  ): Promise<dto.GetWhoIsResponse | any> {}
 
   @Post('/_matrix/client/r0/createRoom')
   async createRoom(
     @Body({ required: true })
-    body: Tx.CreateRoomBody
-  ): Promise<Tx.CreateRoomResponse | any> {}
+    body: dto.CreateRoomBody
+  ): Promise<dto.CreateRoomResponse | any> {}
 
   @Post('/_matrix/client/r0/delete_devices')
   async deleteDevices(
     @Body({ required: true })
-    body: Tx.DeleteDevicesBody
-  ): Promise<Tx.AuthenticationResponse | any> {}
+    body: dto.DeleteDevicesBody
+  ): Promise<dto.AuthenticationResponse | any> {}
 
   @Get('/_matrix/client/r0/devices')
-  async getDevices(): Promise<Tx.GetDevicesResponse | any> {}
+  async getDevices(): Promise<dto.GetDevicesResponse | any> {}
 
   @Get('/_matrix/client/r0/devices/{deviceId}')
   async getDevice(
     @Param('deviceId') deviceId: string
-  ): Promise<Tx.DeviceResponse | any> {}
+  ): Promise<dto.DeviceResponse | any> {}
 
   @Put('/_matrix/client/r0/devices/{deviceId}')
   async updateDevice(
     @Param('deviceId') deviceId: string,
     @Body({ required: true })
-    body: Tx.UpdateDeviceBody
+    body: dto.UpdateDeviceBody
   ): Promise<any> {}
 
   @Delete('/_matrix/client/r0/devices/{deviceId}')
   async deleteDevice(
     @Param('deviceId') deviceId: string,
     @Body({ required: true })
-    body: Tx.DeleteDeviceBody
-  ): Promise<Tx.AuthenticationResponse | any> {}
+    body: dto.DeleteDeviceBody
+  ): Promise<dto.AuthenticationResponse | any> {}
 
   @Get('/_matrix/client/r0/directory/room/{roomAlias}')
   async getRoomIdByAlias(
     @Param('roomAlias') roomAlias: string
-  ): Promise<Tx.GetRoomIdByAliasResponse | any> {}
+  ): Promise<dto.GetRoomIdByAliasResponse | any> {}
 
   @Put('/_matrix/client/r0/directory/room/{roomAlias}')
   async setRoomAlias(
     @Param('roomAlias') roomAlias: string,
     @Body({ required: true })
-    body: Tx.SetRoomAliasBody
+    body: dto.SetRoomAliasBody
   ): Promise<any> {}
 
   @Delete('/_matrix/client/r0/directory/room/{roomAlias}')
@@ -134,28 +136,28 @@ export class MatrixClient {
   async getEvents(
     @QueryParam('from') from: string,
     @QueryParam('timeout') timeout: number
-  ): Promise<Tx.GetEventsResponse | any> {}
+  ): Promise<dto.GetEventsResponse | any> {}
 
   @Get('/_matrix/client/r0/events/{eventId}')
   async getOneEvent(
     @Param('eventId') eventId: string
-  ): Promise<Tx.EventResponse | any> {}
+  ): Promise<dto.EventResponse | any> {}
 
   @Get('/_matrix/client/r0/initialSync')
   async initialSync(
     @QueryParam('limit') limit: number,
     @QueryParam('archived') archived: boolean
-  ): Promise<Tx.InitialSyncResponse | any> {}
+  ): Promise<dto.InitialSyncResponse | any> {}
 
   @Post('/_matrix/client/r0/join/{roomIdOrAlias}')
   async joinRoom(
     @Param('roomIdOrAlias') roomIdOrAlias: string,
     @Body({ required: true })
-    body: Tx.JoinRoomBody
-  ): Promise<Tx.JoinRoomResponse429 | any> {}
+    body: dto.JoinRoomBody
+  ): Promise<dto.JoinRoomResponse429 | any> {}
 
   @Get('/_matrix/client/r0/joined_rooms')
-  async getJoinedRooms(): Promise<Tx.GetJoinedRoomsResponse | any> {}
+  async getJoinedRooms(): Promise<dto.GetJoinedRoomsResponse | any> {}
 
   @Get('/_matrix/client/r0/keys/changes')
   async getKeysChanges(
@@ -163,31 +165,31 @@ export class MatrixClient {
     from: string,
     @QueryParam('to', { required: true })
     to: string
-  ): Promise<Tx.GetKeysChangesResponse | any> {}
+  ): Promise<dto.GetKeysChangesResponse | any> {}
 
   @Post('/_matrix/client/r0/keys/claim')
   async claimKeys(
     @Body({ required: true })
-    body: Tx.ClaimKeysBody
-  ): Promise<Tx.ClaimKeysResponse | any> {}
+    body: dto.ClaimKeysBody
+  ): Promise<dto.ClaimKeysResponse | any> {}
 
   @Post('/_matrix/client/r0/keys/query')
   async queryKeys(
     @Body({ required: true })
-    body: Tx.QueryKeysBody
-  ): Promise<Tx.QueryKeysResponse | any> {}
+    body: dto.QueryKeysBody
+  ): Promise<dto.QueryKeysResponse | any> {}
 
   @Post('/_matrix/client/r0/keys/upload')
   async uploadKeys(
     @Body({ required: true })
-    body: Tx.UploadKeysBody
-  ): Promise<Tx.UploadKeysResponse | any> {}
+    body: dto.UploadKeysBody
+  ): Promise<dto.UploadKeysResponse | any> {}
 
   @Post('/_matrix/client/r0/login')
   async login(
     @Body({ required: true })
-    body: Tx.LoginBody
-  ): Promise<Tx.LoginResponse | Tx.LoginResponse429 | any> {}
+    body: dto.LoginBody
+  ): Promise<dto.LoginResponse | dto.LoginResponse429 | any> {}
 
   @Post('/_matrix/client/r0/logout')
   async logout(): Promise<any> {}
@@ -197,60 +199,60 @@ export class MatrixClient {
     @QueryParam('from') from: string,
     @QueryParam('limit') limit: number,
     @QueryParam('only') only: string
-  ): Promise<Tx.GetNotificationsResponse | any> {}
+  ): Promise<dto.GetNotificationsResponse | any> {}
 
   @Get('/_matrix/client/r0/presence/list/{userId}')
   async getPresenceForList(
     @Param('userId') userId: string
-  ): Promise<Tx.PresenceEvent[] | any> {}
+  ): Promise<dto.PresenceEvent[] | any> {}
 
   @Post('/_matrix/client/r0/presence/list/{userId}')
   async modifyPresenceList(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: Tx.ModifyPresenceListBody
-  ): Promise<Tx.ModifyPresenceListResponse429 | any> {}
+    body: dto.ModifyPresenceListBody
+  ): Promise<dto.ModifyPresenceListResponse429 | any> {}
 
   @Get('/_matrix/client/r0/presence/{userId}/status')
   async getPresence(
     @Param('userId') userId: string
-  ): Promise<Tx.GetPresenceResponse | any> {}
+  ): Promise<dto.GetPresenceResponse | any> {}
 
   @Put('/_matrix/client/r0/presence/{userId}/status')
   async setPresence(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: Tx.SetPresenceBody
-  ): Promise<Tx.SetPresenceResponse429 | any> {}
+    body: dto.SetPresenceBody
+  ): Promise<dto.SetPresenceResponse429 | any> {}
 
   @Get('/_matrix/client/r0/profile/{userId}')
   async getUserProfile(
     @Param('userId') userId: string
-  ): Promise<Tx.GetUserProfileResponse | any> {}
+  ): Promise<dto.GetUserProfileResponse | any> {}
 
   @Get('/_matrix/client/r0/profile/{userId}/avatar_url')
   async getAvatarUrl(
     @Param('userId') userId: string
-  ): Promise<Tx.GetAvatarUrlResponse | any> {}
+  ): Promise<dto.GetAvatarUrlResponse | any> {}
 
   @Put('/_matrix/client/r0/profile/{userId}/avatar_url')
   async setAvatarUrl(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: Tx.SetAvatarUrlBody
-  ): Promise<Tx.SetAvatarUrlResponse429 | any> {}
+    body: dto.SetAvatarUrlBody
+  ): Promise<dto.SetAvatarUrlResponse429 | any> {}
 
   @Get('/_matrix/client/r0/profile/{userId}/displayname')
   async getDisplayName(
     @Param('userId') userId: string
-  ): Promise<Tx.GetDisplayNameResponse | any> {}
+  ): Promise<dto.GetDisplayNameResponse | any> {}
 
   @Put('/_matrix/client/r0/profile/{userId}/displayname')
   async setDisplayName(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: Tx.SetDisplayNameBody
-  ): Promise<Tx.SetDisplayNameResponse429 | any> {}
+    body: dto.SetDisplayNameBody
+  ): Promise<dto.SetDisplayNameResponse429 | any> {}
 
   @Get('/_matrix/client/r0/publicRooms')
   async getPublicRooms(
@@ -260,34 +262,34 @@ export class MatrixClient {
     since: string,
     @QueryParam('server', { required: true })
     server: string
-  ): Promise<Tx.GetPublicRoomsResponse | any> {}
+  ): Promise<dto.GetPublicRoomsResponse | any> {}
 
   @Post('/_matrix/client/r0/publicRooms')
   async queryPublicRooms(
     @QueryParam('server', { required: true })
     server: string,
     @Body({ required: true })
-    body: Tx.QueryPublicRoomsBody
-  ): Promise<Tx.QueryPublicRoomsResponse | any> {}
+    body: dto.QueryPublicRoomsBody
+  ): Promise<dto.QueryPublicRoomsResponse | any> {}
 
   @Get('/_matrix/client/r0/pushers')
-  async getPushers(): Promise<Tx.GetPushersResponse | any> {}
+  async getPushers(): Promise<dto.GetPushersResponse | any> {}
 
   @Post('/_matrix/client/r0/pushers/set')
   async postPusher(
     @Body({ required: true })
-    body: Tx.PostPusherBody
-  ): Promise<Tx.PostPusherResponse429 | any> {}
+    body: dto.PostPusherBody
+  ): Promise<dto.PostPusherResponse429 | any> {}
 
   @Get('/_matrix/client/r0/pushrules/')
-  async getPushRules(): Promise<Tx.GetPushRulesResponse | any> {}
+  async getPushRules(): Promise<dto.GetPushRulesResponse | any> {}
 
   @Get('/_matrix/client/r0/pushrules/{scope}/{kind}/{ruleId}')
   async getPushRule(
     @Param('scope') scope: string,
     @Param('kind') kind: string,
     @Param('ruleId') ruleId: string
-  ): Promise<Tx.PushRuleResponse | any> {}
+  ): Promise<dto.PushRuleResponse | any> {}
 
   @Put('/_matrix/client/r0/pushrules/{scope}/{kind}/{ruleId}')
   async setPushRule(
@@ -297,8 +299,8 @@ export class MatrixClient {
     @QueryParam('before') before: string,
     @QueryParam('after') after: string,
     @Body({ required: true })
-    body: Tx.SetPushRuleBody
-  ): Promise<Tx.SetPushRuleResponse429 | any> {}
+    body: dto.SetPushRuleBody
+  ): Promise<dto.SetPushRuleResponse429 | any> {}
 
   @Delete('/_matrix/client/r0/pushrules/{scope}/{kind}/{ruleId}')
   async deletePushRule(
@@ -313,7 +315,7 @@ export class MatrixClient {
     @Param('kind') kind: string,
     @Param('ruleId') ruleId: string,
     @Body({ required: true })
-    body: Tx.SetPushRuleActionsBody
+    body: dto.SetPushRuleActionsBody
   ): Promise<any> {}
 
   @Put('/_matrix/client/r0/pushrules/{scope}/{kind}/{ruleId}/enabled')
@@ -322,18 +324,18 @@ export class MatrixClient {
     @Param('kind') kind: string,
     @Param('ruleId') ruleId: string,
     @Body({ required: true })
-    body: Tx.SetPushRuleEnabledBody
+    body: dto.SetPushRuleEnabledBody
   ): Promise<any> {}
 
   @Post('/_matrix/client/r0/register')
   async register(
     @QueryParam('kind') kind: string,
     @Body({ required: true })
-    body: Tx.RegisterBody
+    body: dto.RegisterBody
   ): Promise<
-    | Tx.RegisterResponse
-    | Tx.AuthenticationResponse
-    | Tx.RegisterResponse429
+    | dto.RegisterResponse
+    | dto.AuthenticationResponse
+    | dto.RegisterResponse429
     | any
   > {}
 
@@ -342,8 +344,8 @@ export class MatrixClient {
     @QueryParam('username', { required: true })
     username: string
   ): Promise<
-    | Tx.CheckUsernameAvailabilityResponse
-    | Tx.CheckUsernameAvailabilityResponse429
+    | dto.CheckUsernameAvailabilityResponse
+    | dto.CheckUsernameAvailabilityResponse429
     | any
   > {}
 
@@ -351,7 +353,7 @@ export class MatrixClient {
   async ban(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: Tx.BanBody
+    body: dto.BanBody
   ): Promise<any> {}
 
   @Get('/_matrix/client/r0/rooms/{roomId}/context/{eventId}')
@@ -360,66 +362,66 @@ export class MatrixClient {
     @Param('eventId') eventId: string,
     @QueryParam('limit', { required: true })
     limit: number
-  ): Promise<Tx.GetEventContextResponse | any> {}
+  ): Promise<dto.GetEventContextResponse | any> {}
 
   @Get('/_matrix/client/r0/rooms/{roomId}/event/{eventId}')
   async getOneRoomEvent(
     @Param('roomId') roomId: string,
     @Param('eventId') eventId: string
-  ): Promise<Tx.EventResponse | any> {}
+  ): Promise<dto.EventResponse | any> {}
 
   @Post('/_matrix/client/r0/rooms/{roomId}/forget')
   async forgetRoom(
     @Param('roomId') roomId: string
-  ): Promise<Tx.ForgetRoomResponse429 | any> {}
+  ): Promise<dto.ForgetRoomResponse429 | any> {}
 
   @Get('/_matrix/client/r0/rooms/{roomId}/initialSync')
   async roomInitialSync(
     @Param('roomId') roomId: string
-  ): Promise<Tx.RoomInfoResponse | any> {}
+  ): Promise<dto.RoomInfoResponse | any> {}
 
   @Post('/_matrix/client/r0/rooms/{roomId}/invite')
   async inviteBy3PID(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: Tx.InviteBy3PIDBody
-  ): Promise<Tx.InviteBy3PIDResponse429 | any> {}
+    body: dto.InviteBy3PIDBody
+  ): Promise<dto.InviteBy3PIDResponse429 | any> {}
 
   @Post('/_matrix/client/r0/rooms/{roomId}/invite ')
   async inviteUser(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: Tx.InviteUserBody
-  ): Promise<Tx.InviteUserResponse429 | any> {}
+    body: dto.InviteUserBody
+  ): Promise<dto.InviteUserResponse429 | any> {}
 
   @Post('/_matrix/client/r0/rooms/{roomId}/join')
   async joinRoomById(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: Tx.JoinRoomByIdBody
-  ): Promise<Tx.JoinRoomByIdResponse429 | any> {}
+    body: dto.JoinRoomByIdBody
+  ): Promise<dto.JoinRoomByIdResponse429 | any> {}
 
   @Get('/_matrix/client/r0/rooms/{roomId}/joined_members')
   async getJoinedMembersByRoom(
     @Param('roomId') roomId: string
-  ): Promise<Tx.GetJoinedMembersByRoomResponse | any> {}
+  ): Promise<dto.GetJoinedMembersByRoomResponse | any> {}
 
   @Post('/_matrix/client/r0/rooms/{roomId}/kick')
   async kick(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: Tx.KickBody
+    body: dto.KickBody
   ): Promise<any> {}
 
   @Post('/_matrix/client/r0/rooms/{roomId}/leave')
   async leaveRoom(
     @Param('roomId') roomId: string
-  ): Promise<Tx.LeaveRoomResponse429 | any> {}
+  ): Promise<dto.LeaveRoomResponse429 | any> {}
 
   @Get('/_matrix/client/r0/rooms/{roomId}/members')
   async getMembersByRoom(
     @Param('roomId') roomId: string
-  ): Promise<Tx.GetMembersByRoomResponse | any> {}
+  ): Promise<dto.GetMembersByRoomResponse | any> {}
 
   @Get('/_matrix/client/r0/rooms/{roomId}/messages')
   async getRoomEvents(
@@ -433,7 +435,7 @@ export class MatrixClient {
     limit: number,
     @QueryParam('filter', { required: true })
     filter: string
-  ): Promise<Tx.GetRoomEventsResponse | any> {}
+  ): Promise<dto.GetRoomEventsResponse | any> {}
 
   @Post('/_matrix/client/r0/rooms/{roomId}/receipt/{receiptType}/{eventId}')
   async postReceipt(
@@ -442,7 +444,7 @@ export class MatrixClient {
     @Param('eventId') eventId: string,
     @Body({ required: true })
     body: any
-  ): Promise<Tx.PostReceiptResponse429 | any> {}
+  ): Promise<dto.PostReceiptResponse429 | any> {}
 
   @Put('/_matrix/client/r0/rooms/{roomId}/redact/{eventId}/{txnId}')
   async redactEvent(
@@ -450,8 +452,8 @@ export class MatrixClient {
     @Param('eventId') eventId: string,
     @Param('txnId') txnId: string,
     @Body({ required: true })
-    body: Tx.RedactEventBody
-  ): Promise<Tx.RedactEventResponse | any> {}
+    body: dto.RedactEventBody
+  ): Promise<dto.RedactEventResponse | any> {}
 
   @Put('/_matrix/client/r0/rooms/{roomId}/send/{eventType}/{txnId}')
   async sendMessage(
@@ -460,12 +462,12 @@ export class MatrixClient {
     @Param('txnId') txnId: string,
     @Body({ required: true })
     body: any
-  ): Promise<Tx.SendMessageResponse | any> {}
+  ): Promise<dto.SendMessageResponse | any> {}
 
   @Get('/_matrix/client/r0/rooms/{roomId}/state')
   async getRoomState(
     @Param('roomId') roomId: string
-  ): Promise<Tx.StateEvent[] | any> {}
+  ): Promise<dto.StateEvent[] | any> {}
 
   @Get('/_matrix/client/r0/rooms/{roomId}/state/{eventType}')
   async getRoomStateByType(
@@ -479,7 +481,7 @@ export class MatrixClient {
     @Param('eventType') eventType: string,
     @Body({ required: true })
     body: any
-  ): Promise<Tx.SetRoomStateResponse | any> {}
+  ): Promise<dto.SetRoomStateResponse | any> {}
 
   @Get('/_matrix/client/r0/rooms/{roomId}/state/{eventType}/{stateKey}')
   async getRoomStateWithKey(
@@ -495,21 +497,21 @@ export class MatrixClient {
     @Param('stateKey') stateKey: string,
     @Body({ required: true })
     body: any
-  ): Promise<Tx.SetRoomStateWithKeyResponse | any> {}
+  ): Promise<dto.SetRoomStateWithKeyResponse | any> {}
 
   @Put('/_matrix/client/r0/rooms/{roomId}/typing/{userId}')
   async setTyping(
     @Param('userId') userId: string,
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: Tx.SetTypingBody
-  ): Promise<Tx.SetTypingResponse429 | any> {}
+    body: dto.SetTypingBody
+  ): Promise<dto.SetTypingResponse429 | any> {}
 
   @Post('/_matrix/client/r0/rooms/{roomId}/unban')
   async unban(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: Tx.UnbanBody
+    body: dto.UnbanBody
   ): Promise<any> {}
 
   @Post('/_matrix/client/r0/search')
@@ -517,15 +519,15 @@ export class MatrixClient {
     @QueryParam('next_batch', { required: true })
     nextBatch: string,
     @Body({ required: true })
-    body: Tx.SearchBody
-  ): Promise<Tx.ResultsResponse | Tx.SearchResponse429 | any> {}
+    body: dto.SearchBody
+  ): Promise<dto.ResultsResponse | dto.SearchResponse429 | any> {}
 
   @Put('/_matrix/client/r0/sendToDevice/{eventType}/{txnId}')
   async sendToDevice(
     @Param('eventType') eventType: string,
     @Param('txnId') txnId: string,
     @Body({ required: true })
-    body: Tx.SendToDeviceBody
+    body: dto.SendToDeviceBody
   ): Promise<any> {}
 
   @Get('/_matrix/client/r0/sync')
@@ -540,7 +542,7 @@ export class MatrixClient {
     setPresence: string,
     @QueryParam('timeout', { required: true })
     timeout: number
-  ): Promise<Tx.SyncResponse | any> {}
+  ): Promise<dto.SyncResponse | any> {}
 
   @Put('/_matrix/client/r0/user/{userId}/account_data/{type}')
   async setAccountData(
@@ -554,14 +556,14 @@ export class MatrixClient {
   async defineFilter(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: Tx.DefineFilterBody
-  ): Promise<Tx.DefineFilterResponse | any> {}
+    body: dto.DefineFilterBody
+  ): Promise<dto.DefineFilterResponse | any> {}
 
   @Get('/_matrix/client/r0/user/{userId}/filter/{filterId}')
   async getFilter(
     @Param('userId') userId: string,
     @Param('filterId') filterId: string
-  ): Promise<Tx.GetFilterResponse | any> {}
+  ): Promise<dto.GetFilterResponse | any> {}
 
   @Put('/_matrix/client/r0/user/{userId}/rooms/{roomId}/account_data/{type}')
   async setAccountDataPerRoom(
@@ -576,7 +578,7 @@ export class MatrixClient {
   async getRoomTags(
     @Param('userId') userId: string,
     @Param('roomId') roomId: string
-  ): Promise<Tx.GetRoomTagsResponse | any> {}
+  ): Promise<dto.GetRoomTagsResponse | any> {}
 
   @Put('/_matrix/client/r0/user/{userId}/rooms/{roomId}/tags/{tag}')
   async setRoomTag(
@@ -597,31 +599,31 @@ export class MatrixClient {
   @Post('/_matrix/client/r0/user_directory/search')
   async searchUserDirectory(
     @Body({ required: true })
-    body: Tx.SearchUserDirectoryBody
+    body: dto.SearchUserDirectoryBody
   ): Promise<
-    Tx.SearchUserDirectoryResponse | Tx.SearchUserDirectoryResponse429 | any
+    dto.SearchUserDirectoryResponse | dto.SearchUserDirectoryResponse429 | any
   > {}
 
   @Get('/_matrix/client/r0/voip/turnServer')
   async getTurnServer(): Promise<
-    Tx.GetTurnServerResponse | Tx.GetTurnServerResponse429 | any
+    dto.GetTurnServerResponse | dto.GetTurnServerResponse429 | any
   > {}
 
   @Get('/_matrix/client/versions')
-  async getVersions(): Promise<Tx.GetVersionsResponse | any> {}
+  async getVersions(): Promise<dto.GetVersionsResponse | any> {}
 
   @Get('/_matrix/media/r0/download/{serverName}/{mediaId}')
   async getContent(
     @Param('serverName') serverName: string,
     @Param('mediaId') mediaId: string
-  ): Promise<Tx.GetContentResponse429 | any> {}
+  ): Promise<dto.GetContentResponse429 | any> {}
 
   @Get('/_matrix/media/r0/download/{serverName}/{mediaId}/{fileName}')
   async getContentOverrideName(
     @Param('serverName') serverName: string,
     @Param('mediaId') mediaId: string,
     @Param('fileName') fileName: string
-  ): Promise<Tx.GetContentOverrideNameResponse429 | any> {}
+  ): Promise<dto.GetContentOverrideNameResponse429 | any> {}
 
   @Get('/_matrix/media/r0/preview_url')
   async getUrlPreview(
@@ -629,7 +631,7 @@ export class MatrixClient {
     url: string,
     @QueryParam('ts', { required: true })
     ts: number
-  ): Promise<Tx.GetUrlPreviewResponse | Tx.GetUrlPreviewResponse429 | any> {}
+  ): Promise<dto.GetUrlPreviewResponse | dto.GetUrlPreviewResponse429 | any> {}
 
   @Get('/_matrix/media/r0/thumbnail/{serverName}/{mediaId}')
   async getContentThumbnail(
@@ -641,7 +643,7 @@ export class MatrixClient {
     height: number,
     @QueryParam('method', { required: true })
     method: string
-  ): Promise<Tx.GetContentThumbnailResponse429 | any> {}
+  ): Promise<dto.GetContentThumbnailResponse429 | any> {}
 
   @Post('/_matrix/media/r0/upload')
   async uploadContent(
@@ -651,5 +653,5 @@ export class MatrixClient {
     filename: string,
     @Body({ required: true })
     body: string
-  ): Promise<Tx.UploadContentResponse | Tx.UploadContentResponse429 | any> {}
+  ): Promise<dto.UploadContentResponse | dto.UploadContentResponse429 | any> {}
 }
