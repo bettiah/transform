@@ -1,7 +1,5 @@
 import 'reflect-metadata';
 
-import { Pretend } from 'pretend';
-import { MatrixClient } from './cli';
 import {
   CreateRoomBody,
   RegisterBody,
@@ -11,38 +9,23 @@ import {
   StateEventResponse,
   SendMessageResponse
 } from './dto';
-
-let auth = '';
+import { rand } from './utils';
+import { setAuth, client } from './test_client';
 
 describe('Client Tests', () => {
-  let client: MatrixClient = Pretend.builder()
-    .requestInterceptor(request => {
-      request.options.headers = {
-        'Content-Type': 'application/json;charset=UTF-8'
-      };
-      if (auth) {
-        request.options.headers['Authorization'] = `Bearer ${auth}`;
-      }
-      return request;
-    })
-    .target(MatrixClient, 'http://localhost:8008/');
-  // .target(MatrixClient, 'http://localhost:1234/');
-
   it('/_matrix/client/versions', async () => {
     const res: GetVersionsResponse = await client.getVersions();
     console.dir(res);
   });
 
   it('/_matrix/client/r0/register', async () => {
-    const rand = Math.random()
-      .toString(36)
-      .substring(2)
-      .slice(-2);
+    const rand_ = rand().slice(-2);
 
-    console.log('register id:', rand);
+    console.log('register id:', rand_);
     const reg1: RegisterBody = {
-      username: rand,
-      password: rand
+      auth: { type: 'ad' },
+      username: rand_,
+      password: rand_
     };
     const result1 = await client.register('', reg1);
     console.log(JSON.stringify(result1, null, 2));
@@ -55,7 +38,7 @@ describe('Client Tests', () => {
     };
     const result2 = await client.register('', reg2);
     console.dir(result2);
-    auth = result2.access_token;
+    setAuth(result2.access_token);
   });
 
   let roomId = '';

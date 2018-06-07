@@ -2,12 +2,7 @@ import 'reflect-metadata';
 
 import { Pretend } from 'pretend';
 import { MatrixClient } from './cli';
-import {
-  LoginResponse,
-  SyncResponse,
-  CreateRoomBody,
-  CreateRoomResponse
-} from './dto';
+import { LoginResponse, SyncResponse } from './dto';
 
 describe('user tests', () => {
   let _login: LoginResponse = {};

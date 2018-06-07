@@ -1,4 +1,5 @@
 const express: any = require('express');
+const bearerToken = require('express-bearer-token');
 
 import 'reflect-metadata';
 import {
@@ -8,6 +9,9 @@ import {
 } from 'routing-controllers';
 
 import { MatrixController, MatrixMediaController } from './tss';
+import { dbConnection } from './model';
+import { verifyToken } from './jwt';
+import { tokenUser } from './auth';
 
 const debug = require('debug')('server');
 const bodyParser = require('body-parser');
@@ -16,15 +20,17 @@ const morganBody = require('morgan-body');
 
 const app = express();
 app.use(bodyParser.json());
+app.use(bearerToken());
 // app.use(morgan('dev'));
 morganBody(app);
 
 async function init() {
+  await dbConnection().catch(ex => {
+    debug('db', ex);
+    throw new Error(ex.message);
+  });
   debug('initialized');
 }
-
-function verifyToken(_a1: any) {}
-function tokenUser(_a1: any) {}
 
 process.on('unhandledRejection', (reason, p) => {
   debug('Unhandled Rejection at: Promise', p, 'reason:', reason);
@@ -40,7 +46,7 @@ useExpressServer(app, {
   cors: true,
   validation: { whitelist: true, skipMissingProperties: true },
   authorizationChecker: (action: Action, roles: string[]) => {
-    const token = action.request.headers['jwt'];
+    const token = action.request.token;
     if (!token) {
       debug('missing token');
       return false;
@@ -51,11 +57,10 @@ useExpressServer(app, {
       debug(ex.message);
       return false;
     }
-    // const _ = await tokenUser(token);
     return true;
   },
   currentUserChecker: async (action: Action) => {
-    const token = action.request.headers['jwt'];
+    const token = action.request.token;
     if (!token) {
       throw new UnauthorizedError('missing token');
     }

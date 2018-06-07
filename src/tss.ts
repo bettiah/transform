@@ -16,6 +16,9 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './dto';
+import { signup, authenticate } from './auth';
+import { rand, normalizeUser } from './utils';
+import { normalize } from 'path';
 
 @JsonController('/_matrix/client/r0')
 export class MatrixController {
@@ -211,6 +214,20 @@ export class MatrixController {
     @Body({ required: true })
     body: dto.LoginBody
   ): Promise<dto.LoginResponse | dto.LoginResponse429 | any> {
+    if (body.type === 'm.login.password') {
+      const { user, jwt } = await authenticate(
+        body.user!,
+        body.password!,
+        body.device_id!
+      );
+      const resp: dto.LoginResponse = {
+        access_token: jwt,
+        device_id: user.device_id,
+        home_server: user.home_server,
+        user_id: user.user_id
+      };
+      return resp;
+    }
     throw new HttpError(501);
   }
 
@@ -403,6 +420,31 @@ export class MatrixController {
     | dto.RegisterResponse429
     | any
   > {
+    if (body.auth && body.auth.session && body.auth.type === 'm.login.dummy') {
+      // get user / pass from session
+      const session = body.auth.session;
+      // get from redis -
+      const [user, pass, _] = session.split(':');
+      const device_id = body.device_id || rand();
+      const userN = normalizeUser(user);
+      const signedIn = await signup(userN, pass, device_id);
+      const resp: dto.RegisterResponse = {
+        access_token: signedIn.jwt,
+        device_id,
+        home_server: signedIn.user.home_server,
+        user_id: signedIn.user.user_id
+      };
+      return resp;
+    } else if (body.username && body.password) {
+      // send back a session id
+      const session = `${body.username}:${body.password}:${rand()}`;
+      // hash it, store in redis
+      const resp: dto.AuthenticationResponse = {
+        session,
+        flows: [{ stages: ['m.loging.dummy'] }]
+      };
+      return resp;
+    }
     throw new HttpError(501);
   }
 

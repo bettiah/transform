@@ -4,7 +4,10 @@ import {
   IsString,
   IsInt,
   IsBoolean,
-  IsArray
+  IsArray,
+  MaxLength,
+  MinLength,
+  IsOptional
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -47,7 +50,7 @@ export class Post3PIDsBody {
 export class AuthenticationData {
   @IsString() session?: string;
 
-  @IsDefined()
+  // @IsDefined()
   @IsString()
   type?: string;
 
@@ -1164,7 +1167,7 @@ export class SetPushRuleEnabledBody {
 }
 
 export class RegisterBody {
-  @IsDefined()
+  @IsOptional()
   @ValidateNested()
   @Type(() => AuthenticationData)
   auth?: AuthenticationData;
@@ -1175,9 +1178,15 @@ export class RegisterBody {
 
   @IsString() initial_device_display_name?: string;
 
-  @IsString() password?: string;
+  @MinLength(2)
+  @MaxLength(20)
+  @IsString()
+  password?: string;
 
-  @IsString() username?: string;
+  @MinLength(2)
+  @MaxLength(20)
+  @IsString()
+  username?: string;
 }
 
 export class RegisterResponse {
