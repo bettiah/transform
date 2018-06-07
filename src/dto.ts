@@ -151,6 +151,28 @@ export class Devices {
   [key: string]: any;
 }
 
+export class ConnectionInfo {
+  @IsString() ip?: string;
+
+  last_seen?: number;
+
+  @IsString() user_agent?: string;
+}
+
+export class SessionInfo {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ConnectionInfo)
+  connections?: ConnectionInfo[];
+}
+
+export class DeviceInfo {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SessionInfo)
+  sessions?: SessionInfo[];
+}
+
 export class GetWhoIsResponse {
   @ValidateNested()
   @Type(() => Devices)
@@ -281,12 +303,36 @@ export class UnsignedDataResponse {
   @IsString() transaction_id?: string;
 }
 
+export class Unsigned {
+  @IsInt() age?: number;
+
+  prev_content?: any;
+
+  redacted_because?: any;
+
+  @IsString() transaction_id?: string;
+}
+
 export class EventResponse {
-  content?: any;
+  @IsString() event_id?: string;
+
+  @IsInt() origin_server_ts?: number;
 
   @IsDefined()
   @IsString()
-  type?: string;
+  room_id?: string;
+
+  @IsString() sender?: string;
+
+  @ValidateNested()
+  @Type(() => Unsigned)
+  unsigned?: Unsigned;
+
+  content?: any;
+
+  @IsString() state_key?: string;
+
+  @IsString() type?: string;
 }
 
 export class GetEventsResponse {
@@ -299,6 +345,14 @@ export class GetEventsResponse {
   @IsString() end?: string;
 
   @IsString() start?: string;
+}
+
+export class _EventResponse {
+  content?: any;
+
+  @IsDefined()
+  @IsString()
+  type?: string;
 }
 
 export class SignedResponse {
@@ -368,23 +422,25 @@ export class InviteEventResponse {
 }
 
 export class RoomEventResponse {
-  @IsDefined()
-  @IsString()
-  event_id?: string;
+  @IsString() event_id?: string;
 
-  @IsDefined() origin_server_ts?: number;
+  @IsInt() origin_server_ts?: number;
 
   @IsDefined()
   @IsString()
   room_id?: string;
 
-  @IsDefined()
-  @IsString()
-  sender?: string;
+  @IsString() sender?: string;
 
   @ValidateNested()
-  @Type(() => UnsignedDataResponse)
-  unsigned?: UnsignedDataResponse;
+  @Type(() => Unsigned)
+  unsigned?: Unsigned;
+
+  content?: any;
+
+  @IsString() state_key?: string;
+
+  @IsString() type?: string;
 }
 
 export class PaginationChunkResponse {
@@ -415,10 +471,17 @@ export class RoomInfoResponse {
   @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => EventResponse)
-  account_data?: EventResponse[];
+  @Type(() => _EventResponse)
+  account_data?: _EventResponse[];
 
-  @IsString() membership?: string;
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => InviteEventResponse)
+  invite?: InviteEventResponse;
+
+  @IsDefined()
+  @IsString()
+  membership?: string;
 
   @IsDefined()
   @ValidateNested()
@@ -442,8 +505,8 @@ export class InitialSyncResponse {
   @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => EventResponse)
-  account_data?: EventResponse[];
+  @Type(() => _EventResponse)
+  account_data?: _EventResponse[];
 
   @IsDefined()
   @IsString()
@@ -452,8 +515,8 @@ export class InitialSyncResponse {
   @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => EventResponse)
-  presence?: EventResponse[];
+  @Type(() => _EventResponse)
+  presence?: _EventResponse[];
 
   @IsDefined()
   @IsArray()
@@ -480,18 +543,9 @@ export class Signed {
 
 export class ThirdPartySigned {
   @IsDefined()
-  @IsString()
-  mxid?: string;
-
-  @IsDefined()
-  @IsString()
-  sender?: string;
-
-  @IsDefined() signatures?: any;
-
-  @IsDefined()
-  @IsString()
-  token?: string;
+  @ValidateNested()
+  @Type(() => Signed)
+  signed?: Signed;
 }
 
 export class JoinRoomBody {
@@ -553,6 +607,41 @@ export class ClaimKeysResponse {
   one_time_keys?: OneTimeKeys;
 }
 
+export class DeviceKeys {
+  [key: string]: any;
+}
+
+export class QueryKeysBody {
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => DeviceKeys)
+  device_keys?: DeviceKeys;
+
+  @IsInt() timeout?: number;
+
+  @IsString() token?: string;
+}
+
+export class UnsignedDeviceInfo {
+  @IsString() device_display_name?: string;
+}
+
+export class __DeviceKeys {
+  @ValidateNested()
+  @Type(() => UnsignedDeviceInfo)
+  unsigned?: UnsignedDeviceInfo;
+}
+
+export class QueryKeysResponse {
+  @ValidateNested()
+  @Type(() => DeviceKeys)
+  device_keys?: DeviceKeys;
+
+  @ValidateNested()
+  @Type(() => Failures)
+  failures?: Failures;
+}
+
 export class Keys {
   [key: string]: any;
 }
@@ -561,7 +650,7 @@ export class Signatures {
   [key: string]: any;
 }
 
-export class DeviceKeys {
+export class ___DeviceKeys {
   @IsDefined()
   @IsArray()
   @IsString({ each: true })
@@ -586,33 +675,11 @@ export class DeviceKeys {
   user_id?: string;
 }
 
-export class QueryKeysBody {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => DeviceKeys)
-  device_keys?: DeviceKeys;
-
-  @IsInt() timeout?: number;
-
-  @IsString() token?: string;
-}
-
-export class QueryKeysResponse {
-  @IsDefined()
-  @ValidateNested()
-  @Type(() => DeviceKeys)
-  device_keys?: DeviceKeys;
-
-  @ValidateNested()
-  @Type(() => Failures)
-  failures?: Failures;
-}
-
 export class UploadKeysBody {
   @IsDefined()
   @ValidateNested()
-  @Type(() => DeviceKeys)
-  device_keys?: DeviceKeys;
+  @Type(() => ___DeviceKeys)
+  device_keys?: ___DeviceKeys;
 
   @ValidateNested()
   @Type(() => OneTimeKeys)
@@ -678,6 +745,24 @@ export class UnsignedResponse {
   @IsString() transaction_id?: string;
 }
 
+export class __EventResponse {
+  content?: any;
+
+  @IsString() event_id?: string;
+
+  @IsInt() origin_server_ts?: number;
+
+  @IsString() sender?: string;
+
+  @IsString() state_key?: string;
+
+  @IsString() type?: string;
+
+  @ValidateNested()
+  @Type(() => UnsignedResponse)
+  unsigned?: UnsignedResponse;
+}
+
 export class NotificationResponse {
   @IsDefined()
   @IsArray()
@@ -685,8 +770,8 @@ export class NotificationResponse {
 
   @IsDefined()
   @ValidateNested()
-  @Type(() => EventResponse)
-  event?: EventResponse;
+  @Type(() => __EventResponse)
+  event?: __EventResponse;
 
   @IsString() profile_tag?: string;
 
@@ -848,23 +933,7 @@ export class GetPublicRoomsResponse {
 }
 
 export class Filter {
-  @IsInt() limit?: number;
-
-  @IsArray()
-  @IsString({ each: true })
-  not_senders?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  not_types?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  senders?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  types?: string[];
+  @IsString() generic_search_term?: string;
 }
 
 export class QueryPublicRoomsBody {
@@ -1186,6 +1255,33 @@ export class ForgetRoomResponse429 {
   @IsString() error?: string;
 }
 
+export class _RoomInfoResponse {
+  @IsDefined()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => _EventResponse)
+  account_data?: _EventResponse[];
+
+  @IsString() membership?: string;
+
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => PaginationChunkResponse)
+  messages?: PaginationChunkResponse;
+
+  @IsDefined()
+  @IsString()
+  room_id?: string;
+
+  @IsDefined()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => StateEventResponse)
+  state?: StateEventResponse[];
+
+  @IsString() visibility?: string;
+}
+
 export class InviteBy3PIDBody {
   @IsDefined()
   @IsString()
@@ -1222,11 +1318,27 @@ export class InviteUserResponse429 {
   @IsString() error?: string;
 }
 
+export class _ThirdPartySigned {
+  @IsDefined()
+  @IsString()
+  mxid?: string;
+
+  @IsDefined()
+  @IsString()
+  sender?: string;
+
+  @IsDefined() signatures?: any;
+
+  @IsDefined()
+  @IsString()
+  token?: string;
+}
+
 export class JoinRoomByIdBody {
   @IsDefined()
   @ValidateNested()
-  @Type(() => ThirdPartySigned)
-  third_party_signed?: ThirdPartySigned;
+  @Type(() => _ThirdPartySigned)
+  third_party_signed?: _ThirdPartySigned;
 }
 
 export class JoinRoomByIdResponse429 {
@@ -1239,6 +1351,12 @@ export class JoinRoomByIdResponse429 {
 
 export class Joined {
   [key: string]: any;
+}
+
+export class RoomMember {
+  @IsString() avatar_url?: string;
+
+  @IsString() display_name?: string;
 }
 
 export class GetJoinedMembersByRoomResponse {
@@ -1404,8 +1522,24 @@ export class Groups {
   [key: string]: any;
 }
 
+export class GroupValue {
+  @IsString() next_batch?: string;
+
+  @IsInt() order?: number;
+
+  @IsArray()
+  @IsString({ each: true })
+  results?: string[];
+}
+
 export class ProfileInfo {
   [key: string]: any;
+}
+
+export class UserProfile {
+  @IsString() avatar_url?: string;
+
+  @IsString() displayname?: string;
 }
 
 export class EventContextResponse {
@@ -1446,6 +1580,14 @@ export class ResultResponse {
 
 export class State {
   [key: string]: any;
+}
+
+export class _StateEvent {
+  prev_content?: any;
+
+  @IsDefined()
+  @IsString()
+  state_key?: string;
 }
 
 export class RoomEventResultsResponse {
@@ -1501,31 +1643,125 @@ export class SendToDeviceBody {
 }
 
 export class AccountDataResponse {
-  @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => EventResponse)
-  events?: EventResponse[];
+  @Type(() => __EventResponse)
+  events?: __EventResponse[];
 }
 
 export class PresenceResponse {
-  @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => EventResponse)
-  events?: EventResponse[];
+  @Type(() => __EventResponse)
+  events?: __EventResponse[];
 }
 
 export class Invite {
   [key: string]: any;
 }
 
+export class Event {
+  content?: any;
+
+  @IsString() event_id?: string;
+
+  @IsInt() origin_server_ts?: number;
+
+  @IsString() sender?: string;
+
+  @IsString() state_key?: string;
+
+  @IsString() type?: string;
+
+  @ValidateNested()
+  @Type(() => Unsigned)
+  unsigned?: Unsigned;
+}
+
+export class InviteState {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Event)
+  events?: Event[];
+}
+
+export class InvitedRoom {
+  @ValidateNested()
+  @Type(() => InviteState)
+  invite_state?: InviteState;
+}
+
 export class Join {
   [key: string]: any;
 }
 
+export class AccountData {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Event)
+  events?: Event[];
+}
+
+export class Ephemeral {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Event)
+  events?: Event[];
+}
+
+export class _State {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Event)
+  events?: Event[];
+}
+
+export class Timeline {
+  @IsBoolean() limited?: boolean;
+
+  @IsString() prev_batch?: string;
+}
+
+export class UnreadNotificationCounts {
+  @IsInt() highlight_count?: number;
+
+  @IsInt() notification_count?: number;
+}
+
+export class JoinedRoom {
+  @ValidateNested()
+  @Type(() => AccountData)
+  account_data?: AccountData;
+
+  @ValidateNested()
+  @Type(() => Ephemeral)
+  ephemeral?: Ephemeral;
+
+  @ValidateNested()
+  @Type(() => _State)
+  state?: _State;
+
+  @ValidateNested()
+  @Type(() => Timeline)
+  timeline?: Timeline;
+
+  @ValidateNested()
+  @Type(() => UnreadNotificationCounts)
+  unread_notifications?: UnreadNotificationCounts;
+}
+
 export class Leave {
   [key: string]: any;
+}
+
+export class LeftRoom {
+  @ValidateNested()
+  @Type(() => _State)
+  state?: _State;
+
+  @ValidateNested()
+  @Type(() => Timeline)
+  timeline?: Timeline;
 }
 
 export class RoomsResponse {
@@ -1543,7 +1779,6 @@ export class RoomsResponse {
 }
 
 export class SyncResponse {
-  @IsDefined()
   @ValidateNested()
   @Type(() => AccountDataResponse)
   account_data?: AccountDataResponse;
@@ -1552,7 +1787,6 @@ export class SyncResponse {
 
   @IsString() next_batch?: string;
 
-  @IsDefined()
   @ValidateNested()
   @Type(() => PresenceResponse)
   presence?: PresenceResponse;
@@ -1564,17 +1798,7 @@ export class SyncResponse {
   to_device?: any;
 }
 
-export class RoomEventFilter {
-  @IsBoolean() contains_url?: boolean;
-
-  @IsArray()
-  @IsString({ each: true })
-  not_rooms?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  rooms?: string[];
-
+export class _Filter {
   @IsInt() limit?: number;
 
   @IsArray()
@@ -1592,6 +1816,20 @@ export class RoomEventFilter {
   @IsArray()
   @IsString({ each: true })
   types?: string[];
+}
+
+export class RoomEventFilter {
+  @IsBoolean() contains_url?: boolean;
+
+  @IsArray()
+  @IsString({ each: true })
+  not_rooms?: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  rooms?: string[];
+
+  @IsString() generic_search_term?: string;
 }
 
 export class RoomFilter {
@@ -1624,8 +1862,8 @@ export class RoomFilter {
 
 export class DefineFilterBody {
   @ValidateNested()
-  @Type(() => Filter)
-  account_data?: Filter;
+  @Type(() => _Filter)
+  account_data?: _Filter;
 
   @IsArray()
   @IsString({ each: true })
@@ -1634,8 +1872,8 @@ export class DefineFilterBody {
   @IsString() event_format?: string;
 
   @ValidateNested()
-  @Type(() => Filter)
-  presence?: Filter;
+  @Type(() => _Filter)
+  presence?: _Filter;
 
   @ValidateNested()
   @Type(() => RoomFilter)
@@ -1677,23 +1915,7 @@ export class RoomEventFilterResponse {
   @IsString({ each: true })
   rooms?: string[];
 
-  @IsInt() limit?: number;
-
-  @IsArray()
-  @IsString({ each: true })
-  not_senders?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  not_types?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  senders?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  types?: string[];
+  @IsString() generic_search_term?: string;
 }
 
 export class RoomFilterResponse {
