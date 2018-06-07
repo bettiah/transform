@@ -1,7 +1,7 @@
 require('isomorphic-fetch');
 require('isomorphic-form-data');
 
-import { Get, Put, Delete, Post } from 'pretend';
+import { Get, Put, Delete, Post, Headers } from 'pretend';
 
 import * as dto from './dto';
 
@@ -12,7 +12,10 @@ function Param(options?: any): Function {
   return () => {};
 }
 function QueryParam(name: string, options?: any): Function {
-  return () => {};
+  // console.log(`${name}: evaluated`);
+  return (target: any, mem: string, idx: number) => {
+    // console.log(`${name}:${JSON.stringify(target)}:${mem}:${idx} run`);
+  };
 }
 function HeaderParam(name: string, options?: any): Function {
   return () => {};
@@ -302,7 +305,7 @@ export class MatrixClient {
     body: dto.SetPushRuleEnabledBody
   ): Promise<any> {}
 
-  @Post('/_matrix/client/r0/register')
+  @Post('/_matrix/client/r0/register', true)
   async register(
     @QueryParam('kind') kind: string,
     @Body({ required: true })
