@@ -18,12 +18,6 @@ export function redis() {
   })();
 }
 
-export function hashAndStore(str: string): string {
-  const key = rand();
-  redis().set(key, str);
-  return key;
-}
-
 const config = require('../config.json');
 
 export const rand = () =>

@@ -17,8 +17,7 @@ import {
 
 import * as dto from './dto';
 import { signup, authenticate } from './auth';
-import { rand, normalizeUser, hashAndStore, redis } from './utils';
-import { normalize } from 'path';
+import { rand, normalizeUser, redis } from './utils';
 
 @JsonController('/_matrix/client/r0')
 export class MatrixController {
@@ -216,7 +215,7 @@ export class MatrixController {
   ): Promise<dto.LoginResponse | dto.LoginResponse429 | any> {
     if (body.type === 'm.login.password') {
       const { user, jwt } = await authenticate(
-        body.user!,
+        normalizeUser(body.user!),
         body.password!,
         body.device_id!
       );
@@ -421,10 +420,11 @@ export class MatrixController {
     | any
   > {
     if (body.auth && body.auth.session && body.auth.type === 'm.login.dummy') {
-      // get user / pass from session
-      const session = await redis().getAsync(body.auth.session);
       // get from redis -
-      const [user, pass, _] = session.split(':');
+      const session = await redis().getAsync(body.auth.session);
+      // get user / pass from session
+      const [user, pass, ts] = session.split(':');
+      // TODO - make sure ts is not too old
       const device_id = body.device_id || rand();
       const userN = normalizeUser(user);
       const signedIn = await signup(userN, pass, device_id);
@@ -436,13 +436,14 @@ export class MatrixController {
       };
       return resp;
     } else if (body.username && body.password) {
-      // hash it, store in redis
-      const session = hashAndStore(
-        `${body.username}:${body.password}:${rand()}`
-      );
+      const key = rand();
+      const session = `${body.username}:${
+        body.password
+      }:${new Date().getTime()}`;
+      await redis().setAsync(key, session);
       // send back a session id
       const resp: dto.AuthenticationResponse = {
-        session,
+        session: key,
         flows: [{ stages: ['m.loging.dummy'] }]
       };
       return resp;
