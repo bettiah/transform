@@ -12,6 +12,7 @@ import { MatrixController, MatrixMediaController } from './tss';
 import { dbConnection } from './model';
 import { verifyToken } from './jwt';
 import { tokenUser } from './auth';
+import { redis, initRedis } from './utils';
 
 const debug = require('debug')('server');
 const bodyParser = require('body-parser');
@@ -29,6 +30,7 @@ async function init() {
     debug('db', ex);
     throw new Error(ex.message);
   });
+  initRedis();
   debug('initialized');
 }
 

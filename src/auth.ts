@@ -8,7 +8,7 @@ const auth = require('passport-local-authenticate');
 const config = require('../config.json');
 const debug = require('debug')('server:auth');
 
-const options = {
+const passwordOptions = {
   digestAlgorithm: 'SHA256',
   iterations: 50000,
   keylen: 32,
@@ -21,29 +21,29 @@ export async function authenticate(
   password: string,
   deviceId: string
 ): Promise<any> {
-  const trader = await getRepository(User).findOne({ user_id: username });
-  if (!trader) {
+  const user = await getRepository(User).findOne({ user_id: username });
+  if (!user) {
     throw new UnauthorizedError('user does not exist');
   }
-  const [_, salt, hash] = trader!.password_hash.split('$', 3);
+  const [_, salt, hash] = user!.password_hash.split('$', 3);
 
   return new Promise<any>((resolve, reject) => {
-    auth.verify(password, { salt, hash }, options, function(
+    auth.verify(password, { salt, hash }, passwordOptions, function(
       err: any,
       verified: boolean
     ) {
       if (err || !verified) {
         reject(new UnauthorizedError('bad password')); // bad username or password
       }
-      const jwt = newToken(trader, deviceId);
-      resolve({ trader, jwt });
+      const jwt = newToken(user, deviceId);
+      resolve({ user, jwt });
     });
   });
 }
 
 function hashPassword(password: string) {
   return new Promise<string>((resolve, reject) => {
-    auth.hash(password, options, (error: any, hashed: any) => {
+    auth.hash(password, passwordOptions, (error: any, hashed: any) => {
       if (error) {
         reject('bad username or password');
       }

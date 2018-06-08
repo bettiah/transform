@@ -1,25 +1,9 @@
 import 'reflect-metadata';
 
-import { Pretend } from 'pretend';
-import { MatrixClient } from './cli';
 import { LoginResponse, SyncResponse } from './dto';
+import { setAuth, client } from './test_client';
 
 describe('user tests', () => {
-  let _login: LoginResponse = {};
-  let client: MatrixClient = Pretend.builder()
-    .requestInterceptor(request => {
-      request.options.headers = {
-        'Content-Type': 'application/json;charset=UTF-8'
-      };
-      if (_login.access_token) {
-        request.options.headers['Authorization'] = `Bearer ${
-          _login.access_token
-        }`;
-      }
-      return request;
-    })
-    .target(MatrixClient, 'http://localhost:8008/');
-
   it('login', async () => {
     const login: LoginResponse = await client.login({
       type: 'm.login.password',
@@ -27,7 +11,7 @@ describe('user tests', () => {
       password: 'u1'
     });
     console.dir(login);
-    _login = login;
+    setAuth(login.access_token!);
   });
 
   //   let roomId = '';
