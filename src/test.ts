@@ -8,7 +8,7 @@ import {
   SetRoomStateResponse,
   StateEventResponse,
   SendMessageResponse
-} from './dto';
+} from './client-server/dto';
 import { rand } from './utils';
 import { setAuth, client } from './test_client';
 

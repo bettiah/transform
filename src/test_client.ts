@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 
 import { Pretend } from 'pretend';
-import { MatrixClient } from './cli';
+import { MatrixClient } from './client-server/cli';
 
 let auth = '';
 

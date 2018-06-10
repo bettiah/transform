@@ -17,8 +17,8 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './dto';
-import { authenticate } from './auth';
-import { normalizeUser } from './utils';
+import { authenticate } from '../auth';
+import { normalizeUser } from '../utils';
 
 @JsonController('')
 export class MatrixClientR0Login {

@@ -8,7 +8,7 @@ import {
   UnauthorizedError
 } from 'routing-controllers';
 
-import routes from './routes';
+import routes from './client-server/routes';
 import { dbConnection } from './model';
 import { verifyToken } from './jwt';
 import { tokenUser } from './auth';

@@ -17,8 +17,8 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './dto';
-import { rand, normalizeUser, redisAsync } from './utils';
-import { signup } from './auth';
+import { rand, normalizeUser, redisAsync } from '../utils';
+import { signup } from '../auth';
 const config = require('../config.json');
 
 @JsonController('')

@@ -1,6 +1,6 @@
 import { rand } from './utils';
 import { setAuth, client } from './test_client';
-import { RegisterBody } from './dto';
+import { RegisterBody } from './client-server/dto';
 import { expect } from 'chai';
 
 describe('/_matrix/client/r0/register', () => {
