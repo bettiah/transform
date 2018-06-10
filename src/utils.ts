@@ -11,10 +11,15 @@ export async function initRedis() {
   });
 }
 
-export function redis() {
+export function redis(): RedisClient {
   return once(() => {
-    const redis = Redis.createClient();
-    return bluebird.promisifyAll(redis);
+    return Redis.createClient();
+  })();
+}
+
+export function redisAsync() {
+  return once(() => {
+    return bluebird.promisifyAll(redis());
   })();
 }
 

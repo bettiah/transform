@@ -16,6 +16,7 @@ describe('/_matrix/client/r0/register', () => {
     const result1 = await client.register('', reg1);
     console.log(JSON.stringify(result1, null, 2));
     expect(result1.session).not.null;
+    expect(result1.flows);
 
     const reg2: RegisterBody = {
       auth: {
@@ -25,7 +26,7 @@ describe('/_matrix/client/r0/register', () => {
     };
     const result2 = await client.register('', reg2);
     console.dir(result2);
-    expect(result2.access_token).is.not.null;
+    expect(result2.access_token).to.not.be.undefined;
     setAuth(result2.access_token);
   });
 

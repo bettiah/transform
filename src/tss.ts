@@ -18,8 +18,10 @@ import {
 
 import * as dto from './dto';
 import { signup, authenticate } from './auth';
-import { rand, normalizeUser, redis } from './utils';
+import { rand, normalizeUser, redisAsync, redis } from './utils';
+
 const config = require('../config.json');
+const debug = require('debug')('server');
 
 @JsonController('/_matrix/client/r0')
 export class MatrixController {
@@ -423,7 +425,7 @@ export class MatrixController {
   > {
     if (body.auth && body.auth.session && body.auth.type === 'm.login.dummy') {
       // get from redis - TODO - then delete it
-      const session = await redis().getAsync(body.auth.session);
+      const session = await redisAsync().getAsync(body.auth.session);
       if (!session) {
         throw new UnauthorizedError('invalid session');
       }
@@ -442,11 +444,11 @@ export class MatrixController {
       // TODO - check if in use
       const session = rand();
       const value = `${body.username}:${body.password}`;
-      await redis().setAsync(session, value, 'EX', config.session_timeout);
+      await redisAsync().setAsync(session, value, 'EX', config.session_timeout);
       // send back a session id
       const resp: dto.AuthenticationResponse = {
         session,
-        flows: [{ stages: ['m.loging.dummy'] }]
+        flows: [{ stages: ['m.login.dummy'] }]
       };
       return resp;
     }
