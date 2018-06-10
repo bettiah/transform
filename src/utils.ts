@@ -1,6 +1,6 @@
 const once = require('lodash.once');
-const bluebird = require('bluebird');
-const Redis = require('redis');
+import bluebird from 'bluebird';
+import Redis, { RedisClient } from 'redis';
 
 const debug = require('debug')('server');
 

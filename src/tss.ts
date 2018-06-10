@@ -12,12 +12,14 @@ import {
   BadRequestError,
   CurrentUser,
   QueryParam,
-  HeaderParam
+  HeaderParam,
+  UnauthorizedError
 } from 'routing-controllers';
 
 import * as dto from './dto';
 import { signup, authenticate } from './auth';
 import { rand, normalizeUser, redis } from './utils';
+const config = require('../config.json');
 
 @JsonController('/_matrix/client/r0')
 export class MatrixController {
@@ -420,14 +422,15 @@ export class MatrixController {
     | any
   > {
     if (body.auth && body.auth.session && body.auth.type === 'm.login.dummy') {
-      // get from redis -
+      // get from redis - TODO - then delete it
       const session = await redis().getAsync(body.auth.session);
+      if (!session) {
+        throw new UnauthorizedError('invalid session');
+      }
       // get user / pass from session
-      const [user, pass, ts] = session.split(':');
-      // TODO - make sure ts is not too old
-      const device_id = body.device_id || rand();
-      const userN = normalizeUser(user);
-      const signedIn = await signup(userN, pass, device_id);
+      const [user, pass] = session.split(':');
+      const device_id = body.device_id || rand(); // TODO - store, check device_id
+      const signedIn = await signup(normalizeUser(user), pass, device_id);
       const resp: dto.RegisterResponse = {
         access_token: signedIn.jwt,
         device_id,
@@ -436,14 +439,13 @@ export class MatrixController {
       };
       return resp;
     } else if (body.username && body.password) {
-      const key = rand();
-      const session = `${body.username}:${
-        body.password
-      }:${new Date().getTime()}`;
-      await redis().setAsync(key, session);
+      // TODO - check if in use
+      const session = rand();
+      const value = `${body.username}:${body.password}`;
+      await redis().setAsync(session, value, 'EX', config.session_timeout);
       // send back a session id
       const resp: dto.AuthenticationResponse = {
-        session: key,
+        session,
         flows: [{ stages: ['m.loging.dummy'] }]
       };
       return resp;

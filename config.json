@@ -1,3 +1,4 @@
 {
-  "server": "s1.local"
+  "server": "s1.local",
+  "session_timeout": 10
 }
