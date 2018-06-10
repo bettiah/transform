@@ -2101,3 +2101,5 @@ export class UploadContentResponse429 {
 
   @IsString() error?: string;
 }
+
+export class LogoutResponse {}

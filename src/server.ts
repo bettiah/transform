@@ -8,11 +8,11 @@ import {
   UnauthorizedError
 } from 'routing-controllers';
 
-import { MatrixController, MatrixMediaController } from './tss';
+import routes from './routes';
 import { dbConnection } from './model';
 import { verifyToken } from './jwt';
 import { tokenUser } from './auth';
-import { redis, initRedis } from './utils';
+import { initRedis } from './utils';
 
 const debug = require('debug')('server');
 const bodyParser = require('body-parser');
@@ -68,7 +68,7 @@ useExpressServer(app, {
     }
     return tokenUser(token);
   },
-  controllers: [MatrixController, MatrixMediaController]
+  controllers: routes
 });
 
 const port = process.env.PORT || 1234;
