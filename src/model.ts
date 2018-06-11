@@ -35,6 +35,10 @@ export class User {
 export class Room {
   @PrimaryGeneratedColumn('uuid') id!: number;
 
+  @Index({ unique: true })
+  @Column({ length: 128 })
+  room_id!: string;
+
   @Column() visibility!: string;
 
   @Index({ unique: true })

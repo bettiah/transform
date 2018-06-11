@@ -48,3 +48,10 @@ export function normalizeAlias(alias: string): string {
   }
   return `#${alias}:${config.server}`;
 }
+
+export function normalizeRoom(room: string): string {
+  if (room.startsWith('!')) {
+    return room;
+  }
+  return `!${room}:${config.server}`;
+}
