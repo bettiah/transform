@@ -3,7 +3,7 @@ require('isomorphic-form-data');
 
 import { Get, Put, Delete, Post, Headers } from 'pretend';
 
-import * as dto from './dto';
+import * as dto from './types';
 
 function Body(options?: any): Function {
   return () => {};

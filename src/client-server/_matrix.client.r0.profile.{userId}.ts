@@ -1,30 +1,29 @@
+import {
+  JsonController,
+  Authorized,
+  Post,
+  Body,
+  Get,
+  Put,
+  Delete,
+  Param,
+  HttpError,
+  NotFoundError,
+  BadRequestError,
+  CurrentUser,
+  QueryParam,
+  HeaderParam,
+  UnauthorizedError
+} from 'routing-controllers';
 
-  import {
-    JsonController,
-    Authorized,
-    Post,
-    Body,
-    Get,
-    Put,
-    Delete,
-    Param,
-    HttpError,
-    NotFoundError,
-    BadRequestError,
-    CurrentUser,
-    QueryParam,
-    HeaderParam,
-    UnauthorizedError
-  } from 'routing-controllers';
-  
-  import * as dto from './dto';  
-  
-@JsonController("")
+import * as dto from './types';
+
+@JsonController('')
 export class MatrixClientR0ProfileUserId {
-@Get("/_matrix/client/r0/profile/{userId}")
-async getUserProfile(@Param("userId") userId:string) : Promise< dto.GetUserProfileResponse|any > {
- throw new HttpError(501);
+  @Get('/_matrix/client/r0/profile/{userId}')
+  async getUserProfile(
+    @Param('userId') userId: string
+  ): Promise<dto.GetUserProfileResponse | any> {
+    throw new HttpError(501);
+  }
 }
-
-}
-

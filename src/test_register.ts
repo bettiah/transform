@@ -1,6 +1,6 @@
 import { rand } from './utils';
 import { setAuth, client } from './test_client';
-import { RegisterBody } from './client-server/dto';
+import { RegisterBody } from './client-server/types';
 import { expect } from 'chai';
 
 describe('/_matrix/client/r0/register', () => {
@@ -20,7 +20,7 @@ describe('/_matrix/client/r0/register', () => {
 
     const reg2: RegisterBody = {
       auth: {
-        type: 'm.login.dummy',
+        type: LoginType.dummy,
         session: result1.session
       }
     };
@@ -33,7 +33,7 @@ describe('/_matrix/client/r0/register', () => {
   it('1step fail', async () => {
     const reg2: RegisterBody = {
       auth: {
-        type: 'm.login.dummy',
+        type: LoginType.dummy,
         session: 'bad session'
       }
     };

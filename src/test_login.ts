@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { LoginResponse } from './client-server/dto';
+import { LoginResponse } from './client-server/types';
 import { setAuth, client } from './test_client';
 
 it('login', async () => {

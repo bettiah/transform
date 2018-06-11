@@ -8,7 +8,7 @@ import {
   SetRoomStateResponse,
   StateEventResponse,
   SendMessageResponse
-} from './client-server/dto';
+} from './client-server/types';
 import { rand } from './utils';
 import { setAuth, client } from './test_client';
 
@@ -32,7 +32,7 @@ describe('Client Tests', () => {
 
     const reg2: RegisterBody = {
       auth: {
-        type: 'm.login.dummy',
+        type: LoginType.dummy,
         session: result1.session
       }
     };

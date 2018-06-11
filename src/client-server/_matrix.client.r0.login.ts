@@ -16,7 +16,7 @@ import {
   UnauthorizedError
 } from 'routing-controllers';
 
-import * as dto from './dto';
+import * as dto from './types';
 import { authenticate } from '../auth';
 import { normalizeUser } from '../utils';
 

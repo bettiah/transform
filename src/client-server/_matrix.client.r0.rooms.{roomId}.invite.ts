@@ -17,7 +17,7 @@
     UnauthorizedError
   } from 'routing-controllers';
   
-  import * as dto from './dto';  
+  import * as dto from './types';  
   
 @JsonController("")
 export class MatrixClientR0RoomsRoomIdInvite {
