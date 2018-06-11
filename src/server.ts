@@ -66,7 +66,7 @@ useExpressServer(app, {
     if (!token) {
       throw new UnauthorizedError('missing token');
     }
-    return tokenUser(token);
+    return await tokenUser(token);
   },
   controllers: routes
 });

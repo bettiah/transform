@@ -6,3 +6,8 @@ export const enum LoginType {
   token = 'm.login.token',
   dummy = 'm.login.dummy'
 }
+
+export const enum VisibilityType {
+  public = 'public',
+  private = 'private'
+}

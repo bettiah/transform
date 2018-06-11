@@ -16,15 +16,32 @@ import {
   UnauthorizedError
 } from 'routing-controllers';
 
+import { User, Room } from '../model';
 import * as dto from './types';
+import { VisibilityType } from '../types';
+import { normalizeAlias, rand } from '../utils';
+import { getRepository } from 'typeorm';
+const debug = require('debug')('server:createRoom');
 
-@JsonController('')
+@JsonController()
 export class MatrixClientR0CreateRoom {
   @Post('/_matrix/client/r0/createRoom')
   async createRoom(
-    @Body({ required: true })
-    body: dto.CreateRoomBody
-  ): Promise<dto.CreateRoomResponse | any> {
-    throw new HttpError(501);
+    @CurrentUser() user: User,
+    @Body() body: dto.CreateRoomBody
+  ): Promise<dto.CreateRoomResponse> {
+    const room = new Room();
+    room.name = body.name || rand();
+    room.topic = body.topic || rand();
+    room.visibility = body.visibility || VisibilityType.private;
+    room.aliases = body.room_alias_name
+      ? [{ id: 0, name: normalizeAlias(body.room_alias_name), room }]
+      : [];
+    room.isDirect = body.is_direct || false;
+    // at least one user
+    room.users = [user];
+    const savedRoom = await getRepository(Room).save(room);
+    debug('saved', savedRoom);
+    return { room_id: `${savedRoom.id}` };
   }
 }

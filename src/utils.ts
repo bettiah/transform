@@ -23,6 +23,10 @@ export function redisAsync() {
   })();
 }
 
+export function redisMulti(): any {
+  return bluebird.promisifyAll(redis().multi());
+}
+
 const config = require('../config.json');
 
 export const rand = () =>
@@ -31,9 +35,16 @@ export const rand = () =>
     .substring(2);
 
 export function normalizeUser(user: string): string {
-  // make sure user
+  // TODO - do better
   if (user.startsWith('@')) {
     return user;
   }
   return `@${user}:${config.server}`;
+}
+
+export function normalizeAlias(alias: string): string {
+  if (alias.startsWith('#')) {
+    return alias;
+  }
+  return `#${alias}:${config.server}`;
 }

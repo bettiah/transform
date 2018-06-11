@@ -84,7 +84,7 @@ export async function signup(
 export function tokenUser(token: string): Promise<User | undefined> {
   try {
     const { user_id } = verifyToken(token);
-    return getRepository(User).findOne(user_id);
+    return getRepository(User).findOneOrFail({ user_id });
   } catch (ex) {
     debug(ex.message);
     throw new UnauthorizedError(ex.message);

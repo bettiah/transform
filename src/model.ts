@@ -1,11 +1,15 @@
-import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import {
   createConnection,
   Entity,
   PrimaryGeneratedColumn,
   Index,
-  Column
+  Column,
+  OneToMany,
+  ManyToOne,
+  ManyToMany,
+  JoinTable
 } from 'typeorm';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { SqliteConnectionOptions } from 'typeorm/driver/sqlite/SqliteConnectionOptions';
 const debug = require('debug')('server:model');
 
@@ -22,6 +26,41 @@ export class User {
 
   @Column({ length: 128 })
   password_hash!: string;
+
+  @ManyToMany(type => Room, room => room.users)
+  rooms!: Room[];
+}
+
+@Entity()
+export class Room {
+  @PrimaryGeneratedColumn('uuid') id!: number;
+
+  @Column() visibility!: string;
+
+  @Index({ unique: true })
+  @Column()
+  name!: string;
+
+  @Column() topic!: string;
+
+  @Column() isDirect!: boolean;
+
+  @OneToMany(type => RoomAlias, alias => alias.room)
+  aliases!: RoomAlias[];
+
+  @ManyToMany(type => User, user => user.rooms)
+  @JoinTable()
+  users!: User[];
+}
+
+@Entity()
+export class RoomAlias {
+  @PrimaryGeneratedColumn('uuid') id!: number;
+
+  @Column() name!: string;
+
+  @ManyToOne(type => Room, room => room.aliases)
+  room!: Room;
 }
 
 const postgres: PostgresConnectionOptions = {
@@ -37,7 +76,7 @@ const postgres: PostgresConnectionOptions = {
 const sqlite: SqliteConnectionOptions = {
   type: 'sqlite',
   database: 'chat.sqlite',
-  entities: [User],
+  entities: [User, Room, RoomAlias],
   synchronize: true,
   logging: true
 };

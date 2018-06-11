@@ -1,8 +1,10 @@
 import 'reflect-metadata';
 
 import { LoginResponse } from './client-server/types';
-import { setAuth, client } from './test_client';
+import { client } from './test_client';
 import { LoginType } from './types';
+import { verifyToken } from './jwt';
+import { expect } from 'chai';
 
 it('login', async () => {
   const login: LoginResponse = await client.login({
@@ -10,6 +12,8 @@ it('login', async () => {
     user: 'vm',
     password: 'vm'
   });
-  console.dir(login);
-  setAuth(login.access_token!);
+  const token = verifyToken(login.access_token!);
+  console.log('token:', token);
+  expect(token).to.not.be.undefined;
+  expect(token.user_id.startsWith('@vm')).to.be.true;
 });

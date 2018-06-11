@@ -11,6 +11,7 @@ import {
 } from './client-server/types';
 import { rand } from './utils';
 import { setAuth, client } from './test_client';
+import { LoginType } from './types';
 
 describe('Client Tests', () => {
   it('/_matrix/client/versions', async () => {

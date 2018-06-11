@@ -10,6 +10,7 @@ import {
   IsOptional
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { VisibilityType } from '../types';
 
 export class ThirdPartyIdentifierResponse {
   @IsString() address?: string;
@@ -220,7 +221,6 @@ export class CreateRoomBody {
   @IsString({ each: true })
   invite?: string[];
 
-  @IsDefined()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => Invite3pid)
@@ -236,7 +236,7 @@ export class CreateRoomBody {
 
   @IsString() topic?: string;
 
-  @IsString() visibility?: string;
+  @IsString() visibility?: VisibilityType;
 }
 
 export class CreateRoomResponse {

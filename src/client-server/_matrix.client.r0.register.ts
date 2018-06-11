@@ -19,9 +19,10 @@ import {
 import * as dto from './types';
 import { LoginType } from '../types';
 
-import { rand, normalizeUser, redisAsync } from '../utils';
+import { rand, normalizeUser, redisAsync, redisMulti } from '../utils';
 import { signup } from '../auth';
 const config = require('../../config.json');
+const debug = require('debug')('server:register');
 
 @JsonController('')
 export class MatrixClientR0Register {
@@ -37,8 +38,11 @@ export class MatrixClientR0Register {
     | any
   > {
     if (body.auth && body.auth.session && body.auth.type === LoginType.dummy) {
-      // get from redis - TODO - then delete it
-      const session = await redisAsync().getAsync(body.auth.session);
+      const [session, _] = await redisMulti()
+        .get(body.auth.session)
+        .del(body.auth.session)
+        .execAsync();
+      debug('session', session);
       if (!session) {
         throw new UnauthorizedError('invalid session');
       }
@@ -56,6 +60,7 @@ export class MatrixClientR0Register {
     } else if (body.username && body.password) {
       // TODO - check if in use
       const session = rand();
+      // TODO - store hash of password
       const value = `${body.username}:${body.password}`;
       await redisAsync().setAsync(session, value, 'EX', config.session_timeout);
       // send back a session id
