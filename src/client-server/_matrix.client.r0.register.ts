@@ -17,6 +17,8 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { LoginType } from '../types';
+
 import { rand, normalizeUser, redisAsync } from '../utils';
 import { signup } from '../auth';
 const config = require('../../config.json');

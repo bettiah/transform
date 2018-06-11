@@ -1,5 +1,6 @@
 import { rand } from './utils';
 import { setAuth, client } from './test_client';
+import { LoginType } from './types';
 import { RegisterBody } from './client-server/types';
 import { expect } from 'chai';
 

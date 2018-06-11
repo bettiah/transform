@@ -19,6 +19,7 @@ import {
 import * as dto from './types';
 import { authenticate } from '../auth';
 import { normalizeUser } from '../utils';
+import { LoginType } from '../types';
 
 @JsonController('')
 export class MatrixClientR0Login {
@@ -27,7 +28,7 @@ export class MatrixClientR0Login {
     @Body({ required: true })
     body: dto.LoginBody
   ): Promise<dto.LoginResponse | dto.LoginResponse429 | any> {
-    if (body.type === 'm.login.password') {
+    if (body.type === LoginType.password) {
       const { user, jwt } = await authenticate(
         normalizeUser(body.user!),
         body.password!,

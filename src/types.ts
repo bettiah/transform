@@ -1,4 +1,4 @@
-enum LoginType {
+export const enum LoginType {
   password = 'm.login.password',
   recaptcha = 'm.login.recaptcha',
   oauth2 = 'm.login.oauth2',
