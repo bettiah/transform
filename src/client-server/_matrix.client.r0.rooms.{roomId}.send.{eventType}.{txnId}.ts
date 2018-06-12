@@ -19,7 +19,8 @@ import {
 
 import { User, Room } from '../model';
 import * as dto from './types';
-import { redisAsync, redisEnque, validateRequest } from '../utils';
+import { redisEnque } from '../redis';
+import { validateRequest } from '../utils';
 import * as events from './events';
 import { Validator, validate } from 'class-validator';
 const debug = require('debug')('server:sendMessage');

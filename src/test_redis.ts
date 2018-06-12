@@ -1,4 +1,4 @@
-import { redis, redisAsync, redisMulti } from './utils';
+import { redis, redisAsync, redisMulti } from './redis';
 import Redis from 'redis';
 
 it('redis', done => {

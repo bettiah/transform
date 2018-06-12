@@ -12,7 +12,7 @@ import routes from './client-server/routes';
 import { dbConnection } from './model';
 import { verifyToken } from './jwt';
 import { tokenUser } from './auth';
-import { initRedis } from './utils';
+import { initRedis } from './redis';
 
 const debug = require('debug')('server');
 const bodyParser = require('body-parser');

@@ -19,7 +19,8 @@ import {
 import * as dto from './types';
 import { LoginType } from '../types';
 
-import { rand, normalizeUser, redisAsync, redisMulti } from '../utils';
+import { rand, normalizeUser } from '../utils';
+import { redisAsync, redisMulti } from '../redis';
 import { signup } from '../auth';
 const config = require('../../config.json');
 const debug = require('debug')('server:register');
