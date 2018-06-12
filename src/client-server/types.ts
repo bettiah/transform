@@ -52,8 +52,7 @@ export class AuthenticationData {
   @IsString() session?: string;
 
   // @IsDefined()
-  @IsString()
-  type?: string;
+  @IsString() type?: string;
 
   [key: string]: any;
 }
