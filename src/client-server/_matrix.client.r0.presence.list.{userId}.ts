@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0PresenceListUserId {
@@ -192,7 +193,8 @@ export class MatrixClientR0PresenceListUserId {
   async modifyPresenceList(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: dto.ModifyPresenceListBody
+    body: dto.ModifyPresenceListBody,
+    @CurrentUser() user?: User
   ): Promise<dto.ModifyPresenceListResponse429 | any> {
     throw new HttpError(501);
   }

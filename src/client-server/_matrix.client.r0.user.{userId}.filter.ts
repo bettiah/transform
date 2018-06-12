@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0UserUserIdFilter {
@@ -537,7 +538,8 @@ export class MatrixClientR0UserUserIdFilter {
   async defineFilter(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: dto.DefineFilterBody
+    body: dto.DefineFilterBody,
+    @CurrentUser() user?: User
   ): Promise<dto.DefineFilterResponse | any> {
     throw new HttpError(501);
   }

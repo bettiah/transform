@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0ProfileUserIdDisplayname {
@@ -147,7 +148,8 @@ export class MatrixClientR0ProfileUserIdDisplayname {
   async setDisplayName(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: dto.SetDisplayNameBody
+    body: dto.SetDisplayNameBody,
+    @CurrentUser() user?: User
   ): Promise<dto.SetDisplayNameResponse429 | any> {
     throw new HttpError(501);
   }

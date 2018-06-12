@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdStateEventType {
@@ -79,7 +80,8 @@ export class MatrixClientR0RoomsRoomIdStateEventType {
   @Get('/_matrix/client/r0/rooms/:roomId/state/:eventType')
   async getRoomStateByType(
     @Param('roomId') roomId: string,
-    @Param('eventType') eventType: string
+    @Param('eventType') eventType: string,
+    @CurrentUser() user?: User
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -162,7 +164,8 @@ export class MatrixClientR0RoomsRoomIdStateEventType {
     @Param('roomId') roomId: string,
     @Param('eventType') eventType: string,
     @Body({ required: true })
-    body: any
+    body: any,
+    @CurrentUser() user?: User
   ): Promise<dto.SetRoomStateResponse | any> {
     throw new HttpError(501);
   }

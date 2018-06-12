@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0Sync {
@@ -1044,7 +1045,8 @@ export class MatrixClientR0Sync {
     @QueryParam('set_presence', { required: true })
     setPresence: string,
     @QueryParam('timeout', { required: true })
-    timeout: number
+    timeout: number,
+    @CurrentUser() user?: User
   ): Promise<dto.SyncResponse | any> {
     throw new HttpError(501);
   }

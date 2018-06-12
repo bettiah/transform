@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0Search {
@@ -681,7 +682,8 @@ export class MatrixClientR0Search {
     @QueryParam('next_batch', { required: true })
     nextBatch: string,
     @Body({ required: true })
-    body: dto.SearchBody
+    body: dto.SearchBody,
+    @CurrentUser() user?: User
   ): Promise<dto.ResultsResponse | dto.SearchResponse429 | any> {
     throw new HttpError(501);
   }

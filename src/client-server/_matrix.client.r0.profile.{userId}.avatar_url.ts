@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0ProfileUserIdAvatarUrl {
@@ -147,7 +148,8 @@ export class MatrixClientR0ProfileUserIdAvatarUrl {
   async setAvatarUrl(
     @Param('userId') userId: string,
     @Body({ required: true })
-    body: dto.SetAvatarUrlBody
+    body: dto.SetAvatarUrlBody,
+    @CurrentUser() user?: User
   ): Promise<dto.SetAvatarUrlResponse429 | any> {
     throw new HttpError(501);
   }

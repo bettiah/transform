@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0JoinedRooms {
@@ -61,7 +62,9 @@ export class MatrixClientR0JoinedRooms {
    *
    */
   @Get('/_matrix/client/r0/joined_rooms')
-  async getJoinedRooms(): Promise<dto.GetJoinedRoomsResponse | any> {
+  async getJoinedRooms(
+    @CurrentUser() user?: User
+  ): Promise<dto.GetJoinedRoomsResponse | any> {
     throw new HttpError(501);
   }
 }

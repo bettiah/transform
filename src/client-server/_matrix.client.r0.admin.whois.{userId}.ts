@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0AdminWhoisUserId {
@@ -131,7 +132,8 @@ export class MatrixClientR0AdminWhoisUserId {
    */
   @Get('/_matrix/client/r0/admin/whois/:userId')
   async getWhoIs(
-    @Param('userId') userId: string
+    @Param('userId') userId: string,
+    @CurrentUser() user?: User
   ): Promise<dto.GetWhoIsResponse | any> {
     throw new HttpError(501);
   }

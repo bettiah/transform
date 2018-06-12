@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdTypingUserId {
@@ -117,7 +118,8 @@ export class MatrixClientR0RoomsRoomIdTypingUserId {
     @Param('userId') userId: string,
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: dto.SetTypingBody
+    body: dto.SetTypingBody,
+    @CurrentUser() user?: User
   ): Promise<dto.SetTypingResponse429 | any> {
     throw new HttpError(501);
   }

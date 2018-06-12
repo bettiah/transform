@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0PushrulesScopeKindRuleId {
@@ -169,7 +170,8 @@ export class MatrixClientR0PushrulesScopeKindRuleId {
   async getPushRule(
     @Param('scope') scope: string,
     @Param('kind') kind: string,
-    @Param('ruleId') ruleId: string
+    @Param('ruleId') ruleId: string,
+    @CurrentUser() user?: User
   ): Promise<dto.PushRuleResponse | any> {
     throw new HttpError(501);
   }
@@ -366,7 +368,8 @@ export class MatrixClientR0PushrulesScopeKindRuleId {
     @QueryParam('before') before: string,
     @QueryParam('after') after: string,
     @Body({ required: true })
-    body: dto.SetPushRuleBody
+    body: dto.SetPushRuleBody,
+    @CurrentUser() user?: User
   ): Promise<dto.SetPushRuleResponse429 | any> {
     throw new HttpError(501);
   }
@@ -433,7 +436,8 @@ export class MatrixClientR0PushrulesScopeKindRuleId {
   async deletePushRule(
     @Param('scope') scope: string,
     @Param('kind') kind: string,
-    @Param('ruleId') ruleId: string
+    @Param('ruleId') ruleId: string,
+    @CurrentUser() user?: User
   ): Promise<any> {
     throw new HttpError(501);
   }

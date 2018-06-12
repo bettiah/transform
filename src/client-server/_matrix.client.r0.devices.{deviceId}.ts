@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0DevicesDeviceId {
@@ -98,7 +99,8 @@ export class MatrixClientR0DevicesDeviceId {
    */
   @Get('/_matrix/client/r0/devices/:deviceId')
   async getDevice(
-    @Param('deviceId') deviceId: string
+    @Param('deviceId') deviceId: string,
+    @CurrentUser() user?: User
   ): Promise<dto.DeviceResponse | any> {
     throw new HttpError(501);
   }
@@ -161,7 +163,8 @@ export class MatrixClientR0DevicesDeviceId {
   async updateDevice(
     @Param('deviceId') deviceId: string,
     @Body({ required: true })
-    body: dto.UpdateDeviceBody
+    body: dto.UpdateDeviceBody,
+    @CurrentUser() user?: User
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -302,7 +305,8 @@ export class MatrixClientR0DevicesDeviceId {
   async deleteDevice(
     @Param('deviceId') deviceId: string,
     @Body({ required: true })
-    body: dto.DeleteDeviceBody
+    body: dto.DeleteDeviceBody,
+    @CurrentUser() user?: User
   ): Promise<dto.AuthenticationResponse | any> {
     throw new HttpError(501);
   }

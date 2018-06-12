@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0UserUserIdRoomsRoomIdTagsTag {
@@ -89,7 +90,8 @@ export class MatrixClientR0UserUserIdRoomsRoomIdTagsTag {
     @Param('roomId') roomId: string,
     @Param('tag') tag: string,
     @Body({ required: true })
-    body: any
+    body: any,
+    @CurrentUser() user?: User
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -149,7 +151,8 @@ export class MatrixClientR0UserUserIdRoomsRoomIdTagsTag {
   async deleteRoomTag(
     @Param('userId') userId: string,
     @Param('roomId') roomId: string,
-    @Param('tag') tag: string
+    @Param('tag') tag: string,
+    @CurrentUser() user?: User
   ): Promise<any> {
     throw new HttpError(501);
   }

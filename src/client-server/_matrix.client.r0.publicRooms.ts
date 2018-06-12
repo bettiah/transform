@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0PublicRooms {
@@ -335,7 +336,8 @@ export class MatrixClientR0PublicRooms {
     @QueryParam('server', { required: true })
     server: string,
     @Body({ required: true })
-    body: dto.QueryPublicRoomsBody
+    body: dto.QueryPublicRoomsBody,
+    @CurrentUser() user?: User
   ): Promise<dto.QueryPublicRoomsResponse | any> {
     throw new HttpError(501);
   }

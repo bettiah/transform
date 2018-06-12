@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixMediaR0PreviewUrl {
@@ -107,7 +108,8 @@ export class MatrixMediaR0PreviewUrl {
     @QueryParam('url', { required: true })
     url: string,
     @QueryParam('ts', { required: true })
-    ts: number
+    ts: number,
+    @CurrentUser() user?: User
   ): Promise<dto.GetUrlPreviewResponse | dto.GetUrlPreviewResponse429 | any> {
     throw new HttpError(501);
   }

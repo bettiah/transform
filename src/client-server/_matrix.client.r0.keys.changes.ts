@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0KeysChanges {
@@ -97,7 +98,8 @@ export class MatrixClientR0KeysChanges {
     @QueryParam('from', { required: true })
     from: string,
     @QueryParam('to', { required: true })
-    to: string
+    to: string,
+    @CurrentUser() user?: User
   ): Promise<dto.GetKeysChangesResponse | any> {
     throw new HttpError(501);
   }

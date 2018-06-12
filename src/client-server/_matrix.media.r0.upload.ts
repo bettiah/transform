@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixMediaR0Upload {
@@ -112,7 +113,8 @@ export class MatrixMediaR0Upload {
     @QueryParam('filename', { required: true })
     filename: string,
     @Body({ required: true })
-    body: string
+    body: string,
+    @CurrentUser() user?: User
   ): Promise<dto.UploadContentResponse | dto.UploadContentResponse429 | any> {
     throw new HttpError(501);
   }

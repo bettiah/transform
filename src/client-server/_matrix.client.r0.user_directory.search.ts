@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0UserDirectorySearch {
@@ -140,7 +141,8 @@ export class MatrixClientR0UserDirectorySearch {
   @Post('/_matrix/client/r0/user_directory/search')
   async searchUserDirectory(
     @Body({ required: true })
-    body: dto.SearchUserDirectoryBody
+    body: dto.SearchUserDirectoryBody,
+    @CurrentUser() user?: User
   ): Promise<
     dto.SearchUserDirectoryResponse | dto.SearchUserDirectoryResponse429 | any
   > {

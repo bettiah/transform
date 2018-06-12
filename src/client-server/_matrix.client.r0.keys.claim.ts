@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0KeysClaim {
@@ -119,7 +120,8 @@ export class MatrixClientR0KeysClaim {
   @Post('/_matrix/client/r0/keys/claim')
   async claimKeys(
     @Body({ required: true })
-    body: dto.ClaimKeysBody
+    body: dto.ClaimKeysBody,
+    @CurrentUser() user?: User
   ): Promise<dto.ClaimKeysResponse | any> {
     throw new HttpError(501);
   }

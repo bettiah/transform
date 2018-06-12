@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0VoipTurnServer {
@@ -102,9 +103,9 @@ export class MatrixClientR0VoipTurnServer {
    *
    */
   @Get('/_matrix/client/r0/voip/turnServer')
-  async getTurnServer(): Promise<
-    dto.GetTurnServerResponse | dto.GetTurnServerResponse429 | any
-  > {
+  async getTurnServer(
+    @CurrentUser() user?: User
+  ): Promise<dto.GetTurnServerResponse | dto.GetTurnServerResponse429 | any> {
     throw new HttpError(501);
   }
 }

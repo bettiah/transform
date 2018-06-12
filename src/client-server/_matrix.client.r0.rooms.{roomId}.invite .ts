@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdInvite {
@@ -125,7 +126,8 @@ export class MatrixClientR0RoomsRoomIdInvite {
   async inviteUser(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: dto.InviteUserBody
+    body: dto.InviteUserBody,
+    @CurrentUser() user?: User
   ): Promise<dto.InviteUserResponse429 | any> {
     throw new HttpError(501);
   }

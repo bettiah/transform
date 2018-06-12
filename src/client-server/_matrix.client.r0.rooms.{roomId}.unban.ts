@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdUnban {
@@ -91,7 +92,8 @@ export class MatrixClientR0RoomsRoomIdUnban {
   async unban(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: dto.UnbanBody
+    body: dto.UnbanBody,
+    @CurrentUser() user?: User
   ): Promise<any> {
     throw new HttpError(501);
   }
