@@ -36,7 +36,7 @@ describe('Send Message', async () => {
         }
       );
       console.log('sendMessage', resp);
-      expect(resp.event_id).is.not.empty;
+      expect(resp.event_id).is.undefined;
     });
   });
 });

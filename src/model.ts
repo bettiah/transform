@@ -69,23 +69,22 @@ export class RoomAlias {
 
 const postgres: PostgresConnectionOptions = {
   type: 'postgres',
-  database: 'chat',
-  schema: 'chat',
+  database: 'matrix',
   host: process.platform === 'linux' ? '/var/run/postgresql' : '/tmp',
-  entities: [User],
+  entities: [User, Room, RoomAlias],
   synchronize: true,
   logging: true
 };
 
 const sqlite: SqliteConnectionOptions = {
   type: 'sqlite',
-  database: 'chat.sqlite',
+  database: 'matrix.sqlite',
   entities: [User, Room, RoomAlias],
   synchronize: true,
   logging: true
 };
 
 export async function dbConnection() {
-  await createConnection(sqlite);
+  await createConnection(postgres);
   debug('db connected');
 }
