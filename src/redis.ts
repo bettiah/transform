@@ -1,8 +1,8 @@
-const once = require('lodash.once');
 import bluebird from 'bluebird';
 import Redis, { RedisClient } from 'redis';
 
-export const debug = require('debug')('server:redis');
+const once = require('lodash.once');
+const debug = require('debug')('server:redis');
 
 export function redis(): RedisClient {
   return once(() => {
@@ -24,7 +24,7 @@ export function redisEnque(queue: string, args: string[]): Promise<string> {
   return redisAsync().sendCommandAsync('XADD', [queue, '*', ...args]);
 }
 
-export async function initRedis() {
+export function initRedis() {
   const _redis = redis();
   _redis.on('ready', () => {
     debug('redis:', _redis.server_info.redis_version);

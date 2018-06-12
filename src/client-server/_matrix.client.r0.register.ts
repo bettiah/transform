@@ -63,6 +63,7 @@ export class MatrixClientR0Register {
       const session = rand();
       // TODO - store hash of password
       const value = `${body.username}:${body.password}`;
+      // save to redis, expire soon
       await redisAsync().setAsync(session, value, 'EX', config.session_timeout);
       // send back a session id
       const resp: dto.AuthenticationResponse = {
