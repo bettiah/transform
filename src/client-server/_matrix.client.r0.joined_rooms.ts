@@ -21,46 +21,6 @@ import { User } from '../model';
 
 @JsonController('')
 export class MatrixClientR0JoinedRooms {
-  /**
-   * @description : This API returns a list of the user's current rooms.
-   *
-   * @responses : {
-   *  "200": {
-   *    "description": "A list of the rooms the user is in.",
-   *    "examples": {
-   *      "application/json": {
-   *        "joined_rooms": [
-   *          "!foo:example.com"
-   *        ]
-   *      }
-   *    },
-   *    "schema": {
-   *      "properties": {
-   *        "joined_rooms": {
-   *          "description": "The ID of each room in which the user has ``joined`` membership.",
-   *          "items": {
-   *            "type": "string"
-   *          },
-   *          "type": "array"
-   *        }
-   *      },
-   *      "required": [
-   *        "joined_rooms"
-   *      ],
-   *      "type": "object"
-   *    }
-   *  }
-   *}
-   *
-   * @security : [
-   *  {
-   *    "accessToken": []
-   *  }
-   *]
-   *
-   * @summary : Lists the user's current rooms.
-   *
-   */
   @Get('/_matrix/client/r0/joined_rooms')
   async getJoinedRooms(
     @CurrentUser() user?: User
