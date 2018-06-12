@@ -1,6 +1,8 @@
 const once = require('lodash.once');
 import bluebird from 'bluebird';
 import Redis, { RedisClient } from 'redis';
+import { validate } from 'class-validator';
+import { BadRequestError } from 'routing-controllers';
 
 const debug = require('debug')('server');
 
@@ -25,6 +27,10 @@ export function redisAsync() {
 
 export function redisMulti(): any {
   return bluebird.promisifyAll(redis().multi());
+}
+
+export function redisEnque(queue: string, args: string[]): Promise<string> {
+  return redisAsync().sendCommandAsync('XADD', [queue, '*', ...args]);
 }
 
 const config = require('../config.json');
@@ -54,4 +60,15 @@ export function normalizeRoom(room: string): string {
     return room;
   }
   return `!${room}:${config.server}`;
+}
+
+export function validateRequest(event: any) {
+  return validate(event).then(err => {
+    if (err.length === 0) {
+      return;
+    }
+    const reason = err.map(it => it.toString()).join(',');
+    debug('validation failed', reason);
+    throw new BadRequestError(reason);
+  });
 }

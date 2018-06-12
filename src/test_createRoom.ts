@@ -1,7 +1,7 @@
 import { CreateRoomBody, CreateRoomResponse } from './client-server/types';
 import { client, doLogin } from './test_client';
+import { expect } from 'chai';
 
-let roomId = '';
 it('/_matrix/client/r0/createRoom', async () => {
   await doLogin('vm');
   const room: CreateRoomBody = {
@@ -9,5 +9,5 @@ it('/_matrix/client/r0/createRoom', async () => {
   };
   const resp: CreateRoomResponse = await client.createRoom(room);
   console.dir(resp);
-  roomId = resp.room_id!;
+  expect(resp.room_id).to.not.be.undefined;
 });

@@ -28,7 +28,7 @@ export class User {
   password_hash!: string;
 
   @ManyToMany(type => Room, room => room.users)
-  rooms!: Room[];
+  rooms!: Promise<Room[]>;
 }
 
 @Entity()

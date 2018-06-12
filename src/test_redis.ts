@@ -36,3 +36,36 @@ it('redisAsync2', async () => {
   console.log('ret:', ret);
   return ret;
 });
+
+it('redisStream', async () => {
+  const ret = await redisAsync().sendCommandAsync('XADD', [
+    's1',
+    '*',
+    'k1',
+    'v1',
+    'k1',
+    'v2'
+  ]);
+  console.log('ret:', ret);
+
+  const range = await redisAsync().sendCommandAsync('XRANGE', ['s1', '-', '+']);
+  console.log('range:', range);
+
+  const [[_, read]] = await redisAsync().sendCommandAsync('XREAD', [
+    'STREAMS',
+    's1',
+    0
+  ]);
+  console.log('read:', read);
+
+  const [[_b, block]] = await redisAsync().sendCommandAsync('XREAD', [
+    'BLOCK',
+    0,
+    'STREAMS',
+    's1',
+    '$'
+  ]);
+  console.log('block:', block);
+
+  return 0;
+});
