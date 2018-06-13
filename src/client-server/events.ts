@@ -4,7 +4,8 @@ import {
   IsInt,
   IsDefined,
   IsIn,
-  Equals
+  Equals,
+  ValidateNested
 } from 'class-validator';
 
 // 2 types of RoomEvents : State Events or Message Events
@@ -55,10 +56,11 @@ type EventType = StateEventType | MessageEventType | string;
 export class Event {
   content?: EventContent; //	The fields in this object will vary depending on the type of event. When interacting with the REST API, this is the HTTP body.
   type!: EventType; //	Required. The type of event. This SHOULD be namespaced similar to Java package naming conventions e.g. 'com.example.subdomain.event.type'}
+  [key: string]: any; // other k-v
 }
 
 export class RoomEvent {
-  content?: EventContent; //	The fields in this object will vary depending on the type of event. When interacting with the REST API, this is the HTTP body.
+  @ValidateNested() content?: EventContent; //	The fields in this object will vary depending on the type of event. When interacting with the REST API, this is the HTTP body.
 
   type!: EventType; //	Required. The type of event. This SHOULD be namespaced similar to Java package naming conventions e.g. 'com.example.subdomain.event.type'}
 
@@ -76,6 +78,14 @@ export class RoomEvent {
   unsigned?: UnsignedData; //	Contains optional extra information about the event.
 }
 
+//
+// State Events
+//
+export class StateEvent extends RoomEvent {
+  prev_content?: EventContent; //	Optional. The previous content for this event. If there is no previous content, this key will be missing.
+  state_key!: string; //	Required. A unique key which defines the overwriting semantics for this piece of room state. This value is often a zero-length string. The presence of this key makes this event a State Event. The key MUST NOT start with '_'.
+}
+
 // 10.5.1
 export class AliasEventContent {
   aliases!: [string]; //	Required. A list of room aliases.
@@ -85,10 +95,14 @@ export class CanonicalAliasEventContent {
   aliases!: string; //	Required. The canonical alias.
 }
 // 10.5.3
-export class CreateEventContent {
+export class CreateRoomEventContent {
   creator!: string; // Required. The user_id of the room creator. This is set by the homeserver.
   'm.federate': boolean; // Whether users on other servers can join this room. Defaults to true if key does not exist.
 }
+export class CreateRoomEvent extends StateEvent {
+  content!: CreateRoomEventContent;
+}
+
 // 10.5.4
 export class JoinRulesEventContent {
   join_rule!: 'public' | 'knock' | 'invite' | 'private'; //Required. The type of rules used for users wishing to join this room
@@ -268,15 +282,10 @@ export type StateEventContent =
   | PinnedEventContent
   | AliasEventContent
   | CanonicalAliasEventContent
-  | CreateEventContent
+  | CreateRoomEventContent
   | JoinRulesEventContent
   | MemberEventContent
   | PowerLevelsEventContent;
-
-export class StateEvent extends RoomEvent {
-  prev_content?: EventContent; //	Optional. The previous content for this event. If there is no previous content, this key will be missing.
-  state_key?: string; //	Required. A unique key which defines the overwriting semantics for this piece of room state. This value is often a zero-length string. The presence of this key makes this event a State Event. The key MUST NOT start with '_'.
-}
 
 export type MessageEventContent =
   | TextEventContent

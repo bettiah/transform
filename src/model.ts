@@ -33,7 +33,7 @@ export class User {
 
 @Entity()
 export class Room {
-  @PrimaryGeneratedColumn('uuid') id!: number;
+  @PrimaryGeneratedColumn('uuid') id?: number;
 
   @Index({ unique: true })
   @Column({ length: 128 })
@@ -54,7 +54,7 @@ export class Room {
 
   @ManyToMany(type => User, user => user.rooms)
   @JoinTable()
-  users!: User[];
+  users?: User[];
 }
 
 @Entity()
@@ -85,6 +85,6 @@ const sqlite: SqliteConnectionOptions = {
 };
 
 export async function dbConnection() {
-  await createConnection(postgres);
+  await createConnection(sqlite);
   debug('db connected');
 }

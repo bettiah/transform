@@ -58,7 +58,6 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
     event.room_id = roomId;
     event.sender = user.user_id;
     event.origin_server_ts = new Date().getTime();
-    await validateRequest(event);
     // validate content
     let content;
     switch (eventType) {
@@ -102,10 +101,17 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
         break;
       // TODO - call types
     }
-    await validateRequest(content);
     event.content = content;
+    if (txnId) {
+      event.unsigned = { transaction_id: txnId };
+    }
+    // validate event
+    await validateRequest(event);
     // queue event to room
-    const ret = await redisEnque('roomevents', ['msg', JSON.stringify(event)]);
+    const ret = await redisEnque('roomevents', [
+      `${eventType}`,
+      JSON.stringify(event)
+    ]);
     return { event_id: ret };
   }
 }
