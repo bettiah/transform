@@ -36,13 +36,18 @@ export class MatrixClientR0CreateRoom {
     // const alias: RoomAlias = body.room_alias_name
     //   ? { id: 0, name: normalizeAlias(body.room_alias_name), room }
     //   : null;
+    const room_id = normalizeRoom(rand());
+
+    // save to db here
+    // visibility & isDirect cannot be accomodated in events
+    // TODO - file bug
     const room: Room = {
       name: body.name || rand(),
       topic: body.topic || '',
       visibility: body.visibility || VisibilityType.private,
       aliases: [],
       isDirect: body.is_direct || false,
-      room_id: normalizeRoom(rand())
+      room_id
       // at least one user ?
       // users: [user]
     };
@@ -55,8 +60,8 @@ export class MatrixClientR0CreateRoom {
     const createEvent: CreateRoomEvent = {
       content: { creator: user.user_id, 'm.federate': true },
       type: StateEventType.create,
-      event_id: '',
-      room_id: savedRoom.room_id,
+      event_id: rand(),
+      room_id,
       sender: user.user_id,
       origin_server_ts: ts,
       state_key: ''
@@ -75,6 +80,6 @@ export class MatrixClientR0CreateRoom {
     debug('queued', ret);
 
     // TODO - M_INVALID_ROOM_STATE:
-    return { room_id: savedRoom.room_id };
+    return { room_id };
   }
 }

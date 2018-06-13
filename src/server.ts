@@ -13,6 +13,7 @@ import { dbConnection } from './model';
 import { verifyToken } from './jwt';
 import { tokenUser } from './auth';
 import { initRedis } from './redis';
+import { roomEvents } from './roomevents';
 
 const debug = require('debug')('server');
 const bodyParser = require('body-parser');
@@ -30,7 +31,8 @@ async function init() {
     debug('db', ex);
     throw new Error(ex.message);
   });
-  initRedis();
+  await initRedis();
+  // roomEvents();
   debug('initialized');
 }
 

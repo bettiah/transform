@@ -1,0 +1,4 @@
+git co -- src/client-server/_matrix.client.r0.createRoom.ts
+git co -- src/client-server/_matrix.client.r0.login.ts
+git co -- src/client-server/_matrix.client.r0.register.ts
+git co -- src/client-server/_matrix.client.r0.rooms.{roomId}.send.{eventType}.{txnId}.ts

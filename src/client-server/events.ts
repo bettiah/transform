@@ -14,7 +14,6 @@ export enum MessageEventType {
   redaction = 'm.room.redaction', // 10.5.7, 6.5.1.1
   message = 'm.room.message', // 11.2.1.1
   feedback = 'm.room.message.feedback', // 11.2.1.2
-  //call events
   invite = 'm.call.invite', // 11.3.1.1
   candidates = 'm.call.candidates', // 11.3.1.2
   answer = 'm.call.answer', // 11.3.1.3
@@ -64,7 +63,7 @@ export class RoomEvent {
 
   type!: EventType; //	Required. The type of event. This SHOULD be namespaced similar to Java package naming conventions e.g. 'com.example.subdomain.event.type'}
 
-  // @Length(10, 256) // this is set later
+  @Length(10, 256)
   event_id!: string; //	Required. The globally unique event identifier.
 
   @Length(5, 256)

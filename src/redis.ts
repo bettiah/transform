@@ -20,13 +20,20 @@ export function redisMulti(): any {
   return bluebird.promisifyAll(redis().multi());
 }
 
+export function duplicateRedis(): RedisClient {
+  return redis().duplicate();
+}
+
 export function redisEnque(queue: string, args: string[]): Promise<string> {
   return redisAsync().sendCommandAsync('XADD', [queue, '*', ...args]);
 }
 
 export function initRedis() {
-  const _redis = redis();
-  _redis.on('ready', () => {
-    debug('redis:', _redis.server_info.redis_version);
+  return new Promise((res, rej) => {
+    const _redis = redis();
+    _redis.on('ready', () => {
+      debug('redis:', _redis.server_info.redis_version);
+      res('ready');
+    });
   });
 }
