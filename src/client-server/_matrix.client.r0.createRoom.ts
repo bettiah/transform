@@ -32,7 +32,7 @@ export class MatrixClientR0CreateRoom {
     @CurrentUser() user: User,
     @Body() body: dto.CreateRoomBody
   ): Promise<dto.CreateRoomResponse> {
-    const ts = new Date().getTime();
+    const ts = Date.now();
     // const alias: RoomAlias = body.room_alias_name
     //   ? { id: 0, name: normalizeAlias(body.room_alias_name), room }
     //   : null;

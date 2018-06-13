@@ -20,7 +20,7 @@ import {
 import { User, Room } from '../model';
 import * as dto from './types';
 import { redisEnque } from '../redis';
-import { validateRequest } from '../utils';
+import { validateRequest, rand } from '../utils';
 import * as events from './events';
 import { Validator, validate } from 'class-validator';
 const debug = require('debug')('server:sendMessage');
@@ -51,10 +51,11 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
     if (!validator.isIn(eventType, Object.values(events.MessageEventType))) {
       throw new BadRequestError('not a message event');
     }
+    const event_id = rand();
     // validate other event parms
     const event = new events.RoomEvent();
     event.type = eventType;
-    event.event_id = '';
+    event.event_id = event_id;
     event.room_id = roomId;
     event.sender = user.user_id;
     event.origin_server_ts = new Date().getTime();
@@ -112,6 +113,6 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
       `${eventType}`,
       JSON.stringify(event)
     ]);
-    return { event_id: ret };
+    return { event_id };
   }
 }

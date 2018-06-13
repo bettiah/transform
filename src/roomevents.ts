@@ -18,12 +18,12 @@ const flatten = (obj: Hash) =>
     return acc;
   }, new Array<string>());
 
-const TIMEOUT = 1000;
+const TIMEOUT = 1000000;
 export function roomEvents() {
   const redis = duplicateRedis();
   const watching: Hash = { roomevents: '0' };
   const forever = () => {
-    // console.dir(watching);
+    console.dir(watching);
     redis.sendCommand(
       'XREAD',
       ['BLOCK', TIMEOUT, 'STREAMS', ...flatten(watching)],
@@ -32,8 +32,9 @@ export function roomEvents() {
         if (error) {
           return;
         }
-        if (reply.length == 0) {
-          // timed out; setTimeout ensure continuity
+        if (!reply) {
+          // timed out; setImmediate ensure continuity
+          setImmediate(forever);
           return;
         }
         (reply as Array<Array<any>>).forEach(element => {
@@ -47,10 +48,9 @@ export function roomEvents() {
           });
           watching[key] = values[values.length - 1][0];
         });
-        // TODO - handle cases where the call returned very quickly
+        setImmediate(forever);
       }
     );
-    setTimeout(forever, TIMEOUT);
   };
   forever();
 }
@@ -60,6 +60,7 @@ async function processEvent(ts: string, kind: string, ev: Event) {
     case MessageEventType.redaction:
       break;
     case MessageEventType.message:
+      console.log(ts, ev);
       break;
     case MessageEventType.feedback:
       break;
@@ -77,7 +78,7 @@ async function processEvent(ts: string, kind: string, ev: Event) {
       break;
     case StateEventType.create:
       const create = ev as CreateRoomEvent;
-      console.dir(create);
+      console.log(ts, create);
       break;
     case StateEventType.join_rules:
       break;
