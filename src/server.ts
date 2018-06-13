@@ -15,16 +15,16 @@ import { tokenUser } from './auth';
 import { initRedis } from './redis';
 import { roomEvents } from './roomevents';
 
+import * as logging from './logging';
+
 const debug = require('debug')('server');
 const bodyParser = require('body-parser');
-// const morgan = require('morgan');
-const morganBody = require('morgan-body');
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bearerToken());
-// app.use(morgan('dev'));
-morganBody(app);
+app.use(logging.requestLogger);
+app.use(logging.errorLogger);
 
 async function init() {
   await dbConnection().catch(ex => {
