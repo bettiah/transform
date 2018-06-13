@@ -47,19 +47,15 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
     //   throw new ForbiddenError();
     // }
 
-    // validate event type
-    if (!validator.isIn(eventType, Object.values(events.MessageEventType))) {
-      throw new BadRequestError('not a message event');
-    }
     const event_id = rand();
     // validate other event parms
-    const event: events.RoomEvent = {
+    const event = Object.assign(new events.MessageEvent(), {
       type: eventType,
       event_id,
       room_id: roomId,
       sender: user.user_id,
       origin_server_ts: Date.now()
-    };
+    });
     // validate content
     let content;
     switch (eventType) {

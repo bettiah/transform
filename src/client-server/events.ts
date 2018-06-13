@@ -198,6 +198,11 @@ export class PinnedEventContent {
 // Message Events
 //
 
+export class MessageEvent extends RoomEvent {
+  @IsIn(Object.values(MessageEventType))
+  type!: MessageEventType; //	Required. The type of event. This SHOULD be namespaced similar to Java package naming conventions e.g. 'com.example.subdomain.event.type'}
+}
+
 // 11.2.1.7.1
 export class TextEventContent {
   @IsDefined() body!: string; //	Required. The body of the message.

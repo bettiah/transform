@@ -59,7 +59,7 @@ export class MatrixClientR0CreateRoom {
 
     const events: string[] = [];
     // m.room.create event
-    const createEvent: CreateRoomEvent = {
+    const createEvent = Object.assign(new CreateRoomEvent(), {
       content: { creator: user.user_id, 'm.federate': true },
       type: StateEventType.create,
       event_id: rand(),
@@ -67,7 +67,7 @@ export class MatrixClientR0CreateRoom {
       sender: user.user_id,
       origin_server_ts: ts,
       state_key: ''
-    };
+    });
     events.push(`${createEvent.type}`, JSON.stringify(createEvent));
 
     // queue events to roomevents
