@@ -11,8 +11,8 @@ describe('/_matrix/client/r0/register', () => {
     console.log('register id:', rand_);
     const reg1: RegisterBody = {
       auth: {},
-      username: rand_,
-      password: rand_
+      username: rand_, //'vm',
+      password: rand_ //'vm'
     };
     const result1 = await client.register('', reg1);
     console.log(JSON.stringify(result1, null, 2));

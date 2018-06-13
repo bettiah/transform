@@ -41,15 +41,18 @@ export class Room {
 
   @Column() visibility!: string;
 
-  @Index({ unique: true })
-  @Column()
-  name!: string;
+  @Column({ length: 128, nullable: true })
+  name?: string;
 
-  @Column() topic!: string;
+  @Column({ length: 128, nullable: true })
+  topic?: string;
 
   @Column() isDirect!: boolean;
 
-  @OneToMany(type => RoomAlias, alias => alias.room)
+  @OneToMany(type => RoomAlias, alias => alias.room, {
+    eager: true,
+    cascade: true
+  })
   aliases!: RoomAlias[];
 
   @ManyToMany(type => User, user => user.rooms)
@@ -59,12 +62,14 @@ export class Room {
 
 @Entity()
 export class RoomAlias {
-  @PrimaryGeneratedColumn('uuid') id!: number;
+  @PrimaryGeneratedColumn('uuid') id?: number;
 
-  @Column() name!: string;
+  @Index({ unique: true })
+  @Column({ length: 128 })
+  name!: string;
 
   @ManyToOne(type => Room, room => room.aliases)
-  room!: Room;
+  room?: Room;
 }
 
 const postgres: PostgresConnectionOptions = {

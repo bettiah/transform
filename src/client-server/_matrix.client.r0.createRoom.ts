@@ -33,25 +33,27 @@ export class MatrixClientR0CreateRoom {
     @Body() body: dto.CreateRoomBody
   ): Promise<dto.CreateRoomResponse> {
     const ts = Date.now();
-    // const alias: RoomAlias = body.room_alias_name
-    //   ? { id: 0, name: normalizeAlias(body.room_alias_name), room }
-    //   : null;
     const room_id = normalizeRoom(rand());
 
+    // TODO - check if room can be created by user
+
     // save to db here
+    // otherwise we can have a race condition where multiple users try and create same room
     // visibility & isDirect cannot be accomodated in events
     // TODO - file bug
+    // TODO - M_ROOM_IN_USE if alias already exists
     const room: Room = {
-      name: body.name || rand(),
-      topic: body.topic || '',
+      name: body.name,
+      topic: body.topic,
       visibility: body.visibility || VisibilityType.private,
-      aliases: [],
+      aliases: body.room_alias_name
+        ? [{ name: normalizeAlias(body.room_alias_name) }]
+        : [],
       isDirect: body.is_direct || false,
-      room_id
+      room_id,
       // at least one user ?
-      // users: [user]
+      users: [user]
     };
-    // TODO - M_ROOM_IN_USE
     const savedRoom = await getRepository(Room).save(room);
     debug('saved', savedRoom);
 
@@ -67,6 +69,12 @@ export class MatrixClientR0CreateRoom {
       state_key: ''
     };
     events.push(`${createEvent.type}`, JSON.stringify(createEvent));
+
+    // queue events to roomevents
+    const roomevents = await redisEnque('roomevents', events);
+    debug('roomevents queued', roomevents);
+
+    // queue to room
     // TODO events
     // m.room.power_levels
     // presets
@@ -74,10 +82,8 @@ export class MatrixClientR0CreateRoom {
     // name, topic
     // invite, invite3Pid
     // alias?
-
-    // queue events to room
-    const ret = await redisEnque('roomevents', events);
-    debug('queued', ret);
+    const q = await redisEnque(`${room_id}`, events);
+    debug(`${room_id} queued`, q);
 
     // TODO - M_INVALID_ROOM_STATE:
     return { room_id };

@@ -17,12 +17,12 @@ import {
   ForbiddenError
 } from 'routing-controllers';
 
-import { User, Room } from '../model';
+import { User } from '../model';
 import * as dto from './types';
 import { redisEnque } from '../redis';
 import { validateRequest, rand } from '../utils';
 import * as events from './events';
-import { Validator, validate } from 'class-validator';
+import { Validator } from 'class-validator';
 const debug = require('debug')('server:sendMessage');
 
 const validator = new Validator();
@@ -53,12 +53,13 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
     }
     const event_id = rand();
     // validate other event parms
-    const event = new events.RoomEvent();
-    event.type = eventType;
-    event.event_id = event_id;
-    event.room_id = roomId;
-    event.sender = user.user_id;
-    event.origin_server_ts = new Date().getTime();
+    const event: events.RoomEvent = {
+      type: eventType,
+      event_id,
+      room_id: roomId,
+      sender: user.user_id,
+      origin_server_ts: Date.now()
+    };
     // validate content
     let content;
     switch (eventType) {
@@ -113,6 +114,7 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
       `${eventType}`,
       JSON.stringify(event)
     ]);
+    debug('queued', ret);
     return { event_id };
   }
 }

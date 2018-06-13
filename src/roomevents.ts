@@ -12,11 +12,12 @@ interface Hash {
   [key: string]: any;
 }
 
+// [k1, k2, v1, v2]
 const flatten = (obj: Hash) =>
   Object.keys(obj).reduce((acc, key) => {
-    acc.push(key, obj[key]);
+    acc.push(obj[key]);
     return acc;
-  }, new Array<string>());
+  }, Object.keys(obj));
 
 const TIMEOUT = 1000000;
 export function roomEvents() {
@@ -44,7 +45,7 @@ export function roomEvents() {
             const ts = timestamped[0] as string;
             const [kind, msg] = timestamped[1] as Array<string>;
             // console.log(ts, kind, msg);
-            processEvent(ts, kind, JSON.parse(msg) as Event);
+            processEvent(key, ts, kind, JSON.parse(msg) as Event);
           });
           watching[key] = values[values.length - 1][0];
         });
@@ -55,7 +56,7 @@ export function roomEvents() {
   forever();
 }
 
-async function processEvent(ts: string, kind: string, ev: Event) {
+async function processEvent(key: string, ts: string, kind: string, ev: Event) {
   switch (kind) {
     case MessageEventType.redaction:
       break;
@@ -78,6 +79,7 @@ async function processEvent(ts: string, kind: string, ev: Event) {
       break;
     case StateEventType.create:
       const create = ev as CreateRoomEvent;
+      // ensure this is the first event for the room
       console.log(ts, create);
       break;
     case StateEventType.join_rules:
