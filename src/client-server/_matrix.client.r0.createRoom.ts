@@ -16,13 +16,12 @@ import {
   UnauthorizedError
 } from 'routing-controllers';
 
-import { User, Room, RoomAlias } from '../model';
+import { User } from '../model';
 import * as dto from './types';
-import { VisibilityType } from '../types';
+import { ErrorTypes } from '../types';
 import { normalizeRoom, normalizeAlias, rand } from '../utils';
-import { getRepository } from 'typeorm';
 import { StateEventType, CreateRoomEvent } from './events';
-import { redisEnque } from '../redis';
+import { redisEnque, redisAsync } from '../redis';
 const debug = require('debug')('server:createRoom');
 
 @JsonController('')
@@ -32,33 +31,36 @@ export class MatrixClientR0CreateRoom {
     @CurrentUser() user: User,
     @Body() body: dto.CreateRoomBody
   ): Promise<dto.CreateRoomResponse> {
-    const ts = Date.now();
+    // TODO - check if room can be created
+    // by user:power
+    // by config
+
+    // Room can be identified uniquely by alias, if supplied
+    const alias = body.room_alias_name
+      ? normalizeAlias(body.room_alias_name)
+      : null;
     const room_id = normalizeRoom(rand());
 
-    // TODO - check if room can be created by user
+    if (alias) {
+      // check and set room:alias -> id
+      // otherwise we can have a race condition where multiple users try and create same room
+      const roomKey = `alias:${alias}`;
+      const canSet = await redisAsync().setAsync(roomKey, [room_id, 'NX']);
+      debug('set', roomKey, canSet);
+      if (!canSet) {
+        throw new BadRequestError(ErrorTypes.M_ROOM_IN_USE);
+      }
+    }
 
-    // save to db here
-    // otherwise we can have a race condition where multiple users try and create same room
-    // visibility & isDirect cannot be accomodated in events
-    // TODO - file bug
-    // TODO - M_ROOM_IN_USE if alias already exists
-    const room: Room = {
-      name: body.name,
-      topic: body.topic,
-      visibility: body.visibility || VisibilityType.private,
-      aliases: body.room_alias_name
-        ? [{ name: normalizeAlias(body.room_alias_name) }]
-        : [],
-      isDirect: body.is_direct || false,
-      room_id,
-      // at least one user ?
-      users: [user]
-    };
-    const savedRoom = await getRepository(Room).save(room);
-    debug('saved', savedRoom);
+    // save body
+    await redisAsync().setAsync(`pending:room:${room_id}`, [
+      JSON.stringify(body)
+    ]);
 
+    const ts = Date.now();
     const events: string[] = [];
     // m.room.create event
+    // visibility & isDirect cannot be accomodated in events TODO - file bug
     const createEvent = Object.assign(new CreateRoomEvent(), {
       content: { creator: user.user_id, 'm.federate': true },
       type: StateEventType.create,
@@ -70,7 +72,7 @@ export class MatrixClientR0CreateRoom {
     });
     events.push(`${createEvent.type}`, JSON.stringify(createEvent));
 
-    // queue events to roomevents
+    // queue events to roomevents, so that we can start watching the room Q
     const roomevents = await redisEnque('roomevents', events);
     debug('roomevents queued', roomevents);
 

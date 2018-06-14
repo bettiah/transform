@@ -5,7 +5,7 @@ import { expect } from 'chai';
 it('/_matrix/client/r0/createRoom', async () => {
   await doLogin('vm');
   const room: CreateRoomBody = {
-    room_alias_name: 'xx'
+    room_alias_name: 'xxxxx'
   };
   const resp: CreateRoomResponse = await client.createRoom(room);
   console.dir(resp);

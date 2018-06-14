@@ -9,7 +9,7 @@ import {
 } from 'routing-controllers';
 
 import routes from './client-server/routes';
-import { dbConnection } from './model';
+import { initDb } from './model';
 import { verifyToken } from './jwt';
 import { tokenUser } from './auth';
 import { initRedis } from './redis';
@@ -27,10 +27,7 @@ app.use(logging.requestLogger);
 app.use(logging.errorLogger);
 
 async function init() {
-  await dbConnection().catch(ex => {
-    debug('db', ex);
-    throw new Error(ex.message);
-  });
+  await initDb();
   await initRedis();
   // roomEvents();
   debug('initialized');

@@ -50,8 +50,7 @@ export class Room {
   @Column() isDirect!: boolean;
 
   @OneToMany(type => RoomAlias, alias => alias.room, {
-    eager: true,
-    cascade: true
+    eager: true
   })
   aliases!: RoomAlias[];
 
@@ -89,7 +88,11 @@ const sqlite: SqliteConnectionOptions = {
   logging: true
 };
 
-export async function dbConnection() {
-  await createConnection(sqlite);
-  debug('db connected');
+export function initDb() {
+  return createConnection(sqlite)
+    .then(() => debug('db connected'))
+    .catch(ex => {
+      debug('db', ex);
+      throw new Error(ex.message);
+    });
 }

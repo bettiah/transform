@@ -1,11 +1,15 @@
 import Redis from 'redis';
-import { duplicateRedis } from './redis';
+import { duplicateRedis, redisAsync } from './redis';
 import {
   Event,
   MessageEventType,
   StateEventType,
   CreateRoomEvent
 } from './client-server/events';
+import { Room, initDb, RoomAlias } from './model';
+import { getRepository } from 'typeorm';
+import { VisibilityType } from './types';
+import { normalizeAlias } from './utils';
 const debug = require('debug')('server:roomevents');
 
 interface Hash {
@@ -22,19 +26,20 @@ const flatten = (obj: Hash) =>
 const TIMEOUT = 1000000;
 export function roomEvents() {
   const redis = duplicateRedis();
-  const watching: Hash = { roomevents: '0' };
+  const watching: Hash = { roomevents: 0 }; // using 0 here with empty q is problematic
   const forever = () => {
-    console.dir(watching);
+    debug(watching);
     redis.sendCommand(
       'XREAD',
       ['BLOCK', TIMEOUT, 'STREAMS', ...flatten(watching)],
       (error, reply) => {
         // Redis.print(error, reply);
+        // console.log('reply', reply);
         if (error) {
           return;
         }
         if (!reply) {
-          // timed out; setImmediate ensure continuity
+          // timed out; setImmediate ensures continuity
           setImmediate(forever);
           return;
         }
@@ -79,8 +84,50 @@ async function processEvent(key: string, ts: string, kind: string, ev: Event) {
       break;
     case StateEventType.create:
       const create = ev as CreateRoomEvent;
-      // ensure this is the first event for the room
-      console.log(ts, create);
+      // get key from redis -- delete when everything is done
+      const roomKey = `pending:room:${create.room_id}`;
+      const body_ = await redisAsync().getAsync(roomKey);
+      if (!body_) {
+        debug('canot find pending room for key:', roomKey);
+        return;
+      }
+      const body = JSON.parse(body_);
+      const alias = body.room_alias_name
+        ? normalizeAlias(body.room_alias_name)
+        : null;
+
+      const room: Room = {
+        name: body.name,
+        topic: body.topic,
+        visibility: body.visibility || VisibilityType.private,
+        aliases: alias ? [{ name: alias }] : [],
+        isDirect: body.isDirect || false,
+        room_id: create.room_id
+        // at least one user ?
+        // users: [user]
+      };
+      try {
+        const savedRoom = await getRepository(Room).save(room);
+        debug('saved', savedRoom);
+      } catch (ex) {
+        debug('error saving room:', ex.message);
+      }
+      if (alias) {
+        const roomAlias: RoomAlias = {
+          name: alias,
+          room: room
+        };
+        try {
+          const savedAlias = await getRepository(RoomAlias).save(roomAlias);
+          debug('saved', savedAlias);
+        } catch (ex) {
+          debug('error saving alias:', ex.message);
+        }
+      }
+
+      // delete pending key from redis, can happen in background
+      redisAsync().del(roomKey);
+      // TODO: ensure this is the first event for the room
       break;
     case StateEventType.join_rules:
       break;
@@ -100,5 +147,6 @@ async function processEvent(key: string, ts: string, kind: string, ev: Event) {
 }
 
 if (require.main === module) {
+  initDb();
   roomEvents();
 }

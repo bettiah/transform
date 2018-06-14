@@ -11,3 +11,7 @@ export const enum VisibilityType {
   public = 'public',
   private = 'private'
 }
+
+export const enum ErrorTypes {
+  M_ROOM_IN_USE = 'M_ROOM_IN_USE'
+}
