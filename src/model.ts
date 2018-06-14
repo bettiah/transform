@@ -50,7 +50,9 @@ export class Room {
   @Column() isDirect!: boolean;
 
   @OneToMany(type => RoomAlias, alias => alias.room, {
-    eager: true
+    eager: true,
+    cascade: ['remove'],
+    nullable: true
   })
   aliases!: RoomAlias[];
 
@@ -67,7 +69,7 @@ export class RoomAlias {
   @Column({ length: 128 })
   name!: string;
 
-  @ManyToOne(type => Room, room => room.aliases)
+  @ManyToOne(type => Room, room => room.aliases, { nullable: true })
   room?: Room;
 }
 

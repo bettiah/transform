@@ -5,8 +5,10 @@ import {
   IsDefined,
   IsIn,
   Equals,
-  ValidateNested
+  ValidateNested,
+  IsString
 } from 'class-validator';
+import { isString } from 'util';
 
 // 2 types of RoomEvents : State Events or Message Events
 
@@ -82,7 +84,7 @@ export class RoomEvent {
 //
 export class StateEvent extends RoomEvent {
   prev_content?: EventContent; //	Optional. The previous content for this event. If there is no previous content, this key will be missing.
-  state_key!: string; //	Required. A unique key which defines the overwriting semantics for this piece of room state. This value is often a zero-length string. The presence of this key makes this event a State Event. The key MUST NOT start with '_'.
+  @IsString() state_key!: string; //	Required. A unique key which defines the overwriting semantics for this piece of room state. This value is often a zero-length string. The presence of this key makes this event a State Event. The key MUST NOT start with '_'.
 }
 
 // 10.5.1
@@ -95,7 +97,7 @@ export class CanonicalAliasEventContent {
 }
 // 10.5.3
 export class CreateRoomEventContent {
-  creator!: string; // Required. The user_id of the room creator. This is set by the homeserver.
+  @IsString() creator!: string; // Required. The user_id of the room creator. This is set by the homeserver.
   'm.federate': boolean; // Whether users on other servers can join this room. Defaults to true if key does not exist.
 }
 export class CreateRoomEvent extends StateEvent {
@@ -157,7 +159,7 @@ export class UnsignedData {
 
 // 11.2.1.2
 export class FeedbackEventContent {
-  @IsDefined() target_event_id!: string; //	Required. The event that this feedback is related to.
+  @IsString() target_event_id!: string; //	Required. The event that this feedback is related to.
   @IsIn(['delivered', 'read'])
   type!: 'delivered' | 'read'; //	Required. The type of feedback
 }
