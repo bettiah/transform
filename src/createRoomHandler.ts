@@ -5,7 +5,7 @@ import { getRepository } from 'typeorm';
 import { VisibilityType } from './types';
 import { normalizeAlias } from './utils';
 
-const debug = require('debug')('server:hander:createRoom');
+const debug = require('debug')('server:events:createRoom');
 
 export async function handleCreateRoom(create: CreateRoomEvent) {
   const room_id = create.room_id;

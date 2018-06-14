@@ -9,7 +9,7 @@ import {
 import { initDb } from './model';
 import { handleCreateRoom } from './createRoomHandler';
 
-const debug = require('debug')('server:roomevents');
+const debug = require('debug')('server:events');
 
 interface Hash {
   [key: string]: any;
