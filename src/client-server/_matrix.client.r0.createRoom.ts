@@ -22,6 +22,7 @@ import { ErrorTypes } from '../types';
 import { normalizeRoom, normalizeAlias, rand } from '../utils';
 import { StateEventType, CreateRoomEvent } from './events';
 import { redisEnque, redisAsync } from '../redis';
+
 const debug = require('debug')('server:createRoom');
 
 @JsonController('')
@@ -61,7 +62,7 @@ export class MatrixClientR0CreateRoom {
     const events: string[] = [];
     // m.room.create event
     // visibility & isDirect cannot be accomodated in events TODO - file bug
-    const createEvent = Object.assign(new CreateRoomEvent(), {
+    const createEvent: CreateRoomEvent = {
       content: { creator: user.user_id, 'm.federate': true },
       type: StateEventType.create,
       event_id: rand(),
@@ -69,7 +70,8 @@ export class MatrixClientR0CreateRoom {
       sender: user.user_id,
       origin_server_ts: ts,
       state_key: ''
-    });
+    };
+    // validate before adding to Q?
     events.push(`${createEvent.type}`, JSON.stringify(createEvent));
 
     // queue events to roomevents, so that we can start watching the room Q

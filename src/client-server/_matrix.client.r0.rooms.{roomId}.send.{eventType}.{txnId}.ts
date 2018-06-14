@@ -22,10 +22,9 @@ import * as dto from './types';
 import { redisEnque } from '../redis';
 import { validateRequest, rand } from '../utils';
 import * as events from './events';
-import { Validator } from 'class-validator';
-const debug = require('debug')('server:sendMessage');
+import { validate } from 'class-validator';
 
-const validator = new Validator();
+const debug = require('debug')('server:sendMessage');
 
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
@@ -38,15 +37,6 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
     @Body({ required: true })
     body: any
   ): Promise<dto.SendMessageResponse | any> {
-    // const rooms = await user.rooms;
-    // const room = rooms.find(it => {
-    //   return it.room_id === roomId;
-    // });
-    // make sure user has access to room
-    // if (!room) {
-    //   throw new ForbiddenError();
-    // }
-
     const event_id = rand();
     // validate other event parms
     const event = Object.assign(new events.MessageEvent(), {
@@ -104,7 +94,12 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
       event.unsigned = { transaction_id: txnId };
     }
     // validate event
-    await validateRequest(event);
+    const errors = await validate(event);
+    if (errors.length !== 0) {
+      debug(errors);
+      throw new BadRequestError(errors.map(it => it.toString()).join(','));
+    }
+
     // queue event to room
     const ret = await redisEnque('roomevents', [
       `${eventType}`,

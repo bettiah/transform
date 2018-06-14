@@ -8,7 +8,6 @@ import {
   ValidateNested,
   IsString
 } from 'class-validator';
-import { isString } from 'util';
 
 // 2 types of RoomEvents : State Events or Message Events
 
@@ -16,10 +15,10 @@ export enum MessageEventType {
   redaction = 'm.room.redaction', // 10.5.7, 6.5.1.1
   message = 'm.room.message', // 11.2.1.1
   feedback = 'm.room.message.feedback', // 11.2.1.2
-  invite = 'm.call.invite', // 11.3.1.1
-  candidates = 'm.call.candidates', // 11.3.1.2
-  answer = 'm.call.answer', // 11.3.1.3
-  hangup = 'm.call.hangup' // 11.3.1.4
+  call_invite = 'm.call.invite', // 11.3.1.1
+  call_candidates = 'm.call.candidates', // 11.3.1.2
+  call_answer = 'm.call.answer', // 11.3.1.3
+  call_hangup = 'm.call.hangup' // 11.3.1.4
 }
 
 // State Events have : state_key
@@ -205,6 +204,12 @@ export class MessageEvent extends RoomEvent {
   type!: MessageEventType; //	Required. The type of event. This SHOULD be namespaced similar to Java package naming conventions e.g. 'com.example.subdomain.event.type'}
 }
 
+export class MessageEventMessgae extends StateEvent {
+  @Equals(MessageEventType.message) type!: MessageEventType;
+
+  content!: MessageEventMsgContent;
+}
+
 // 11.2.1.7.1
 export class TextEventContent {
   @IsDefined() body!: string; //	Required. The body of the message.
@@ -292,6 +297,16 @@ export type StateEventContent =
   | JoinRulesEventContent
   | MemberEventContent
   | PowerLevelsEventContent;
+
+export type MessageEventMsgContent =
+  | TextEventContent
+  | EmoteEventContent
+  | NoticeEventContent
+  | ImageEventContent
+  | FileEventContent
+  | LocationEventContent
+  | VideoEventContent
+  | AudioEventContent;
 
 export type MessageEventContent =
   | TextEventContent

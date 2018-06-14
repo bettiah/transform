@@ -1,8 +1,3 @@
-import { validate } from 'class-validator';
-import { BadRequestError } from 'routing-controllers';
-
-export const debug = require('debug')('server:utils');
-
 const config = require('../config.json');
 
 export const rand = () =>
@@ -30,15 +25,4 @@ export function normalizeRoom(room: string): string {
     return room;
   }
   return `!${room}:${config.server}`;
-}
-
-export function validateRequest(event: any) {
-  return validate(event).then(err => {
-    if (err.length === 0) {
-      return;
-    }
-    const reason = err.map(it => it.toString()).join(',');
-    debug('validation failed', reason);
-    throw new BadRequestError(reason);
-  });
 }

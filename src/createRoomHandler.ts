@@ -1,6 +1,6 @@
 import { redisAsync, redisEnque } from './redis';
 import { CreateRoomEvent, StateEventType } from './client-server/events';
-import { Room } from './model';
+import { Room, User } from './model';
 import { getRepository } from 'typeorm';
 import { VisibilityType } from './types';
 import { normalizeAlias } from './utils';
@@ -17,7 +17,7 @@ export async function handleCreateRoom(
   }
   const errors = await validate(create);
   if (errors.length > 0) {
-    debug('cannot validate event:', errors);
+    debug(errors);
     return false;
   }
 
@@ -43,6 +43,14 @@ export async function handleCreateRoom(
     }
   }
 
+  const creator = await getRepository(User).findOne({
+    user_id: create.content.creator
+  });
+  // can fail if user has been deleted in between event & now
+  if (!creator) {
+    debug(`creator has been deleted:${create.content.creator}`);
+    false;
+  }
   // create room in db
   const room: Room = {
     name: body.name,
@@ -50,15 +58,16 @@ export async function handleCreateRoom(
     visibility: body.visibility || VisibilityType.private,
     aliases: alias ? [{ name: alias }] : [],
     isDirect: body.isDirect || false,
-    room_id
+    room_id,
     // at least one user ?
-    // users: [user]
+    users: [creator!]
   };
   try {
     const savedRoom = await getRepository(Room).save(room);
     debug('saved', savedRoom);
   } catch (ex) {
     debug('error saving room:', ex.message);
+    return false;
   }
 
   const events: string[] = [];

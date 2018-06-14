@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { SqliteConnectionOptions } from 'typeorm/driver/sqlite/SqliteConnectionOptions';
+
 const debug = require('debug')('server:model');
 
 @Entity()

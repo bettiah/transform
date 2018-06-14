@@ -2,12 +2,15 @@ import Redis from 'redis';
 import { duplicateRedis } from './redis';
 import {
   Event,
+  MessageEvent,
   MessageEventType,
   StateEventType,
-  CreateRoomEvent
+  CreateRoomEvent,
+  MessageEventMessgae
 } from './client-server/events';
 import { initDb } from './model';
 import { handleCreateRoom } from './createRoomHandler';
+import { handleMessage } from './messageHandler';
 
 const debug = require('debug')('server:events');
 
@@ -64,25 +67,24 @@ async function processEvent(key: string, ts: string, kind: string, ev: Event) {
     case MessageEventType.redaction:
       break;
     case MessageEventType.message:
-      console.log(ts, ev);
+      handleMessage(Object.assign(new MessageEventMessgae(), ev));
       break;
     case MessageEventType.feedback:
       break;
-    case MessageEventType.invite:
+    case MessageEventType.call_invite:
       break;
-    case MessageEventType.candidates:
+    case MessageEventType.call_candidates:
       break;
-    case MessageEventType.answer:
+    case MessageEventType.call_answer:
       break;
-    case MessageEventType.hangup:
+    case MessageEventType.call_hangup:
       break;
     case StateEventType.aliases:
       break;
     case StateEventType.canonical_alias:
       break;
     case StateEventType.create:
-      const create = ev as CreateRoomEvent;
-      handleCreateRoom(create);
+      handleCreateRoom(Object.assign(new CreateRoomEvent(), ev));
       break;
     case StateEventType.join_rules:
       break;
