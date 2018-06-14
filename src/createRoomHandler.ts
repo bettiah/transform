@@ -1,6 +1,6 @@
 import { redisAsync, redisEnque } from './redis';
 import { CreateRoomEvent, StateEventType } from './client-server/events';
-import { Room, RoomAlias } from './model';
+import { Room } from './model';
 import { getRepository } from 'typeorm';
 import { VisibilityType } from './types';
 import { normalizeAlias } from './utils';
@@ -34,6 +34,15 @@ export async function handleCreateRoom(
     ? normalizeAlias(body.room_alias_name)
     : null;
 
+  if (alias) {
+    // alias was reserverd for this room in redis
+    const curr = await redisAsync().getAsync(`alias:${alias}`);
+    if (curr !== room_id) {
+      debug(`alias in redis does not match, expect:${room_id} found:${curr}`);
+      return false;
+    }
+  }
+
   // create room in db
   const room: Room = {
     name: body.name,
@@ -50,27 +59,6 @@ export async function handleCreateRoom(
     debug('saved', savedRoom);
   } catch (ex) {
     debug('error saving room:', ex.message);
-  }
-  if (alias) {
-    // alias was reserverd for this room in redis
-    const curr = await redisAsync().getAsync(`alias:${alias}`);
-    if (curr !== room_id) {
-      debug(`alias in redis does not match, expect:${room_id} found:${curr}`);
-      return false;
-    }
-    // create alias in db
-    const roomAlias: RoomAlias = {
-      name: alias,
-      room: room
-    };
-    try {
-      // insert or update
-      const savedAlias = await getRepository(RoomAlias).save(roomAlias);
-      debug('saved alias', savedAlias);
-    } catch (ex) {
-      debug('error saving alias:', ex.message);
-      return false;
-    }
   }
 
   const events: string[] = [];

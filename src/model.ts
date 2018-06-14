@@ -51,7 +51,7 @@ export class Room {
 
   @OneToMany(type => RoomAlias, alias => alias.room, {
     eager: true,
-    cascade: ['remove'],
+    cascade: true,
     nullable: true
   })
   aliases!: RoomAlias[];
