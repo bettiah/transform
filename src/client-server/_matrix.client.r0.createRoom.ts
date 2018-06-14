@@ -76,17 +76,6 @@ export class MatrixClientR0CreateRoom {
     const roomevents = await redisEnque('roomevents', events);
     debug('roomevents queued', roomevents);
 
-    // queue to room
-    // TODO events
-    // m.room.power_levels
-    // presets
-    // initial_state
-    // name, topic
-    // invite, invite3Pid
-    // alias?
-    const q = await redisEnque(`${room_id}`, events);
-    debug(`${room_id} queued`, q);
-
     // TODO - M_INVALID_ROOM_STATE:
     return { room_id };
   }
