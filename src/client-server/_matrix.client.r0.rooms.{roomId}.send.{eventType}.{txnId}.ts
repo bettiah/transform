@@ -20,7 +20,7 @@ import {
 import { User } from '../model';
 import * as dto from './types';
 import { redisEnque } from '../redis';
-import { validateRequest, rand } from '../utils';
+import { rand } from '../utils';
 import * as events from './events';
 import { validate } from 'class-validator';
 

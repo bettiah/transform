@@ -8,33 +8,30 @@ const debug = require('debug')('server:events:send');
 export async function handleMessage(
   message: MessageEventMessgae
 ): Promise<boolean> {
-  // user exists
-  const sender = await getRepository(User).findOne(
-    {
-      user_id: message.sender
-    },
-    { relations: ['rooms'], loadEagerRelations: false }
-  );
+  const sender = await getRepository(User)
+    .createQueryBuilder('user')
+    .select('user.user_id')
+    .leftJoinAndSelect('user.rooms', 'room', 'room.room_id = :room_id', {
+      room_id: message.room_id
+    })
+    .where('user.user_id = :user_id', { user_id: message.sender })
+    .getOne();
   // can fail if user has been deleted in between event & now
   if (!sender) {
     debug(`sender has been deleted:${message.sender}`);
     false;
   }
-  const rooms = await sender!.rooms;
-  // user is in room & can post messages
-  const room = rooms.find(it => {
-    return it.room_id === message.room_id;
-  });
-  if (!room) {
+  if (sender!.rooms.length != 1) {
     debug(`sender is not a part of room:${message.sender}`);
     false;
   }
+  debug(sender);
 
   const events: string[] = [];
   events.push(`${MessageEventType.message}`, JSON.stringify(message));
 
-  const q = await redisEnque(`room:${room!.room_id}`, events);
-  debug(`${room!.room_id} queued`, q);
+  const q = await redisEnque(`room:${message.room_id}`, events);
+  debug(`${message.room_id} queued`, q);
 
   return true;
 }
