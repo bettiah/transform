@@ -117,12 +117,12 @@ export async function checkUserInRoom(
     .getOne();
   // can fail if user has been deleted in between event & now
   if (!sender) {
-    debug(`sender has been deleted:${user_id}`);
-    false;
+    debug(`sender not found:${user_id}`);
+    return false;
   }
-  if (sender!.rooms.length === 0) {
+  if (sender.rooms.length === 0) {
     debug(`sender is not a part of room:${user_id}`);
-    false;
+    return false;
   }
   return true;
 }

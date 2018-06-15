@@ -19,7 +19,7 @@ import {
 
 import { User } from '../model';
 import * as dto from './types';
-import { redisEnque, RedisKeys } from '../redis';
+import { redisEnque, RedisKeys, redisAsync, existsInRedis } from '../redis';
 import { rand } from '../utils';
 import * as events from './events';
 import { validate } from 'class-validator';
@@ -100,7 +100,18 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
       throw new BadRequestError(errors.map(it => it.toString()).join(','));
     }
 
-    // TODO - check if user can post message
+    // basic checks:
+    // room exists or is pending
+    if (
+      (await existsInRedis(RedisKeys.MESSAGE_EVENTS + event.room_id)) ||
+      (await existsInRedis(RedisKeys.ROOM_PENDING + event.room_id))
+    ) {
+    } else {
+      throw new BadRequestError(`cannot find room: ${event.room_id}`);
+    }
+    // TODO - check if user can post message to grp
+    // cannot check db as room may not have appeared there yet
+
     // queue event to room
     const ret = await redisEnque(RedisKeys.ROOM_EVENTS, [
       `${eventType}`,

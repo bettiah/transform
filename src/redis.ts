@@ -24,6 +24,10 @@ export function duplicateRedis(): RedisClient {
   return redis().duplicate();
 }
 
+export function existsInRedis(key: string) {
+  return redisAsync().existsAsync(key);
+}
+
 export function redisEnque(queue: string, args: string[]): Promise<string> {
   return redisAsync().sendCommandAsync('XADD', [queue, '*', ...args]);
 }

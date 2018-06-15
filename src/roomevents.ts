@@ -28,13 +28,13 @@ const flatten = (obj: Hash) =>
 const TIMEOUT = 1000000;
 export function roomEvents() {
   const redis = duplicateRedis();
-  const watching: Hash = { roomevents: '$' }; // using 0 here with empty q is problematic
+  let watching: Hash = { roomevents: '$' }; // using 0 here with empty q is problematic
   const forever = () => {
     debug(watching);
     redis.sendCommand(
       'XREAD',
       ['BLOCK', TIMEOUT, 'STREAMS', ...flatten(watching)],
-      (error, reply) => {
+      async (error, reply) => {
         Redis.print(error, reply);
         if (error) {
           return;
@@ -44,16 +44,7 @@ export function roomEvents() {
           setImmediate(forever);
           return;
         }
-        (reply as Array<Array<any>>).forEach(element => {
-          const key = element[0] as string;
-          const values = element[1] as Array<Array<any>>;
-          values.forEach(timestamped => {
-            const ts = timestamped[0] as string;
-            const [kind, msg] = timestamped[1] as Array<string>;
-            processEvent(key, ts, kind, JSON.parse(msg) as Event);
-          });
-          watching[key] = values[values.length - 1][0];
-        });
+        watching = await processReply(reply as Array<Array<any>>);
         setImmediate(forever);
       }
     );
@@ -62,13 +53,28 @@ export function roomEvents() {
   forever();
 }
 
-function processEvent(key: string, ts: string, kind: string, ev: Event) {
+async function processReply(reply: Array<Array<any>>) {
+  let watching: Hash = {};
+  for (const element of reply) {
+    const key = element[0] as string;
+    const values = element[1];
+    for (let timestamped of values as Array<Array<any>>) {
+      const ts = timestamped[0] as string;
+      const [kind, msg] = timestamped[1] as Array<string>;
+      await processEvent(key, ts, kind, JSON.parse(msg) as Event);
+    }
+    watching[key] = values[values.length - 1][0];
+  }
+  return watching;
+}
+
+async function processEvent(key: string, ts: string, kind: string, ev: Event) {
   // console.log(key, ts, kind, ev);
   switch (kind) {
     case MessageEventType.redaction:
       break;
     case MessageEventType.message:
-      handleMessage(Object.assign(new MessageEventMessgae(), ev));
+      await handleMessage(Object.assign(new MessageEventMessgae(), ev));
       break;
     case MessageEventType.feedback:
       break;
@@ -85,7 +91,7 @@ function processEvent(key: string, ts: string, kind: string, ev: Event) {
     case StateEventType.canonical_alias:
       break;
     case StateEventType.create:
-      handleCreateRoom(Object.assign(new CreateRoomEvent(), ev));
+      await handleCreateRoom(Object.assign(new CreateRoomEvent(), ev));
       break;
     case StateEventType.join_rules:
       break;
