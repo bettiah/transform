@@ -19,7 +19,7 @@ import {
 
 import { User } from '../model';
 import * as dto from './types';
-import { redisEnque } from '../redis';
+import { redisEnque, RedisKeys } from '../redis';
 import { rand } from '../utils';
 import * as events from './events';
 import { validate } from 'class-validator';
@@ -100,8 +100,9 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
       throw new BadRequestError(errors.map(it => it.toString()).join(','));
     }
 
+    // TODO - check if user can post message
     // queue event to room
-    const ret = await redisEnque('roomevents', [
+    const ret = await redisEnque(RedisKeys.ROOM_EVENTS, [
       `${eventType}`,
       JSON.stringify(event)
     ]);

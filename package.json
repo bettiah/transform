@@ -4,7 +4,8 @@
   "main": "build/server.js",
   "license": "MIT",
   "scripts": {
-    "dev": "tsc -w & DEBUG=server* nodemon"
+    "dev": "tsc -w & DEBUG=server* nodemon",
+    "queue": "DEBUG=server* nodemon build/roomevents.js"
   },
   "dependencies": {
     "bluebird": "^3.5.1",

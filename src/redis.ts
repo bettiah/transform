@@ -37,3 +37,11 @@ export function initRedis() {
     });
   });
 }
+
+export const enum RedisKeys {
+  ROOM_EVENTS = 'roomevents',
+  STATE_EVENTS = 'room:state:',
+  MESSAGE_EVENTS = 'room:message:',
+  ROOM_PENDING = 'pending:room:',
+  ROOM_ALIAS = 'alias:'
+}

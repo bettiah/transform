@@ -29,7 +29,7 @@ app.use(logging.errorLogger);
 async function init() {
   await initDb();
   await initRedis();
-  roomEvents();
+  // roomEvents();
   debug('initialized');
 }
 

@@ -21,7 +21,7 @@ import * as dto from './types';
 import { ErrorTypes } from '../types';
 import { normalizeRoom, normalizeAlias, rand } from '../utils';
 import { StateEventType, CreateRoomEvent } from './events';
-import { redisEnque, redisAsync } from '../redis';
+import { redisEnque, redisAsync, RedisKeys } from '../redis';
 
 const debug = require('debug')('server:createRoom');
 
@@ -45,7 +45,7 @@ export class MatrixClientR0CreateRoom {
     if (alias) {
       // check and set room:alias -> id
       // otherwise we can have a race condition where multiple users try and create same room
-      const roomKey = `alias:${alias}`;
+      const roomKey = RedisKeys.ROOM_ALIAS + alias;
       const canSet = await redisAsync().setAsync(roomKey, [room_id, 'NX']);
       debug('set', roomKey, canSet);
       if (!canSet) {
@@ -54,7 +54,7 @@ export class MatrixClientR0CreateRoom {
     }
 
     // save body
-    await redisAsync().setAsync(`pending:room:${room_id}`, [
+    await redisAsync().setAsync(RedisKeys.ROOM_PENDING + room_id, [
       JSON.stringify(body)
     ]);
 
@@ -75,7 +75,7 @@ export class MatrixClientR0CreateRoom {
     events.push(`${createEvent.type}`, JSON.stringify(createEvent));
 
     // queue events to roomevents, so that we can start watching the room Q
-    const roomevents = await redisEnque('roomevents', events);
+    const roomevents = await redisEnque(RedisKeys.ROOM_EVENTS, events);
     debug('roomevents queued', roomevents);
 
     // TODO - M_INVALID_ROOM_STATE:

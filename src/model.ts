@@ -7,7 +7,8 @@ import {
   OneToMany,
   ManyToOne,
   ManyToMany,
-  JoinTable
+  JoinTable,
+  getRepository
 } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { SqliteConnectionOptions } from 'typeorm/driver/sqlite/SqliteConnectionOptions';
@@ -98,4 +99,30 @@ export function initDb() {
       debug('db', ex);
       throw new Error(ex.message);
     });
+}
+
+export async function checkUserInRoom(
+  room_id: string,
+  user_id: string
+): Promise<boolean> {
+  // check if sender exists & is in room
+  // TODO - figure out how to only load user_id from users
+  const sender = await getRepository(User)
+    .createQueryBuilder('user')
+    .select('user.user_id')
+    .leftJoinAndSelect('user.rooms', 'room', 'room.room_id = :room_id', {
+      room_id: room_id
+    })
+    .where('user.user_id = :user_id', { user_id: user_id })
+    .getOne();
+  // can fail if user has been deleted in between event & now
+  if (!sender) {
+    debug(`sender has been deleted:${user_id}`);
+    false;
+  }
+  if (sender!.rooms.length === 0) {
+    debug(`sender is not a part of room:${user_id}`);
+    false;
+  }
+  return true;
 }

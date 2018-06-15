@@ -1,5 +1,5 @@
 import Redis from 'redis';
-import { duplicateRedis } from './redis';
+import { duplicateRedis, initRedis } from './redis';
 import {
   Event,
   MessageEvent,
@@ -28,14 +28,14 @@ const flatten = (obj: Hash) =>
 const TIMEOUT = 1000000;
 export function roomEvents() {
   const redis = duplicateRedis();
-  const watching: Hash = { roomevents: 0 }; // using 0 here with empty q is problematic
+  const watching: Hash = { roomevents: '$' }; // using 0 here with empty q is problematic
   const forever = () => {
     debug(watching);
     redis.sendCommand(
       'XREAD',
       ['BLOCK', TIMEOUT, 'STREAMS', ...flatten(watching)],
       (error, reply) => {
-        // Redis.print(error, reply);
+        Redis.print(error, reply);
         if (error) {
           return;
         }
@@ -58,10 +58,11 @@ export function roomEvents() {
       }
     );
   };
+  // start loop
   forever();
 }
 
-async function processEvent(key: string, ts: string, kind: string, ev: Event) {
+function processEvent(key: string, ts: string, kind: string, ev: Event) {
   // console.log(key, ts, kind, ev);
   switch (kind) {
     case MessageEventType.redaction:
@@ -105,5 +106,6 @@ async function processEvent(key: string, ts: string, kind: string, ev: Event) {
 
 if (require.main === module) {
   initDb();
+  initRedis();
   roomEvents();
 }

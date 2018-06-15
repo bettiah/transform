@@ -1,4 +1,4 @@
-import { redisAsync, redisEnque } from './redis';
+import { redisAsync, redisEnque, RedisKeys } from './redis';
 import { CreateRoomEvent, StateEventType } from './client-server/events';
 import { Room, User } from './model';
 import { getRepository } from 'typeorm';
@@ -23,7 +23,7 @@ export async function handleCreateRoom(
 
   const room_id = create.room_id;
   // get key from redis -- delete when everything is done
-  const roomPendingKey = `pending:room:${create.room_id}`;
+  const roomPendingKey = RedisKeys.ROOM_PENDING + create.room_id;
   const body_ = await redisAsync().getAsync(roomPendingKey);
   if (!body_) {
     debug('cannot find pending room for key:', roomPendingKey);
@@ -36,7 +36,7 @@ export async function handleCreateRoom(
 
   if (alias) {
     // alias was reserverd for this room in redis
-    const curr = await redisAsync().getAsync(`alias:${alias}`);
+    const curr = await redisAsync().getAsync(RedisKeys.ROOM_ALIAS + alias);
     if (curr !== room_id) {
       debug(`alias in redis does not match, expect:${room_id} found:${curr}`);
       return false;
@@ -81,8 +81,9 @@ export async function handleCreateRoom(
   // name, topic
   // invite, invite3Pid
   // alias?
-  const q = await redisEnque(`room:${room_id}`, events);
-  debug(`${room_id} queued`, q);
+  const to = RedisKeys.STATE_EVENTS + room_id;
+  const q = await redisEnque(to, events);
+  debug(`${to}: queued`, q);
 
   // delete pending key from redis, can happen in background
   redisAsync().del(roomPendingKey);
