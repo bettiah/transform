@@ -24,7 +24,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bearerToken());
 app.use(logging.requestLogger);
-app.use(logging.errorLogger);
+// app.use(logging.errorLogger);
 
 async function init() {
   await initDb();

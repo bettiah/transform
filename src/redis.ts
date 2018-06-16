@@ -4,11 +4,11 @@ import Redis, { RedisClient } from 'redis';
 const once = require('lodash.once');
 const debug = require('debug')('server:redis');
 
-export const redis = once(Redis.createClient);
+export const redis: () => RedisClient = once(Redis.createClient);
 
-export const redisAsync = once(() => bluebird.promisifyAll(redis()));
+export const redisAsync: any = once(() => bluebird.promisifyAll(redis()));
 
-export const redisMulti = () => bluebird.promisifyAll(redis().multi());
+export const redisMulti: any = () => bluebird.promisifyAll(redis().multi());
 
 export function duplicateRedis(): RedisClient {
   return redis().duplicate();

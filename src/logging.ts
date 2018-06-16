@@ -13,8 +13,7 @@ export const requestLogger = expressWinston.logger({
   colorize: true,
   expressFormat: true,
   requestWhitelist: ['body'],
-  responseWhitelist: ['body'],
-  meta: true
+  responseWhitelist: ['body']
 });
 
 export const errorLogger = expressWinston.errorLogger({

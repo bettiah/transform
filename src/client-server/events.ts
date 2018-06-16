@@ -107,14 +107,24 @@ export class CreateRoomEvent extends StateEvent {
 export class JoinRulesEventContent {
   join_rule!: 'public' | 'knock' | 'invite' | 'private'; //Required. The type of rules used for users wishing to join this room
 }
+
 // 10.5.5
 export class MemberEventContent {
   avatar_url?: string; //	The avatar URL for this user, if any. This is added by the homeserver.
+
   displayname?: string; // or null	The display name for this user, if any. This is added by the homeserver.
-  membership?: 'invite' | 'join' | 'knock' | 'leave' | 'ban'; //	Required. The membership state of the user
+
+  @IsIn(['invite', 'join', 'knock', 'leave', 'ban'])
+  membership!: 'invite' | 'join' | 'knock' | 'leave' | 'ban'; //	Required. The membership state of the user
+
   is_direct?: boolean; //	Flag indicating if the room containing this event was created with the intention of being a direct chat. See Direct Messaging.
+
   third_party_invite?: Invite;
 }
+export class MemberEvent extends StateEvent {
+  content!: MemberEventContent;
+}
+
 export class Invite {
   display_name!: string; //	Required. A name which can be displayed to represent the user instead of their third party identifier
   signed!: Signed; //	Required. A block of content which has been signed, which servers can use to verify the event. Clients should ignore this.

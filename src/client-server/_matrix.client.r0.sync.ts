@@ -17,24 +17,41 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { User, userRooms } from '../model';
+import { ErrorTypes } from '../types';
+
+const debug = require('debug')('server:sync');
 
 @JsonController('')
 export class MatrixClientR0Sync {
   @Get('/_matrix/client/r0/sync')
   async sync(
-    @QueryParam('filter', { required: true })
-    filter: string,
-    @QueryParam('since', { required: true })
-    since: string,
-    @QueryParam('full_state', { required: true })
-    fullState: boolean,
-    @QueryParam('set_presence', { required: true })
-    setPresence: string,
-    @QueryParam('timeout', { required: true })
-    timeout: number,
-    @CurrentUser() user?: User
+    @QueryParam('filter') filter: string,
+    @QueryParam('since') since: string,
+    @QueryParam('full_state') fullState: boolean,
+    @QueryParam('set_presence') setPresence: string,
+    @QueryParam('timeout') timeout: number,
+    @CurrentUser() user: User
   ): Promise<dto.SyncResponse | any> {
-    throw new HttpError(501);
+    // TODO - timeout, set_presence, filter
+    fullState = fullState || false;
+    // find user's rooms
+    const usersRooms = await userRooms(user.user_id);
+    if (!usersRooms) {
+      // account got deleted between auth and now ?
+      throw new BadRequestError(ErrorTypes.M_NOT_FOUND);
+    }
+    const resp = new dto.SyncResponse();
+    // for (let room of usersRooms.rooms!) {
+    //   // state events
+    //   if (fullState || since === undefined) {
+    //     // all
+    //   }
+    //   // timeline
+    //   // include latest message events from each room in addition to state events
+    //   // for each room, a prev_batch
+    // }
+    // include next_batch
+    return resp;
   }
 }

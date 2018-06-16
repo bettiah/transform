@@ -40,11 +40,15 @@ export function roomEvents() {
           return;
         }
         if (!reply) {
-          // timed out; setImmediate ensures continuity
+          // no reply means: timed out; setImmediate ensures continuity
           setImmediate(forever);
           return;
         }
+        // synchronously consume repliles
+        // this can be done asynchronously
+        // but then we loose control over number of queued events
         watching = await processReply(reply as Array<Array<any>>);
+        // continue
         setImmediate(forever);
       }
     );
@@ -61,21 +65,23 @@ async function processReply(reply: Array<Array<any>>) {
     for (let timestamped of values as Array<Array<any>>) {
       const ts = timestamped[0] as string;
       const [kind, msg] = timestamped[1] as Array<string>;
-      await processEvent(key, ts, kind, JSON.parse(msg) as Event);
+      const ret = await processEvent(key, ts, kind, JSON.parse(msg) as Event);
+      if (!ret) {
+        debug('unable to handle:', key, ts, kind, msg);
+      }
     }
     watching[key] = values[values.length - 1][0];
   }
   return watching;
 }
 
-async function processEvent(key: string, ts: string, kind: string, ev: Event) {
+function processEvent(key: string, ts: string, kind: string, ev: Event) {
   // console.log(key, ts, kind, ev);
   switch (kind) {
     case MessageEventType.redaction:
       break;
     case MessageEventType.message:
-      await handleMessage(Object.assign(new MessageEventMessgae(), ev));
-      break;
+      return handleMessage(Object.assign(new MessageEventMessgae(), ev));
     case MessageEventType.feedback:
       break;
     case MessageEventType.call_invite:
@@ -91,8 +97,7 @@ async function processEvent(key: string, ts: string, kind: string, ev: Event) {
     case StateEventType.canonical_alias:
       break;
     case StateEventType.create:
-      await handleCreateRoom(Object.assign(new CreateRoomEvent(), ev));
-      break;
+      return handleCreateRoom(Object.assign(new CreateRoomEvent(), ev));
     case StateEventType.join_rules:
       break;
     case StateEventType.member:
@@ -108,6 +113,7 @@ async function processEvent(key: string, ts: string, kind: string, ev: Event) {
     case StateEventType.pinned_events:
       break;
   }
+  return false;
 }
 
 if (require.main === module) {

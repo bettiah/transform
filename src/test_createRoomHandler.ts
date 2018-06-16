@@ -1,12 +1,12 @@
 import { getRepository } from 'typeorm';
-import { Room, RoomAlias, initDb } from './model';
+import { Room, RoomAlias, initDb, UserInRoom, User } from './model';
 import { CreateRoomEvent, StateEventType } from './client-server/events';
 import { handleCreateRoom } from './createRoomHandler';
 import { initRedis, redisAsync } from './redis';
 
 import { expect } from 'chai';
 
-describe('createRoomHadler', async () => {
+describe('createRoomHandler', async () => {
   before(async () => {
     await initDb();
     await initRedis();
@@ -14,8 +14,10 @@ describe('createRoomHadler', async () => {
 
   beforeEach(async () => {
     // remove everything from room & room-alias
+    await getRepository(UserInRoom).clear();
     await getRepository(RoomAlias).clear();
     await getRepository(Room).clear();
+    await getRepository(User).clear();
     // delete everything
     await redisAsync().flushdbAsync();
     console.log('init');
@@ -29,6 +31,12 @@ describe('createRoomHadler', async () => {
     room_id: 'room1',
     sender: 'sender1',
     origin_server_ts: 1
+  };
+
+  let user: User = {
+    home_server: 's1',
+    user_id: 's1',
+    password_hash: 'p1'
   };
 
   describe('no alias', async () => {
@@ -53,6 +61,7 @@ describe('createRoomHadler', async () => {
     });
 
     it('OK', async () => {
+      await getRepository(User).save(user);
       await redisAsync().setAsync('pending:room:room1', '{}');
       const ret = await handleCreateRoom(
         Object.assign(new CreateRoomEvent(), cr)
@@ -67,6 +76,7 @@ describe('createRoomHadler', async () => {
 
   describe('with alias', async () => {
     it('ok', async () => {
+      await getRepository(User).save(user);
       // create pending
       await redisAsync().setAsync(
         'pending:room:room1',

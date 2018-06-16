@@ -6,7 +6,7 @@
     "module":
       "commonjs" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */,
     "lib": [
-      "dom",
+      "dom", // for Request & RequestInit
       "es5",
       "es2015.core",
       "es2015.iterable",

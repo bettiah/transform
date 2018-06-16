@@ -1,7 +1,7 @@
 require('isomorphic-fetch');
 require('isomorphic-form-data');
 
-import { Get, Put, Delete, Post, Headers } from 'pretend';
+import { Get, Put, Delete, Post, QueryParam } from 'pretend';
 
 import * as dto from './types';
 
@@ -10,12 +10,6 @@ function Body(options?: any): Function {
 }
 function Param(options?: any): Function {
   return () => {};
-}
-function QueryParam(name: string, options?: any): Function {
-  // console.log(`${name}: evaluated`);
-  return (target: any, mem: string, idx: number) => {
-    // console.log(`${name}:${JSON.stringify(target)}:${mem}:${idx} run`);
-  };
 }
 function HeaderParam(name: string, options?: any): Function {
   return () => {};
@@ -508,7 +502,7 @@ export class MatrixClient {
     body: dto.SendToDeviceBody
   ): Promise<any> {}
 
-  @Get('/_matrix/client/r0/sync')
+  @Get('/_matrix/client/r0/sync', true)
   async sync(
     @QueryParam('filter', { required: true })
     filter: string,

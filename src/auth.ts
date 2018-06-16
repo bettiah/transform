@@ -2,6 +2,7 @@ import { UnauthorizedError } from 'routing-controllers';
 import { User } from './model';
 import { newToken, verifyToken } from './jwt';
 import { getRepository } from 'typeorm';
+import { ErrorTypes } from './types';
 
 const auth = require('passport-local-authenticate');
 
@@ -74,7 +75,7 @@ export async function signup(
 ): Promise<SignedIn> {
   const exists = await getRepository(User).count({ user_id: username });
   if (exists !== 0) {
-    throw 'User exists';
+    throw ErrorTypes.M_USER_IN_USE;
   }
   const user = await newUser(username, password);
   const jwt = newToken(user, deviceId);
