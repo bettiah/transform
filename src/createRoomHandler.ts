@@ -62,22 +62,24 @@ export async function handleCreateRoom(
     visibility: body.visibility || VisibilityType.private,
     aliases: alias ? [{ name: alias }] : [],
     isDirect: body.isDirect || false,
-    room_id
+    room_id,
+    roomUsers: [
+      {
+        user: creator
+      }
+    ]
   };
   try {
     const room_ = await getRepository(Room).save(room);
     debug('saved room', room_);
     debug('from creator', creator);
-    await getRepository(UserInRoom).save({
-      user: creator,
-      room: room_
-    });
   } catch (ex) {
     debug('error saving room:', ex.message);
     return false;
   }
 
   const events: string[] = [];
+  // add state event
   events.push(`${StateEventType.create}`, JSON.stringify(create));
   const joinEvent: MemberEvent = {
     content: { membership: 'join' },
@@ -88,6 +90,7 @@ export async function handleCreateRoom(
     sender: create.content.creator,
     origin_server_ts: Date.now()
   };
+  // add join event
   events.push(`${StateEventType.member}`, JSON.stringify(joinEvent));
 
   // queue to room
