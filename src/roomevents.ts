@@ -6,11 +6,13 @@ import {
   MessageEventType,
   StateEventType,
   CreateRoomEvent,
-  MessageEventMessgae
+  MessageEventMessgae,
+  MemberEvent
 } from './client-server/events';
 import { initDb } from './model';
 import { handleCreateRoom } from './createRoomHandler';
 import { handleMessage } from './messageHandler';
+import { handleMember } from './memberHandler';
 
 const debug = require('debug')('server:events');
 
@@ -65,7 +67,7 @@ async function processReply(reply: Array<Array<any>>) {
     for (let timestamped of values as Array<Array<any>>) {
       const ts = timestamped[0] as string;
       const [kind, msg] = timestamped[1] as Array<string>;
-      const ret = await processEvent(key, ts, kind, JSON.parse(msg) as Event);
+      const ret = await processEvent(JSON.parse(msg) as Event);
       if (!ret) {
         debug('unable to handle:', key, ts, kind, msg);
       }
@@ -75,9 +77,9 @@ async function processReply(reply: Array<Array<any>>) {
   return watching;
 }
 
-function processEvent(key: string, ts: string, kind: string, ev: Event) {
+export function processEvent(ev: Event) {
   // console.log(key, ts, kind, ev);
-  switch (kind) {
+  switch (ev.type) {
     case MessageEventType.redaction:
       break;
     case MessageEventType.message:
@@ -101,7 +103,7 @@ function processEvent(key: string, ts: string, kind: string, ev: Event) {
     case StateEventType.join_rules:
       break;
     case StateEventType.member:
-      break;
+      return handleMember(Object.assign(new MemberEvent(), ev));
     case StateEventType.power_levels:
       break;
     case StateEventType.name:

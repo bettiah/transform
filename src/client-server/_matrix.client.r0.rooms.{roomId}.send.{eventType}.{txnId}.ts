@@ -23,6 +23,7 @@ import { redisEnque, RedisKeys, redisAsync, existsInRedis } from '../redis';
 import { rand } from '../utils';
 import * as events from './events';
 import { validate } from 'class-validator';
+import { processEvent } from '../roomevents';
 
 const debug = require('debug')('server:sendMessage');
 
@@ -112,12 +113,8 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
     // TODO - check if user can post message to grp
     // cannot check db as room may not have appeared there yet
 
-    // queue event to room
-    const ret = await redisEnque(RedisKeys.ROOM_EVENTS, [
-      `${eventType}`,
-      JSON.stringify(event)
-    ]);
-    debug('queued', ret);
+    await processEvent(eventType, event);
+
     return { event_id };
   }
 }

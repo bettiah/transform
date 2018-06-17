@@ -20,8 +20,11 @@ import { User } from '../model';
 import * as dto from './types';
 import { ErrorTypes } from '../types';
 import { normalizeRoom, normalizeAlias, rand } from '../utils';
-import { StateEventType, CreateRoomEvent } from './events';
+import { StateEventType, CreateRoomEvent, MemberEvent } from './events';
 import { redisEnque, redisAsync, RedisKeys } from '../redis';
+import { handleCreateRoom } from '../createRoomHandler';
+import { handleMember } from '../memberHandler';
+import { processEvent } from '../roomevents';
 
 const debug = require('debug')('server:createRoom');
 
@@ -59,7 +62,6 @@ export class MatrixClientR0CreateRoom {
     ]);
 
     const ts = Date.now();
-    const events: string[] = [];
     // m.room.create event
     // visibility & isDirect cannot be accomodated in events TODO - file bug
     const createEvent: CreateRoomEvent = {
@@ -71,12 +73,38 @@ export class MatrixClientR0CreateRoom {
       origin_server_ts: ts,
       state_key: ''
     };
-    // validate before adding to Q?
-    events.push(`${createEvent.type}`, JSON.stringify(createEvent));
 
-    // queue events to roomevents, so that we can start watching the room Q
-    const roomevents = await redisEnque(RedisKeys.ROOM_EVENTS, events);
-    debug('roomevents queued', roomevents);
+    await processEvent(createEvent);
+
+    const joinEvent: MemberEvent = {
+      content: { membership: 'join' },
+      type: StateEventType.member,
+      event_id: rand(),
+      state_key: room_id,
+      room_id,
+      sender: user.user_id,
+      origin_server_ts: Date.now()
+    };
+    await processEvent(joinEvent);
+
+    // queue to room
+    // TODO events
+    // m.room.power_levels
+    // presets
+    // initial_state
+    // name, topic
+    // invite, invite3Pid
+    // alias?
+
+    const events: string[] = [];
+    // add state event
+    events.push(`${StateEventType.create}`, JSON.stringify(createEvent));
+    // add join event
+    events.push(`${StateEventType.member}`, JSON.stringify(joinEvent));
+
+    const stateQ = RedisKeys.STATE_EVENTS + room_id;
+    const q = await redisEnque(stateQ, events);
+    debug(`${stateQ}: queued: ${q} ${events.length}`);
 
     // TODO - M_INVALID_ROOM_STATE:
     return { room_id };

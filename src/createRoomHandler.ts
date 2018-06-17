@@ -1,10 +1,6 @@
-import { redisAsync, redisEnque, RedisKeys } from './redis';
-import {
-  CreateRoomEvent,
-  StateEventType,
-  MemberEvent
-} from './client-server/events';
-import { Room, User, UserInRoom } from './model';
+import { redisAsync, RedisKeys } from './redis';
+import { CreateRoomEvent } from './client-server/events';
+import { Room, User } from './model';
 import { getRepository } from 'typeorm';
 import { VisibilityType } from './types';
 import { normalizeAlias, rand } from './utils';
@@ -46,15 +42,6 @@ export async function handleCreateRoom(
       return false;
     }
   }
-
-  const creator = await getRepository(User).findOne({
-    user_id: create.content.creator
-  });
-  // can fail if user has been deleted in between event & now
-  if (!creator) {
-    debug(`creator has been deleted:${create.content.creator}`);
-    false;
-  }
   // create room in db
   const room: Room = {
     name: body.name,
@@ -62,48 +49,15 @@ export async function handleCreateRoom(
     visibility: body.visibility || VisibilityType.private,
     aliases: alias ? [{ name: alias }] : [],
     isDirect: body.isDirect || false,
-    room_id,
-    roomUsers: [
-      {
-        user: creator
-      }
-    ]
+    room_id
   };
   try {
     const room_ = await getRepository(Room).save(room);
     debug('saved room', room_);
-    debug('from creator', creator);
   } catch (ex) {
     debug('error saving room:', ex.message);
     return false;
   }
-
-  const events: string[] = [];
-  // add state event
-  events.push(`${StateEventType.create}`, JSON.stringify(create));
-  const joinEvent: MemberEvent = {
-    content: { membership: 'join' },
-    type: StateEventType.member,
-    event_id: rand(),
-    state_key: room.room_id,
-    room_id,
-    sender: create.content.creator,
-    origin_server_ts: Date.now()
-  };
-  // add join event
-  events.push(`${StateEventType.member}`, JSON.stringify(joinEvent));
-
-  // queue to room
-  // TODO events
-  // m.room.power_levels
-  // presets
-  // initial_state
-  // name, topic
-  // invite, invite3Pid
-  // alias?
-  const stateQ = RedisKeys.STATE_EVENTS + room_id;
-  const q = await redisEnque(stateQ, events);
-  debug(`${stateQ}: queued`, q);
 
   // delete pending key from redis, can happen in background
   redisAsync().del(roomPendingKey);

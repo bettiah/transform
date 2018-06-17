@@ -37,20 +37,21 @@ export class MatrixClientR0Sync {
     fullState = fullState || false;
     // find user's rooms
     const usersRooms = await userRooms(user.user_id);
-    if (!usersRooms) {
-      // account got deleted between auth and now ?
-      throw new BadRequestError(ErrorTypes.M_NOT_FOUND);
-    }
+    debug(usersRooms);
     const resp = new dto.SyncResponse();
-    // for (let room of usersRooms.rooms!) {
-    //   // state events
-    //   if (fullState || since === undefined) {
-    //     // all
-    //   }
-    //   // timeline
-    //   // include latest message events from each room in addition to state events
-    //   // for each room, a prev_batch
-    // }
+    for (let room of usersRooms) {
+      // user's timeline in room
+      if (!since) {
+        // recent messages & state since start of timeline
+      }
+      // state events
+      //   if (fullState || since === undefined) {
+      // all
+      //   }
+      // timeline
+      // include latest message events from each room in addition to state events
+      // for each room, a prev_batch
+    }
     // include next_batch
     return resp;
   }
