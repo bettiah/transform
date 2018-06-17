@@ -1,7 +1,17 @@
 import 'reflect-metadata';
 
-import { Room, RoomAlias, initDb, User, UserInRoom, userRooms } from './model';
-import { getRepository } from 'typeorm';
+import {
+  Room,
+  RoomAlias,
+  initDb,
+  User,
+  UserInRoom,
+  userRooms,
+  removeUsersFromRoom,
+  removeUserFromRoom,
+  checkUserInRoom
+} from './model';
+import { getRepository, createQueryBuilder } from 'typeorm';
 
 import { expect } from 'chai';
 
@@ -25,8 +35,7 @@ describe('model', () => {
         room_id: 'r1',
         visibility: '1',
         isDirect: false,
-        aliases: [{ name: 'a1' }],
-        userRooms: []
+        aliases: [{ name: 'a1' }]
       };
       await getRepository(Room).save(room);
       const alias = await getRepository(RoomAlias).findOneOrFail();
@@ -63,6 +72,25 @@ describe('model', () => {
       console.log('init');
     });
 
+    it('room-users: nonexistent user', async () => {
+      const none = await userRooms('0');
+      console.dir(none);
+      expect(none).to.be.empty;
+    });
+
+    it('room-users: user with no room', async () => {
+      const user: User = {
+        home_server: 'h1',
+        user_id: 'u1',
+        password_hash: 'p1'
+      };
+      const user_ = await getRepository(User).save(user);
+
+      const none = await userRooms('u1');
+      console.dir(none);
+      expect(none).to.be.empty;
+    });
+
     it('room-users: create a room, add a user', async () => {
       const room: Room = {
         room_id: 'r1',
@@ -86,9 +114,13 @@ describe('model', () => {
       });
       console.dir(rel);
 
-      const rooms = await userRooms('u1');
+      let rooms = await userRooms('u1');
+      console.dir(rooms);
       expect(rooms).is.not.empty;
-      expect(rooms[0].room_id).equals('r1');
+      // expect(rooms[0].room_id).equals('r1');
+
+      let count = await checkUserInRoom(user_, room_);
+      expect(count).equals(1);
 
       const room2_ = await getRepository(Room).save({
         room_id: 'r2',
@@ -99,8 +131,27 @@ describe('model', () => {
         user: user_,
         room: room2_
       });
-      const rooms2 = await userRooms('u1');
-      expect(rooms2.map(r => r.room_id)).contains('r2', 'r1');
+      rooms = await userRooms('u1');
+      console.dir(rooms);
+      // expect(rooms.map(r => r.room_id)).contains('r2', 'r1');
+
+      // delete room - not allowed
+      // const del = await getRepository(Room)
+      //   .createQueryBuilder()
+      //   .delete()
+      //   .where('room_id =:id', { id: room2_.room_id })
+      //   .execute();
+      let del = await removeUsersFromRoom(room2_);
+      console.dir(del);
+      rooms = await userRooms('u1');
+      console.dir(rooms);
+      // expect(rooms.map(r => r.room_id)).contains('r1');
+
+      del = await removeUserFromRoom(user_, room_);
+      console.dir(del);
+      rooms = await userRooms('u1');
+      console.dir(rooms);
+      expect(rooms).is.empty;
     });
   });
 });

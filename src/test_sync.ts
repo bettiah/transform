@@ -1,14 +1,15 @@
-import { doLogin, client } from './test_client';
+import { doLogin, doRoom, client } from './test_client';
+import { SyncResponse } from './client-server/types';
 
-describe('sync', async () => {
+describe('Send Message', async () => {
   before(async function() {
-    // await doLogin('vm');
+    await doLogin('vm');
   });
 
   describe('Tests all', function() {
-    it('sync', async () => {
-      const sync = await client.sync('', '', true, '', 0);
-      console.log('sync', sync);
+    it('sendMessage', async () => {
+      const resp: SyncResponse = await client.sync('', '', true, '', 0);
+      console.dir(resp);
     });
   });
 });

@@ -70,7 +70,7 @@ export class Room {
     cascade: true,
     nullable: true
   })
-  userRooms?: UserInRoom[];
+  roomUsers?: UserInRoom[];
 
   @CreateDateColumn() createdAt?: Date;
 
@@ -79,10 +79,10 @@ export class Room {
 
 @Entity()
 export class UserInRoom {
-  @ManyToOne(type => User, user => user.userRooms, { primary: true })
+  @ManyToOne(type => User, (user: User) => user.userRooms, { primary: true })
   user?: User;
 
-  @ManyToOne(type => Room, room => room.userRooms, { primary: true })
+  @ManyToOne(type => Room, (room: Room) => room.roomUsers, { primary: true })
   room?: Room;
 
   @CreateDateColumn() createdAt?: Date;
@@ -130,39 +130,58 @@ export function initDb() {
     });
 }
 
-export async function checkUserInRoom(
-  room_id: string,
-  user_id: string
-): Promise<boolean> {
-  // check if sender exists & is in room
-  // TODO - figure out how to only load user_id from users
-  const sender = await getRepository(User)
-    .createQueryBuilder('user')
-    .select('user.user_id', 'room.room_id')
-    .leftJoinAndSelect('user.rooms', 'room', 'room.room_id = :room_id', {
-      room_id: room_id
+export function checkUserInRoom(user: User, room: Room) {
+  return getRepository(UserInRoom)
+    .createQueryBuilder()
+    .where('roomId = :roomId', {
+      roomId: getRepository(Room).getId(room)
     })
-    .where('user.user_id = :user_id', { user_id: user_id })
-    .getOne();
-  // can fail if user has been deleted in between event & now
-  if (!sender) {
-    debug(`sender not found:${user_id}`);
-    return false;
-  }
-  if (sender.userRooms!.length === 0) {
-    debug(`sender is not a part of room:${user_id}`);
-    return false;
-  }
-  return true;
+    .andWhere('userId = :userId', {
+      userId: getRepository(User).getId(user)
+    })
+    .getCount();
 }
 
 export function userRooms(user_id: string) {
   return getRepository(Room)
     .createQueryBuilder('room')
     .select(['room.room_id'])
-    .innerJoin('room.userRooms', 'userRoom')
-    .innerJoin('userRoom.user', 'user', 'user.user_id = :user_id', {
+    .innerJoin('room.roomUsers', 'roomUser')
+    .innerJoin('roomUser.user', 'user', 'user.user_id = :user_id', {
       user_id
     })
     .getMany();
+}
+
+export function removeUserFromRoom(user: User, room: Room) {
+  return createQueryBuilder()
+    .delete()
+    .from(UserInRoom)
+    .where('roomId = :roomId', {
+      roomId: getRepository(Room).getId(room)
+    })
+    .andWhere('userId = :userId', {
+      userId: getRepository(User).getId(user)
+    })
+    .execute();
+}
+
+export function removeUserFromAllRooms(user: User) {
+  return createQueryBuilder()
+    .delete()
+    .from(UserInRoom)
+    .where('userId = :userId', {
+      userId: getRepository(User).getId(user)
+    })
+    .execute();
+}
+
+export function removeUsersFromRoom(room: Room) {
+  return createQueryBuilder()
+    .delete()
+    .from(UserInRoom)
+    .where('roomId = :roomId', {
+      roomId: getRepository(Room).getId(room)
+    })
+    .execute();
 }
