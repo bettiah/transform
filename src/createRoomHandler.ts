@@ -1,4 +1,4 @@
-import { redisAsync, RedisKeys } from './redis';
+import { redisAsync, RedisKeys, redisEnque } from './redis';
 import { CreateRoomEvent } from './client-server/events';
 import { Room, User } from './model';
 import { getRepository } from 'typeorm';
@@ -23,7 +23,7 @@ export async function handleCreateRoom(
 
   const room_id = create.room_id;
   // get key from redis -- delete when everything is done
-  const roomPendingKey = RedisKeys.ROOM_PENDING + create.room_id;
+  const roomPendingKey = RedisKeys.ROOM_PENDING + room_id;
   const body_ = await redisAsync().getAsync(roomPendingKey);
   if (!body_) {
     debug('cannot find pending room for key:', roomPendingKey);
@@ -42,6 +42,14 @@ export async function handleCreateRoom(
       return false;
     }
   }
+
+  const stateQ = RedisKeys.STATE_EVENTS + room_id;
+  const q = await redisEnque(stateQ, [
+    `${create.type}`,
+    JSON.stringify(create)
+  ]);
+  debug(`${stateQ}: queued: ${q}`);
+
   // create room in db
   const room: Room = {
     name: body.name,

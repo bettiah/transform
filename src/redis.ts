@@ -22,6 +22,10 @@ export function redisEnque(queue: string, args: string[]): Promise<string> {
   return redisAsync().sendCommandAsync('XADD', [queue, '*', ...args]);
 }
 
+export function redisRange(queue: string, startAt: string) {
+  return redisAsync().sendCommandAsync('XRANGE', [queue, startAt, '+']);
+}
+
 export function initRedis() {
   return new Promise((res, rej) => {
     const _redis = redis();

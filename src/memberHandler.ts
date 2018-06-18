@@ -1,6 +1,7 @@
 import { MemberEvent } from './client-server/events';
 import { getRepository } from 'typeorm';
 import { User, UserInRoom, Room } from './model';
+import { RedisKeys, redisEnque } from './redis';
 
 const debug = require('debug')('server:events:join');
 
@@ -22,6 +23,10 @@ export async function handleMember(join: MemberEvent): Promise<boolean> {
 
   // TODO : checks
 
-  await getRepository(UserInRoom).save({ user, room });
+  const stateQ = RedisKeys.STATE_EVENTS + join.room_id;
+  const q = await redisEnque(stateQ, [`${join.type}`, JSON.stringify(join)]);
+  debug(`${stateQ}: queued: ${q}`);
+
+  await getRepository(UserInRoom).save({ user, room, timeline: q });
   return true;
 }

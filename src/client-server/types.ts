@@ -1725,6 +1725,8 @@ export class _State {
 }
 
 export class Timeline {
+  events?: Event[];
+
   @IsBoolean() limited?: boolean;
 
   @IsString() prev_batch?: string;

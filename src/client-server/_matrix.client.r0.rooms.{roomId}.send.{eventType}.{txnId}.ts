@@ -104,7 +104,7 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
     // basic checks:
     // room exists or is pending
     if (
-      (await existsInRedis(RedisKeys.MESSAGE_EVENTS + event.room_id)) ||
+      (await existsInRedis(RedisKeys.STATE_EVENTS + event.room_id)) ||
       (await existsInRedis(RedisKeys.ROOM_PENDING + event.room_id))
     ) {
     } else {
@@ -113,7 +113,7 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
     // TODO - check if user can post message to grp
     // cannot check db as room may not have appeared there yet
 
-    await processEvent(eventType, event);
+    await processEvent(event);
 
     return { event_id };
   }

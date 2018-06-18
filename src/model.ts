@@ -85,6 +85,8 @@ export class UserInRoom {
   @ManyToOne(type => Room, (room: Room) => room.roomUsers, { primary: true })
   room?: Room;
 
+  @Column() timeline!: string;
+
   @CreateDateColumn() createdAt?: Date;
 
   @UpdateDateColumn() updatedAt?: Date;
@@ -142,10 +144,18 @@ export function checkUserInRoom(user: User, room: Room) {
     .getCount();
 }
 
+export function userRooms2(user: User) {
+  return getRepository(UserInRoom).find({
+    where: { user },
+    relations: ['room'],
+    select: ['timeline']
+  });
+}
+
 export function userRooms(user_id: string) {
   return getRepository(Room)
     .createQueryBuilder('room')
-    .select(['room.room_id'])
+    .select(['room.room_id', 'roomUser.user'])
     .innerJoin('room.roomUsers', 'roomUser')
     .innerJoin('roomUser.user', 'user', 'user.user_id = :user_id', {
       user_id

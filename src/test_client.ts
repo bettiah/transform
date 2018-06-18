@@ -6,9 +6,11 @@ import {
   LoginResponse,
   CreateRoomBody,
   CreateRoomResponse,
-  RegisterBody
+  RegisterBody,
+  SendMessageResponse
 } from './client-server/types';
 import { LoginType } from './types';
+import { MessageEventType, MsgType } from './client-server/events';
 
 let auth = '';
 let room = '';
@@ -73,4 +75,20 @@ export async function doRoom(name: string) {
   }
   setRoom(resp.room_id!);
   return resp.room_id;
+}
+
+export async function doSend(roomId: string, msg: string) {
+  const resp: SendMessageResponse = await client.sendMessage(
+    roomId,
+    MessageEventType.message,
+    '1',
+    {
+      msgtype: MsgType.text,
+      body: msg
+    }
+  );
+  if (!resp.event_id) {
+    throw 'unable to send message';
+  }
+  return resp.event_id;
 }

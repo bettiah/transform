@@ -96,16 +96,6 @@ export class MatrixClientR0CreateRoom {
     // invite, invite3Pid
     // alias?
 
-    const events: string[] = [];
-    // add state event
-    events.push(`${StateEventType.create}`, JSON.stringify(createEvent));
-    // add join event
-    events.push(`${StateEventType.member}`, JSON.stringify(joinEvent));
-
-    const stateQ = RedisKeys.STATE_EVENTS + room_id;
-    const q = await redisEnque(stateQ, events);
-    debug(`${stateQ}: queued: ${q} ${events.length}`);
-
     // TODO - M_INVALID_ROOM_STATE:
     return { room_id };
   }
