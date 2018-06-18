@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User, userRooms, userRooms, UserInRoom } from '../model';
+import { User, userRooms, UserInRoom } from '../model';
 import { ErrorTypes } from '../types';
 import { redisRange, RedisKeys } from '../redis';
 

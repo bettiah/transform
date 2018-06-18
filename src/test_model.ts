@@ -9,7 +9,8 @@ import {
   userRooms,
   removeUsersFromRoom,
   removeUserFromRoom,
-  checkUserInRoom
+  checkUserInRoom,
+  userRooms_bug
 } from './model';
 import { getRepository, createQueryBuilder } from 'typeorm';
 
@@ -73,7 +74,7 @@ describe('model', () => {
     });
 
     it('room-users: nonexistent user', async () => {
-      const none = await userRooms('0');
+      const none = await userRooms_bug('0');
       console.dir(none);
       expect(none).to.be.empty;
     });
@@ -86,7 +87,7 @@ describe('model', () => {
       };
       const user_ = await getRepository(User).save(user);
 
-      const none = await userRooms('u1');
+      const none = await userRooms_bug('u1');
       console.dir(none);
       expect(none).to.be.empty;
     });
@@ -114,7 +115,7 @@ describe('model', () => {
       });
       console.dir(rel);
 
-      let rooms = await userRooms('u1');
+      let rooms = await userRooms_bug('u1');
       console.dir(rooms);
       expect(rooms).is.not.empty;
       // expect(rooms[0].room_id).equals('r1');
@@ -131,7 +132,7 @@ describe('model', () => {
         user: user_,
         room: room2_
       });
-      rooms = await userRooms('u1');
+      rooms = await userRooms_bug('u1');
       console.dir(rooms);
       // expect(rooms.map(r => r.room_id)).contains('r2', 'r1');
 
@@ -143,13 +144,13 @@ describe('model', () => {
       //   .execute();
       let del = await removeUsersFromRoom(room2_);
       console.dir(del);
-      rooms = await userRooms('u1');
+      rooms = await userRooms_bug('u1');
       console.dir(rooms);
       // expect(rooms.map(r => r.room_id)).contains('r1');
 
       del = await removeUserFromRoom(user_, room_);
       console.dir(del);
-      rooms = await userRooms('u1');
+      rooms = await userRooms_bug('u1');
       console.dir(rooms);
       expect(rooms).is.empty;
     });

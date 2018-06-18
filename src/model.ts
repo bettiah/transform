@@ -87,6 +87,9 @@ export class UserInRoom {
 
   @Column() timeline!: string;
 
+  @Column({ length: 12 })
+  membership!: string; // one of join, invite, leave [leave, ban?]
+
   @CreateDateColumn() createdAt?: Date;
 
   @UpdateDateColumn() updatedAt?: Date;
