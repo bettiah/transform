@@ -144,7 +144,7 @@ export function checkUserInRoom(user: User, room: Room) {
     .getCount();
 }
 
-export function userRooms2(user: User) {
+export function userRooms(user: User) {
   return getRepository(UserInRoom).find({
     where: { user },
     relations: ['room'],
@@ -152,7 +152,8 @@ export function userRooms2(user: User) {
   });
 }
 
-export function userRooms(user_id: string) {
+// BUG
+export function userRooms_bug(user_id: string) {
   return getRepository(Room)
     .createQueryBuilder('room')
     .select(['room.room_id', 'roomUser.user'])
