@@ -17,10 +17,9 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User, userRooms, UserInRoom } from '../model';
+import { User, userRooms } from '../model';
 import { QueueTimelines } from '../types';
 import {
-  redisRange,
   RedisKeys,
   redisGetAndDel,
   redisAsync,
@@ -70,12 +69,12 @@ export class MatrixClientR0Sync {
     }, new QueueTimelines());
     debug(rooms);
 
-    // get timelines
+    // need usable timelines for query
     const timelines = await getTimelines(rooms, since, fullState);
     debug(timelines);
     const response = await redisReadQueue(
       flattenRequest(timelines),
-      fullState ? 0 : timeout
+      fullState ? 0 : timeout // return immediately if fullstate
     );
 
     for (let [room_id, ts, evt] of flattenResponse(response)) {
@@ -120,11 +119,21 @@ async function getTimelines(
   // baselines has reference timelines, override with events sent last time
   for (let t in baselines) {
     const stateEv = RedisKeys.STATE_EVENTS + t;
-    // state events: use previous if 'since' or fullstate was not requested
-    if (previousTimeline[stateEv] && !fullState) {
+    // state events:
+    if (fullState) {
+      // start from beginning
+      timelines[stateEv] = {
+        timeline: '0-0',
+        membership: baselines[t].membership
+      };
+    } else if (previousTimeline[stateEv]) {
+      // use previous if 'since' or fullstate was not requested
       timelines[stateEv] = previousTimeline[stateEv];
     } else {
-      timelines[stateEv] = baselines[t];
+      // start from one before start of timeline
+      const { timeline, membership } = baselines[t];
+      const prev = oneBefore(timeline);
+      timelines[stateEv] = { timeline: prev, membership };
     }
     // message events:
     // TODO
@@ -140,39 +149,9 @@ async function getTimelines(
   return timelines;
 }
 
-async function roomState(
-  room: UserInRoom,
-  since: string
-): Promise<[string, dto.JoinedRoom]> {
-  let joinedRoom: dto.JoinedRoom = {
-    state: { events: [] },
-    timeline: { events: [], limited: false, prev_batch: '' }
-  };
-  const room_id = room.room!.room_id;
-  // user's timeline in room
-  let startAt = since;
-  if (!startAt) {
-    // without since : recent messages & state since start of timeline
-    startAt = room.timeline;
-  } else {
-    // make sure 'since' is after room.timeline
-    if (startAt < room.timeline) {
-      startAt = room.timeline;
-    }
-  }
-  const states = await redisRange(RedisKeys.STATE_EVENTS + room_id, startAt);
-  for (let [_ts, evt] of flattenResponse(states)) {
-  }
-  // timeline : startAt
-  const timeline = await redisRange(
-    RedisKeys.MESSAGE_EVENTS + room_id,
-    startAt
-  );
-  for (let [ts, evt] of flattenResponse(timeline)) {
-    joinedRoom.timeline!.events!.push(evt);
-    // for each room, a prev_batch
-  }
-  return [room_id, joinedRoom];
+function oneBefore(timeline: string): string {
+  const parts = timeline.split('-');
+  return `${parseInt(parts[0]) - 1}-${parts[1]}`;
 }
 
 // {k=>v} => [k1, k2, v1, v2]
