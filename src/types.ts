@@ -1,3 +1,8 @@
+// map of queue name to timeline
+export class QueueTimelines {
+  [room_id: string]: { timeline: string; membership: string };
+}
+
 export const enum LoginType {
   password = 'm.login.password',
   recaptcha = 'm.login.recaptcha',

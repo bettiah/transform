@@ -151,7 +151,7 @@ export function userRooms(user: User) {
   return getRepository(UserInRoom).find({
     where: { user },
     relations: ['room'],
-    select: ['timeline']
+    select: ['timeline', 'membership']
   });
 }
 

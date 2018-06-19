@@ -20,7 +20,7 @@ import * as dto from './types';
 import { LoginType } from '../types';
 
 import { rand, normalizeUser } from '../utils';
-import { redisAsync, redisMulti } from '../redis';
+import { redisAsync, redisMulti, redisGetAndDel } from '../redis';
 import { signup } from '../auth';
 const config = require('../../config.json');
 const debug = require('debug')('server:register');
@@ -39,10 +39,7 @@ export class MatrixClientR0Register {
     | any
   > {
     if (body.auth && body.auth.session && body.auth.type === LoginType.dummy) {
-      const [session, _] = await redisMulti()
-        .get(body.auth.session)
-        .del(body.auth.session)
-        .execAsync();
+      const session = await redisGetAndDel(body.auth.session);
       debug('session', session);
       if (!session) {
         throw new UnauthorizedError('invalid session');
