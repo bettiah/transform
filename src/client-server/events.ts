@@ -170,7 +170,7 @@ export class UnsignedData {
 export class FeedbackEventContent {
   @IsString() target_event_id!: string; //	Required. The event that this feedback is related to.
   @IsIn(['delivered', 'read'])
-  type!: 'delivered' | 'read'; //	Required. The type of feedback
+  type!: string; //	Required. The type of feedback
 }
 
 // 11.2.1.3

@@ -20,7 +20,7 @@ import * as dto from './types';
 import { LoginType } from '../types';
 
 import { rand, normalizeUser } from '../utils';
-import { redisAsync, redisMulti, redisGetAndDel } from '../redis';
+import { redisAsync, redisGetAndDel } from '../redis';
 import { signup } from '../auth';
 const config = require('../../config.json');
 const debug = require('debug')('server:register');
@@ -29,6 +29,7 @@ const debug = require('debug')('server:register');
 export class MatrixClientR0Register {
   @Post('/_matrix/client/r0/register')
   async register(
+    // @IsIn(['guest', 'user'])
     @QueryParam('kind') kind: string,
     @Body({ required: true })
     body: dto.RegisterBody

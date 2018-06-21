@@ -24,20 +24,22 @@ describe('Client Tests', () => {
 
     console.log('register id:', rand_);
     const reg1: RegisterBody = {
-      auth: { type: 'ad' },
+      auth: { type: '' },
       username: rand_,
       password: rand_
     };
-    const result1 = await client.register('', reg1);
+    const result1 = await client.register('user', reg1);
     console.log(JSON.stringify(result1, null, 2));
 
     const reg2: RegisterBody = {
       auth: {
         type: LoginType.dummy,
         session: result1.session
-      }
+      },
+      username: rand_,
+      password: rand_
     };
-    const result2 = await client.register('', reg2);
+    const result2 = await client.register('user', reg2);
     console.dir(result2);
     setAuth(result2.access_token);
   });
@@ -80,7 +82,7 @@ describe('Client Tests', () => {
   });
 
   it('sync', async () => {
-    const resp = await client.sync(roomId, '', true, '', 0);
+    const resp = await client.sync('', '', true, 'online', 0);
     console.log(JSON.stringify(resp, null, 2));
   });
 });

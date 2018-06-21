@@ -13,7 +13,7 @@ describe('Send Message', async () => {
     await getRepository(Room).clear();
 
     console.log('init');
-    await doRegister('vm');
+    await doRegister('vm10');
   });
 
   describe('Tests all', function() {
@@ -22,7 +22,7 @@ describe('Send Message', async () => {
     it('sync', async () => {
       const room = await doRoom('room1');
       await doSend(room, 'hello');
-      const resp: SyncResponse = await client.sync('', '', true, '', 0);
+      const resp: SyncResponse = await client.sync('', '', true, 'online', 10);
       console.dir(JSON.stringify(resp));
     });
   });

@@ -20,32 +20,35 @@ export const setRoom = (_room: string) => (room = _room);
 export const client: MatrixClient = Pretend.builder()
   .requestInterceptor(request => {
     request.options.headers = {
-      'Content-Type': 'application/json;charset=UTF-8'
+      'Content-Type': 'application/json;charset=UTF-8',
+      Connection: 'keep-alive'
     };
     if (auth) {
       request.options.headers['Authorization'] = `Bearer ${auth}`;
     }
     return request;
   })
-  // .target(MatrixClient, 'http://localhost:8008/');
-  .target(MatrixClient, 'http://localhost:1234/');
+  .target(MatrixClient, 'http://localhost:8008/');
+// .target(MatrixClient, 'http://localhost:1234/');
 
 export async function doRegister(user: string) {
   const reg1: RegisterBody = {
-    auth: {},
+    auth: { type: '' },
     username: user,
     password: user
   };
-  const result1 = await client.register('', reg1);
+  const result1 = await client.register('user', reg1);
   console.log(JSON.stringify(result1, null, 2));
 
   const reg2: RegisterBody = {
     auth: {
       type: LoginType.dummy,
       session: result1.session
-    }
+    },
+    username: user,
+    password: user
   };
-  const result2 = await client.register('', reg2);
+  const result2 = await client.register('user', reg2);
   console.dir(result2);
   if (!result2.access_token) {
     throw new Error('missing token, no logon');

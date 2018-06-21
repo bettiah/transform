@@ -13,7 +13,6 @@ import { initDb } from './model';
 import { verifyToken } from './jwt';
 import { tokenUser } from './auth';
 import { initRedis } from './redis';
-import { roomEvents } from './roomevents';
 
 import * as logging from './logging';
 
@@ -29,7 +28,6 @@ app.use(logging.requestLogger);
 async function init() {
   await initDb();
   await initRedis();
-  // roomEvents();
   debug('initialized');
 }
 
