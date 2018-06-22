@@ -30,6 +30,9 @@ export class User {
   @Column({ length: 128 })
   password_hash!: string;
 
+  @Column({ length: 128, nullable: true })
+  display_name?: string;
+
   @OneToMany(type => UserInRoom, userRoom => userRoom.room, {
     cascade: true,
     nullable: true
@@ -57,7 +60,7 @@ export class Room {
   @Column({ length: 128, nullable: true })
   topic?: string;
 
-  @Column() isDirect!: boolean;
+  @Column() is_direct!: boolean;
 
   @OneToMany(type => RoomAlias, alias => alias.room, {
     eager: true,

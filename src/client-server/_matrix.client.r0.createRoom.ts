@@ -21,9 +21,7 @@ import * as dto from './types';
 import { ErrorTypes } from '../types';
 import { normalizeRoom, normalizeAlias, rand } from '../utils';
 import { StateEventType, CreateRoomEvent, MemberEvent } from './events';
-import { redisEnque, redisAsync, RedisKeys } from '../redis';
-import { handleCreateRoom } from '../createRoomHandler';
-import { handleMember } from '../memberHandler';
+import { redisAsync, RedisKeys } from '../redis';
 import { processEvent } from '../roomevents';
 
 const debug = require('debug')('server:createRoom');
@@ -63,7 +61,7 @@ export class MatrixClientR0CreateRoom {
 
     const ts = Date.now();
     // m.room.create event
-    // visibility & isDirect cannot be accomodated in events TODO - file bug
+    // visibility & is_direct cannot be accomodated in events TODO - file bug
     const createEvent: CreateRoomEvent = {
       content: { creator: user.user_id, 'm.federate': true },
       type: StateEventType.create,
@@ -80,7 +78,7 @@ export class MatrixClientR0CreateRoom {
       content: { membership: 'join' },
       type: StateEventType.member,
       event_id: rand(),
-      state_key: room_id,
+      state_key: user.user_id,
       room_id,
       sender: user.user_id,
       origin_server_ts: Date.now()

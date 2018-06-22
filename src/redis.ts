@@ -58,10 +58,12 @@ export const enum RedisKeys {
   STATE_EVENTS = 'room:state:',
   MESSAGE_EVENTS = 'room:message:',
 
+  ROOM_PENDING = 'room:pending:',
+  ROOM_ALIAS = 'room:alias:',
+
   USER_PRESENCE = 'user:presence:',
   USER_ACTIVITY = 'user:activity:',
   USER_STATUS = 'user:status:',
 
-  ROOM_PENDING = 'room:pending:',
-  ROOM_ALIAS = 'alias:'
+  SINCE = 'since:'
 }

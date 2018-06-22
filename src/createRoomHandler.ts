@@ -56,7 +56,7 @@ export async function handleCreateRoom(
     topic: body.topic,
     visibility: body.visibility || VisibilityType.private,
     aliases: alias ? [{ name: alias }] : [],
-    isDirect: body.isDirect || false,
+    is_direct: body.is_direct === undefined ? false : body.is_direct,
     room_id
   };
   try {

@@ -35,7 +35,7 @@ describe('model', () => {
       const room: Room = {
         room_id: 'r1',
         visibility: '1',
-        isDirect: false,
+        is_direct: false,
         aliases: [{ name: 'a1' }]
       };
       await getRepository(Room).save(room);
@@ -96,7 +96,7 @@ describe('model', () => {
       const room: Room = {
         room_id: 'r1',
         visibility: '1',
-        isDirect: false
+        is_direct: false
       };
       const room_ = await getRepository(Room).save(room);
       console.dir(room_);
@@ -126,7 +126,7 @@ describe('model', () => {
       const room2_ = await getRepository(Room).save({
         room_id: 'r2',
         visibility: '1',
-        isDirect: false
+        is_direct: false
       });
       await getRepository(UserInRoom).save({
         user: user_,

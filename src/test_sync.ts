@@ -2,6 +2,7 @@ import { doRoom, client, doRegister, doSend } from './test_client';
 import { SyncResponse } from './client-server/types';
 import { getRepository } from 'typeorm';
 import { UserInRoom, RoomAlias, User, Room, initDb } from './model';
+import { rand } from './utils';
 
 describe('Send Message', async () => {
   before(async function() {
@@ -13,7 +14,7 @@ describe('Send Message', async () => {
     await getRepository(Room).clear();
 
     console.log('init');
-    await doRegister('vm10');
+    await doRegister(rand());
   });
 
   describe('Tests all', function() {
@@ -23,7 +24,16 @@ describe('Send Message', async () => {
       const room = await doRoom('room1');
       await doSend(room, 'hello');
       const resp: SyncResponse = await client.sync('', '', true, 'online', 10);
-      console.dir(JSON.stringify(resp));
+      console.log('r1', JSON.stringify(resp));
+
+      const resp2: SyncResponse = await client.sync(
+        '',
+        resp.next_batch!,
+        false,
+        '',
+        10
+      );
+      console.log('r2', JSON.stringify(resp2));
     });
   });
 });
