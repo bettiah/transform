@@ -18,6 +18,7 @@ import {
 
 import * as dto from './types';
 import { User } from '../model';
+import { getRepository } from 'typeorm';
 
 @JsonController('')
 export class MatrixClientR0ProfileUserIdDisplayname {
@@ -25,7 +26,13 @@ export class MatrixClientR0ProfileUserIdDisplayname {
   async getDisplayName(
     @Param('userId') userId: string
   ): Promise<dto.GetDisplayNameResponse | any> {
-    throw new HttpError(501);
+    const user = await getRepository(User).findOneOrFail(
+      {
+        user_id: userId
+      },
+      { select: ['display_name'] }
+    );
+    return { display_name: user.display_name };
   }
 
   @Put('/_matrix/client/r0/profile/:userId/displayname')
@@ -35,6 +42,17 @@ export class MatrixClientR0ProfileUserIdDisplayname {
     body: dto.SetDisplayNameBody,
     @CurrentUser() user?: User
   ): Promise<dto.SetDisplayNameResponse429 | any> {
-    throw new HttpError(501);
+    //  make sure user is not setting someone else's presence
+    if (userId != user!.user_id) {
+      throw new UnauthorizedError("cannot set other's name");
+    }
+
+    if (body.displayname) {
+      await getRepository(User).save({
+        id: user!.id,
+        display_name: body.displayname
+      });
+    }
+    return {};
   }
 }
