@@ -20,7 +20,7 @@ const debug = require('debug')('server');
 const bodyParser = require('body-parser');
 
 const app = express();
-app.use(bodyParser.json());
+app.use(bodyParser.json({ type: 'text/plain' }));
 app.use(bearerToken());
 app.use(logging.requestLogger);
 // app.use(logging.errorLogger);
