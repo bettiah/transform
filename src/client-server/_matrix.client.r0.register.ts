@@ -13,7 +13,8 @@ import {
   CurrentUser,
   QueryParam,
   HeaderParam,
-  UnauthorizedError
+  UnauthorizedError,
+  Res
 } from 'routing-controllers';
 
 import * as dto from './types';
@@ -32,7 +33,8 @@ export class MatrixClientR0Register {
     // @IsIn(['guest', 'user'])
     @QueryParam('kind') kind: string,
     @Body({ required: true })
-    body: dto.RegisterBody
+    body: dto.RegisterBody,
+    @Res() response: any
   ): Promise<
     | dto.RegisterResponse
     | dto.AuthenticationResponse
@@ -68,7 +70,7 @@ export class MatrixClientR0Register {
         session,
         flows: [{ stages: [LoginType.dummy] }]
       };
-      return resp;
+      return response.status(401).send(resp);
     }
     throw new HttpError(501);
   }
