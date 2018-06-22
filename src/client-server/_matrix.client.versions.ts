@@ -17,12 +17,13 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+
+const config = require('../../config.json');
 
 @JsonController('')
 export class MatrixClientVersions {
   @Get('/_matrix/client/versions')
   async getVersions(): Promise<dto.GetVersionsResponse | any> {
-    throw new HttpError(501);
+    return { versions: config['supported_versions'] };
   }
 }
