@@ -19,11 +19,14 @@ import {
 import * as dto from './types';
 import { User, userRooms } from '../model';
 import { QueueTimelines } from '../types';
+import { setPresence as setPresenceFn } from './presence';
+
 import {
   RedisKeys,
   redisGetAndDel,
   redisAsync,
-  redisReadQueue
+  redisReadQueue,
+  redisEnque
 } from '../redis';
 import { rand } from '../utils';
 
@@ -67,17 +70,16 @@ export class MatrixClientR0Sync {
       };
       return acc;
     }, new QueueTimelines());
-    debug(rooms);
 
     // need usable timelines for query
     const timelines = await getTimelines(rooms, since, fullState);
     debug(timelines);
     const response = await redisReadQueue(
       flattenRequest(timelines),
-      fullState ? 0 : timeout // return immediately if fullstate
+      fullState === true ? 0 : timeout // return immediately if fullstate
     );
 
-    for (let [room_id, ts, evt] of flattenResponse(response)) {
+    for (let [room_id, ts, evt] of flattenResponse(response || [])) {
       debug(room_id, ts, JSON.stringify(evt));
       const membership = timelines[room_id].membership;
       switch (membership) {
@@ -96,9 +98,14 @@ export class MatrixClientR0Sync {
 
     const next_batch = rand();
     // save baseline to redis
-    await redisAsync().setAsync(next_batch, JSON.stringify(timelines));
+    await redisAsync().setAsync(
+      RedisKeys.SINCE + next_batch,
+      JSON.stringify(timelines)
+    );
     // include next_batch
     resp.next_batch = next_batch;
+
+    await setPresenceFn(user.user_id, setPresence);
     return resp;
   }
 }
@@ -110,11 +117,12 @@ async function getTimelines(
   since: string,
   fullState: boolean
 ) {
-  const timelines = new QueueTimelines();
+  const ret = new QueueTimelines();
   // retrieve since token from redis
   let previousTimeline: QueueTimelines = {};
   if (since) {
-    previousTimeline = JSON.parse(await redisGetAndDel(since));
+    previousTimeline =
+      JSON.parse(await redisGetAndDel(RedisKeys.SINCE + since)) || {};
   }
   // baselines has reference timelines, override with events sent last time
   for (let t in baselines) {
@@ -122,18 +130,18 @@ async function getTimelines(
     // state events:
     if (fullState) {
       // start from beginning
-      timelines[stateEv] = {
+      ret[stateEv] = {
         timeline: '0-0',
         membership: baselines[t].membership
       };
     } else if (previousTimeline[stateEv]) {
       // use previous if 'since' or fullstate was not requested
-      timelines[stateEv] = previousTimeline[stateEv];
+      ret[stateEv] = previousTimeline[stateEv];
     } else {
       // start from one before start of timeline
       const { timeline, membership } = baselines[t];
       const prev = oneBefore(timeline);
-      timelines[stateEv] = { timeline: prev, membership };
+      ret[stateEv] = { timeline: prev, membership };
     }
     // message events:
     // TODO
@@ -141,12 +149,12 @@ async function getTimelines(
     // leave: get till left
     const msgEv = RedisKeys.MESSAGE_EVENTS + t;
     if (previousTimeline[msgEv]) {
-      timelines[msgEv] = previousTimeline[msgEv];
+      ret[msgEv] = previousTimeline[msgEv];
     } else {
-      timelines[msgEv] = baselines[t];
+      ret[msgEv] = baselines[t];
     }
   }
-  return timelines;
+  return ret;
 }
 
 function oneBefore(timeline: string): string {
