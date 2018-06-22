@@ -7,7 +7,8 @@ import {
   IsArray,
   MaxLength,
   MinLength,
-  IsOptional
+  IsOptional,
+  IsIn
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { VisibilityType } from '../types';
@@ -828,7 +829,7 @@ export class ModifyPresenceListResponse429 {
 
 export class SetPresenceBody {
   @IsDefined()
-  @IsString()
+  @IsIn(['online', 'offline', 'unavailable'])
   presence?: string;
 
   @IsString() status_msg?: string;

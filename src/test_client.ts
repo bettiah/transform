@@ -28,8 +28,8 @@ export const client: MatrixClient = Pretend.builder()
     }
     return request;
   })
-  .target(MatrixClient, 'http://localhost:8008/');
-// .target(MatrixClient, 'http://localhost:1234/');
+  // .target(MatrixClient, 'http://localhost:8008/');
+  .target(MatrixClient, 'http://localhost:1234/');
 
 export async function doRegister(user: string) {
   const reg1: RegisterBody = {
@@ -54,6 +54,7 @@ export async function doRegister(user: string) {
     throw new Error('missing token, no logon');
   }
   setAuth(result2.access_token);
+  return result2.user_id;
 }
 
 export async function doLogin(user: string) {
