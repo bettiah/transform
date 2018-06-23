@@ -17,12 +17,13 @@ export async function handleMember(event: MemberEvent): Promise<boolean> {
     return false;
   }
 
+  // user who the event is for
   const user = await getRepository(User).findOne({
-    user_id: event.sender
+    user_id: event.state_key
   });
   // can fail if user has been deleted in between event & now
   if (!user) {
-    debug(`creator has been deleted:${event.sender}`);
+    debug(`user has been deleted:${event.state_key}`);
     return false;
   }
 

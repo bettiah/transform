@@ -9,7 +9,7 @@ export async function handleMessage(
   const events: string[] = [];
   events.push(`${MessageEventType.message}`, JSON.stringify(message));
 
-  const to = RedisKeys.MESSAGE_EVENTS + message.room_id;
+  const to = RedisKeys.STATE_EVENTS + message.room_id;
   const q = await redisEnque(to, events);
   debug(`${to}: queued`, q);
 

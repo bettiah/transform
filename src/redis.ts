@@ -64,6 +64,7 @@ export const enum RedisKeys {
   USER_PRESENCE = 'user:presence:',
   USER_ACTIVITY = 'user:activity:',
   USER_STATUS = 'user:status:',
+  USER_FILTER = 'user:filter:',
 
   SINCE = 'since:'
 }
