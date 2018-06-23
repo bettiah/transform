@@ -19,7 +19,7 @@ import {
 import * as dto from './types';
 import { User, userRooms } from '../model';
 import { QueueTimelines } from '../types';
-import { setPresence as setPresenceFn, getPresence } from './presence';
+import { setPresence as setPresenceFn, getPresence } from '../presence';
 
 import {
   RedisKeys,
@@ -63,8 +63,8 @@ export class MatrixClientR0Sync {
           {
             content: {
               currently_active: true,
-              last_active_ago: Date.now() - _presence[2],
-              presence: _presence[0]
+              last_active_ago: _presence.last_active_ago,
+              presence: _presence.presence
             },
             type: 'm.presence',
             sender: user.user_id
@@ -102,7 +102,7 @@ async function getUsersEvents(
 
   // get usable timelines for query
   const timelines = await getTimelines(usersRooms, since, fullState);
-  debug(timelines);
+  // debug(timelines);
 
   // may return after timeout
   const responses =
@@ -122,7 +122,7 @@ async function getUsersEvents(
     // debug('room_id', room_id);
     const timeline = { events: [{}], prev_batch: '' };
     for (const timestamped of response[1]) {
-      debug('timestamped', timestamped);
+      // debug('timestamped', timestamped);
       const ts = timestamped[0] as string;
       const [, msg] = timestamped[1] as Array<string>;
       timeline.events.push(JSON.parse(msg));
@@ -169,7 +169,7 @@ async function getTimelines(
     previousTimeline =
       JSON.parse(await redisGetAndDel(RedisKeys.SINCE + since)) || {};
   }
-  debug('since', since, previousTimeline);
+  // debug('since', since, previousTimeline);
   // baselines has reference timelines, override with events sent last time
   for (let t in baselines) {
     const stateEv = RedisKeys.STATE_EVENTS + t;
@@ -194,12 +194,6 @@ async function getTimelines(
     // TODO
     // invite: dont get any ?
     // leave: get till left
-    // const msgEv = RedisKeys.MESSAGE_EVENTS + t;
-    // if (previousTimeline[msgEv]) {
-    //   ret[msgEv] = previousTimeline[msgEv];
-    // } else {
-    //   ret[msgEv] = baselines[t];
-    // }
   }
   return ret;
 }
@@ -217,17 +211,4 @@ function flattenRequest(timelines: QueueTimelines) {
     acc.push(timelines[id].timeline);
     return acc;
   }, ids);
-}
-
-// converts deeply nested XREAD responses
-function* flattenResponse(reply: Array<Array<any>>) {
-  for (const rooms of reply) {
-    const room = rooms[0];
-    const values = rooms[1];
-    for (const timestamped of values) {
-      const ts = timestamped[0] as string;
-      const [kind, msg] = timestamped[1] as Array<string>;
-      yield [room, ts, JSON.parse(msg)];
-    }
-  }
 }

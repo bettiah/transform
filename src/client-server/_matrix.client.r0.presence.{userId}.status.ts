@@ -19,7 +19,7 @@ import {
 
 import * as dto from './types';
 import { User } from '../model';
-import { setPresence, getPresence } from './presence';
+import { setPresence, getPresence } from '../presence';
 import { ErrorTypes } from '../types';
 
 @JsonController('')
@@ -29,14 +29,12 @@ export class MatrixClientR0PresenceUserIdStatus {
     @Param('userId') userId: string
   ): Promise<dto.GetPresenceResponse | any> {
     const msg = await getPresence(userId);
-    if (!msg[0] || !msg[1] || !msg[2]) {
+    if (!msg.presence || !msg.status_msg || !msg.last_active_ago) {
       return new BadRequestError(ErrorTypes.M_NOT_FOUND);
     }
     return {
       // currently_active : TODO
-      presence: msg[0],
-      status_msg: msg[1],
-      last_active_ago: Date.now() - msg[2]
+      ...msg
     };
   }
 

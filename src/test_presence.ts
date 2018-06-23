@@ -1,5 +1,6 @@
-import { doRoom, client, doRegister, doSend } from './test_client';
+import { client, doRegister } from './test_client';
 import { rand } from './utils';
+import { expect } from 'chai';
 
 describe('/_matrix/client/r0/presence', async () => {
   let user = '';
@@ -14,7 +15,7 @@ describe('/_matrix/client/r0/presence', async () => {
 
     it('get', async () => {
       const pr = await client.getPresence(user);
-      console.log(pr);
+      expect(pr).to.have.all.keys('presence', 'status_msg', 'last_active_ago');
     });
   });
 });

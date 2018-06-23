@@ -1,6 +1,5 @@
 import bluebird from 'bluebird';
 import Redis, { RedisClient } from 'redis';
-import { QueueTimelines } from './types';
 
 const once = require('lodash.once');
 const debug = require('debug')('server:redis');
@@ -31,16 +30,16 @@ export function redisEnque(queue: string, args: string[]): Promise<string> {
   return redisAsync().sendCommandAsync('XADD', [queue, '*', ...args]);
 }
 
-export function redisRange(queue: string, startAt: string) {
+export function redisReadRange(queue: string, startAt: string) {
   return redisAsync().sendCommandAsync('XRANGE', [queue, startAt, '+']);
 }
 
-export function redisReadQueue(watching: string[], timeout: number) {
+export function redisReadQueue(streamsAndOffsets: string[], timeout: number) {
   return redisAsync().sendCommandAsync('XREAD', [
     'BLOCK',
     timeout,
     'STREAMS',
-    ...watching
+    ...streamsAndOffsets
   ]);
 }
 
@@ -56,7 +55,6 @@ export function initRedis() {
 
 export const enum RedisKeys {
   STATE_EVENTS = 'room:state:',
-  MESSAGE_EVENTS = 'room:message:',
 
   ROOM_PENDING = 'room:pending:',
   ROOM_ALIAS = 'room:alias:',
