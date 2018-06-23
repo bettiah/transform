@@ -19,14 +19,13 @@ import {
 import * as dto from './types';
 import { User, userRooms } from '../model';
 import { QueueTimelines } from '../types';
-import { setPresence as setPresenceFn } from './presence';
+import { setPresence as setPresenceFn, getPresence } from './presence';
 
 import {
   RedisKeys,
   redisGetAndDel,
   redisAsync,
-  redisReadQueue,
-  redisEnque
+  redisReadQueue
 } from '../redis';
 import { rand } from '../utils';
 
@@ -45,69 +44,115 @@ export class MatrixClientR0Sync {
   ): Promise<dto.SyncResponse | any> {
     // TODO - timeout, set_presence, filter
     fullState = fullState || false;
+    const _presence = await getPresence(user.user_id);
 
+    const { rooms, next_batch } = await getUsersEvents(
+      user,
+      since,
+      fullState,
+      timeout
+    );
     const resp: dto.SyncResponse = {
-      rooms: {
-        invite: {
-          invite_state: { events: [] }
-        },
-        join: {
-          state: { events: [] },
-          timeline: { events: [], limited: false, prev_batch: '' }
-        },
-        leave: {
-          state: { events: [] },
-          timeline: { events: [], limited: false, prev_batch: '' }
-        }
-      }
-    };
-
-    // find user's rooms
-    const rooms = (await userRooms(user)).reduce((acc, it) => {
-      acc[it.room!.room_id] = {
-        timeline: it.timeline,
-        membership: it.membership
-      };
-      return acc;
-    }, new QueueTimelines());
-
-    // need usable timelines for query
-    const timelines = await getTimelines(rooms, since, fullState);
-    debug(timelines);
-    const response = await redisReadQueue(
-      flattenRequest(timelines),
-      fullState === true ? 0 : timeout // return immediately if fullstate
-    );
-
-    for (let [room_id, ts, evt] of flattenResponse(response || [])) {
-      debug(room_id, ts, JSON.stringify(evt));
-      const membership = timelines[room_id].membership;
-      switch (membership) {
-        case 'join': {
-          if (room_id.startsWith(RedisKeys.MESSAGE_EVENTS)) {
-            resp.rooms!.join!.timeline!.events!.push(evt);
-            resp.rooms!.join!.timeline!.prev_batch = ts;
-          } else {
-            resp.rooms!.join!.state!.events!.push(evt);
+      next_batch,
+      // device_one_time_keys_count: { signed_curve25519: 50 },
+      account_data: { events: [] },
+      to_device: { events: [] },
+      // groups: { leave: {}, join: {}, invite: {} },
+      presence: {
+        events: [
+          {
+            content: {
+              currently_active: true,
+              last_active_ago: Date.now() - _presence[2],
+              presence: _presence[0]
+            },
+            type: 'm.presence',
+            sender: user.user_id
           }
-        }
-      }
-      // update last seen
-      timelines[room_id].timeline = ts;
-    }
-
-    const next_batch = rand();
-    // save baseline to redis
-    await redisAsync().setAsync(
-      RedisKeys.SINCE + next_batch,
-      JSON.stringify(timelines)
-    );
-    // include next_batch
-    resp.next_batch = next_batch;
+        ]
+      },
+      device_lists: { changed: [], left: [] },
+      rooms
+    };
 
     await setPresenceFn(user.user_id, setPresence);
     return resp;
   }
+}
+
+class Hash {
+  [key: string]: any;
+}
+
+async function getUsersEvents(
+  user: User,
+  since: string,
+  fullState: boolean,
+  timeout: number
+) {
+  // find user's rooms => {<start timeline>, membership}
+  const usersRooms = (await userRooms(user)).reduce((acc, it) => {
+    acc[it.room!.room_id] = {
+      timeline: it.timeline,
+      membership: it.membership
+    };
+    return acc;
+  }, new QueueTimelines());
+  // debug('usersRooms', usersRooms);
+
+  // get usable timelines for query
+  const timelines = await getTimelines(usersRooms, since, fullState);
+  debug(timelines);
+
+  // may return after timeout
+  const responses =
+    (await redisReadQueue(
+      flattenRequest(timelines),
+      fullState === true ? 0 : timeout // return immediately if fullstate
+    )) || [];
+  // debug('response', response);
+
+  const rooms = { invite: new Hash(), join: new Hash(), leave: new Hash() };
+  for (const response of responses) {
+    // convert room:state:!w5v2fc2dblo:my.matrix.host => !w5v2fc2dblo:my.matrix.host
+    const room_id = response[0]
+      .split(':')
+      .slice(2)
+      .join(':');
+    // debug('room_id', room_id);
+    const timeline = { events: [{}], prev_batch: '' };
+    for (const timestamped of response[1]) {
+      debug('timestamped', timestamped);
+      const ts = timestamped[0] as string;
+      const [, msg] = timestamped[1] as Array<string>;
+      timeline.events.push(JSON.parse(msg));
+      // overwrite timestamps
+      timelines[response[0]].timeline = ts;
+    }
+
+    const membership_ = usersRooms[room_id].membership;
+    switch (membership_) {
+      case 'invite':
+      case 'join':
+        rooms['join'] = {
+          [room_id]: {
+            account_data: { events: [] },
+            ephemeral: { events: [] },
+            state: { events: [] },
+            timeline
+          }
+        };
+      case 'leave':
+    }
+  }
+  const next_batch = rand();
+  // save baseline to redis
+  await redisAsync().setAsync(
+    RedisKeys.SINCE + next_batch,
+    JSON.stringify(timelines)
+  );
+
+  return { rooms, next_batch };
 }
 
 // ensure correct data is fetched from q
@@ -124,6 +169,7 @@ async function getTimelines(
     previousTimeline =
       JSON.parse(await redisGetAndDel(RedisKeys.SINCE + since)) || {};
   }
+  debug('since', since, previousTimeline);
   // baselines has reference timelines, override with events sent last time
   for (let t in baselines) {
     const stateEv = RedisKeys.STATE_EVENTS + t;
@@ -141,18 +187,19 @@ async function getTimelines(
       // start from one before start of timeline
       const { timeline, membership } = baselines[t];
       const prev = oneBefore(timeline);
-      ret[stateEv] = { timeline: prev, membership };
+      // ret[stateEv] = { timeline: prev, membership };
+      ret[stateEv] = { timeline: '0-0', membership };
     }
     // message events:
     // TODO
     // invite: dont get any ?
     // leave: get till left
-    const msgEv = RedisKeys.MESSAGE_EVENTS + t;
-    if (previousTimeline[msgEv]) {
-      ret[msgEv] = previousTimeline[msgEv];
-    } else {
-      ret[msgEv] = baselines[t];
-    }
+    // const msgEv = RedisKeys.MESSAGE_EVENTS + t;
+    // if (previousTimeline[msgEv]) {
+    //   ret[msgEv] = previousTimeline[msgEv];
+    // } else {
+    //   ret[msgEv] = baselines[t];
+    // }
   }
   return ret;
 }

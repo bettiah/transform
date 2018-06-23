@@ -54,7 +54,10 @@ function hashPassword(password: string) {
   });
 }
 
-async function newUser(username: string, password: string): Promise<User> {
+export async function newUser(
+  username: string,
+  password: string
+): Promise<User> {
   const pw = await hashPassword(password);
   let user = new User();
   user.home_server = config.server;

@@ -149,6 +149,11 @@ export class PowerLevelsEventContent {
   users!: { string: number }; //The power levels for specific users. This is a mapping from user_id to power level for that user.
   users_default!: number; //	The default power level for every user in the room, unless their user_id is mentioned in the users key. Defaults to 0 if unspecified.
 }
+export class PowerLevelsEvent extends StateEvent {
+  @Equals(StateEventType.power_levels) type!: StateEventType;
+  content!: PowerLevelsEventContent;
+}
+
 // 10.5.7
 export class RedactionEventContent {
   reason?: string; // The reason for the redaction, if any.

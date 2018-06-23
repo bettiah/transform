@@ -20,7 +20,12 @@ import { User } from '../model';
 import * as dto from './types';
 import { ErrorTypes } from '../types';
 import { normalizeRoom, normalizeAlias, rand } from '../utils';
-import { StateEventType, CreateRoomEvent, MemberEvent } from './events';
+import {
+  StateEventType,
+  CreateRoomEvent,
+  MemberEvent,
+  PowerLevelsEvent
+} from './events';
 import { redisAsync, RedisKeys } from '../redis';
 import { processEvent } from '../roomevents';
 
@@ -74,6 +79,7 @@ export class MatrixClientR0CreateRoom {
 
     await processEvent(createEvent);
 
+    // creator joins automatically
     const joinEvent: MemberEvent = {
       content: { membership: 'join' },
       type: StateEventType.member,
@@ -87,14 +93,39 @@ export class MatrixClientR0CreateRoom {
 
     // queue to room
     // TODO events
-    // m.room.power_levels
     // presets
     // initial_state
     // name, topic
-    // invite, invite3Pid
+    // invite3Pid
     // alias?
 
+    // m.room.power_levels
+    // const power: PowerLevelsEvent = {
+    //   content:
+    // };
+    // await processEvent(power);
+
+    // m.room.join_rules
     // TODO - M_INVALID_ROOM_STATE:
+
+    // m.room.history_visibility
+    // m.room.guest_access
+
+    // invite initial lot
+    const invitees = body.invite || [];
+    for (const invitee of invitees) {
+      const inviteEvent: MemberEvent = {
+        content: { membership: 'invite', is_direct: body.is_direct },
+        type: StateEventType.member,
+        event_id: rand(),
+        state_key: invitee,
+        room_id,
+        sender: user.user_id,
+        origin_server_ts: Date.now()
+      };
+      await processEvent(inviteEvent);
+    }
+
     return { room_id };
   }
 }
