@@ -18,6 +18,8 @@ import {
 
 import * as dto from './types';
 import { User } from '../model';
+import { rand } from '../utils';
+import { redisAsync, RedisKeys } from '../redis';
 
 @JsonController('')
 export class MatrixClientR0UserUserIdFilter {
@@ -28,6 +30,10 @@ export class MatrixClientR0UserUserIdFilter {
     body: dto.DefineFilterBody,
     @CurrentUser() user?: User
   ): Promise<dto.DefineFilterResponse | any> {
-    throw new HttpError(501);
+    // TODO - handle properly
+    const filter_id = rand();
+    const key = RedisKeys.USER_FILTER + filter_id;
+    await redisAsync().setAsync(key, JSON.stringify(body));
+    return { filter_id };
   }
 }

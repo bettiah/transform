@@ -28,7 +28,7 @@ import { MatrixClientR0ProfileUserIdDisplayname } from './_matrix.client.r0.prof
 import { MatrixClientR0PublicRooms } from './_matrix.client.r0.publicRooms';
 import { MatrixClientR0Pushers } from './_matrix.client.r0.pushers';
 import { MatrixClientR0PushersSet } from './_matrix.client.r0.pushers.set';
-import { MatrixClientR0Pushrules } from './_matrix.client.r0.pushrules.';
+import { MatrixClientR0Pushrules } from './_matrix.client.r0.pushrules';
 import { MatrixClientR0PushrulesScopeKindRuleId } from './_matrix.client.r0.pushrules.{scope}.{kind}.{ruleId}';
 import { MatrixClientR0PushrulesScopeKindRuleIdActions } from './_matrix.client.r0.pushrules.{scope}.{kind}.{ruleId}.actions';
 import { MatrixClientR0PushrulesScopeKindRuleIdEnabled } from './_matrix.client.r0.pushrules.{scope}.{kind}.{ruleId}.enabled';
@@ -71,6 +71,8 @@ import { MatrixMediaR0DownloadServerNameMediaIdFileName } from './_matrix.media.
 import { MatrixMediaR0PreviewUrl } from './_matrix.media.r0.preview_url';
 import { MatrixMediaR0ThumbnailServerNameMediaId } from './_matrix.media.r0.thumbnail.{serverName}.{mediaId}';
 import { MatrixMediaR0Upload } from './_matrix.media.r0.upload';
+import { MatrixClientR0JoinedGroups } from './_matrix.client.r0.joined_groups';
+
 export default [
   MatrixClientR0Account3pid,
   MatrixClientR0AccountDeactivate,
@@ -144,5 +146,6 @@ export default [
   MatrixMediaR0DownloadServerNameMediaIdFileName,
   MatrixMediaR0PreviewUrl,
   MatrixMediaR0ThumbnailServerNameMediaId,
-  MatrixMediaR0Upload
+  MatrixMediaR0Upload,
+  MatrixClientR0JoinedGroups
 ];

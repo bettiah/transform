@@ -25,6 +25,7 @@ export class MatrixClientR0Pushers {
   async getPushers(
     @CurrentUser() user?: User
   ): Promise<dto.GetPushersResponse | any> {
-    throw new HttpError(501);
+    // TODO - implement properly
+    return { pushers: [] };
   }
 }

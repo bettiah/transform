@@ -18,6 +18,8 @@ import {
 
 import * as dto from './types';
 import { User } from '../model';
+import { redisAsync, RedisKeys } from '../redis';
+import { ErrorTypes } from '../types';
 
 @JsonController('')
 export class MatrixClientR0UserUserIdFilterFilterId {
@@ -27,6 +29,12 @@ export class MatrixClientR0UserUserIdFilterFilterId {
     @Param('filterId') filterId: string,
     @CurrentUser() user?: User
   ): Promise<dto.GetFilterResponse | any> {
-    throw new HttpError(501);
+    const key = RedisKeys.USER_FILTER + filterId;
+    const filter = await redisAsync().getAsync(key);
+    if (filter === undefined) {
+      throw new BadRequestError(ErrorTypes.M_NOT_FOUND);
+    }
+    console.log('filter', filter, key);
+    return JSON.parse(filter);
   }
 }

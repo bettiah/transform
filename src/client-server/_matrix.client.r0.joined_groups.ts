@@ -16,15 +16,13 @@ import {
   UnauthorizedError
 } from 'routing-controllers';
 
-import * as dto from './types';
 import { User } from '../model';
 
 @JsonController('')
-export class MatrixClientR0Pushrules {
-  @Get('/_matrix/client/r0/pushrules/')
-  async getPushRules(
-    @CurrentUser() user?: User
-  ): Promise<dto.GetPushRulesResponse | any> {
-    throw new HttpError(501);
+export class MatrixClientR0JoinedGroups {
+  @Get('/_matrix/client/r0/joined_groups')
+  async getJoinedGroups(@CurrentUser() user?: User): Promise<any> {
+    // TODO - implement properly
+    return { groups: [] };
   }
 }

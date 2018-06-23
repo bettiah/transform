@@ -27,6 +27,7 @@ export class MatrixClientR0KeysUpload {
     body: dto.UploadKeysBody,
     @CurrentUser() user?: User
   ): Promise<dto.UploadKeysResponse | any> {
-    throw new HttpError(501);
+    // TODO - implement properly
+    return { one_time_key_counts: {} };
   }
 }

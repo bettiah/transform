@@ -29,6 +29,8 @@ export class MatrixClientR0UserUserIdAccountDataType {
     body: any,
     @CurrentUser() user?: User
   ): Promise<any> {
-    throw new HttpError(501);
+    console.log('type', type, 'body', body);
+    // TODO - implement properly
+    return {};
   }
 }
