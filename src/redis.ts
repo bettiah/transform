@@ -34,13 +34,24 @@ export function redisReadRange(queue: string, startAt: string) {
   return redisAsync().sendCommandAsync('XRANGE', [queue, startAt, '+']);
 }
 
-export function redisReadQueue(streamsAndOffsets: string[], timeout: number) {
-  return redisAsync().sendCommandAsync('XREAD', [
-    'BLOCK',
-    timeout,
-    'STREAMS',
-    ...streamsAndOffsets
-  ]);
+export function redisReadQueue(
+  streamsAndOffsets: string[],
+  timeout: number
+): Promise<Array<Array<any>>> {
+  const conn = redis().duplicate();
+  return new Promise((resolve, reject) => {
+    conn.sendCommand(
+      'XREAD',
+      ['BLOCK', timeout, 'STREAMS', ...streamsAndOffsets],
+      (error, reply) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(reply);
+      }
+    );
+  });
 }
 
 export function initRedis() {
