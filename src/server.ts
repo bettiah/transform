@@ -1,11 +1,14 @@
-const express: any = require('express');
+import express = require('express');
+import bodyParser = require('body-parser');
 const bearerToken = require('express-bearer-token');
 
 import 'reflect-metadata';
 import {
   useExpressServer,
   Action,
-  UnauthorizedError
+  UnauthorizedError,
+  Middleware,
+  ExpressErrorMiddlewareInterface
 } from 'routing-controllers';
 
 import routes from './client-server/routes';
@@ -14,15 +17,14 @@ import { verifyToken } from './jwt';
 import { tokenUser } from './auth';
 import { initRedis } from './redis';
 
-import * as logging from './logging';
+import { requestLogger, errorLogger } from './logging';
 
 const debug = require('debug')('server');
-const bodyParser = require('body-parser');
 
 const app = express();
 app.use(bodyParser.json({ type: 'text/plain' }));
 app.use(bearerToken());
-app.use(logging.requestLogger);
+app.use(requestLogger);
 // app.use(logging.errorLogger);
 
 async function init() {
@@ -40,8 +42,27 @@ init().catch(error => {
   process.exit(-1);
 });
 
+//
+@Middleware({ type: 'after' })
+class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
+  error(error: any, request: any, response: any, next: (err: any) => any) {
+    switch (error.httpCode) {
+      case 501:
+        response.status(error.httpCode).json({ error: 'unimplemented' });
+        break;
+      default:
+        debug(error);
+        response
+          .status(error.httpCode)
+          .json({ error: error.message || 'broke' });
+    }
+  }
+}
+
 useExpressServer(app, {
   // routePrefix: '/api2',
+  middlewares: [CustomErrorHandler],
+  defaultErrorHandler: false,
   cors: true,
   validation: { whitelist: true, skipMissingProperties: true },
   authorizationChecker: (action: Action, roles: string[]) => {
@@ -66,6 +87,14 @@ useExpressServer(app, {
     return await tokenUser(token);
   },
   controllers: routes
+});
+
+// handle 404, after other handlers. as per faq
+app.use(function(req, res, next) {
+  if (res.headersSent) {
+    return next();
+  }
+  res.status(404).json({ error: 'not found' });
 });
 
 const port = process.env.PORT || 1234;

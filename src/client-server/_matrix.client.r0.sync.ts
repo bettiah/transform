@@ -110,7 +110,7 @@ async function getUsersEvents(
       flattenRequest(timelines),
       fullState === true ? 0 : timeout // return immediately if fullstate
     )) || [];
-  // debug('response', response);
+  // debug('response', responses);
 
   const rooms = { invite: new Hash(), join: new Hash(), leave: new Hash() };
   for (const response of responses) {
