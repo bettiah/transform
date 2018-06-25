@@ -1,8 +1,10 @@
 import { UnauthorizedError } from 'routing-controllers';
 import { User } from './model';
-import { newToken, verifyToken } from './jwt';
+import { newToken } from './jwt';
 import { getRepository } from 'typeorm';
 import { ErrorTypes } from './types';
+import { normalizeUser, rand } from './utils';
+import { redisAsync } from './redis';
 
 const auth = require('passport-local-authenticate');
 
@@ -17,18 +19,24 @@ const passwordOptions = {
   encoding: 'hex'
 };
 
-export async function authenticate(
+export interface SignedIn {
+  user: User;
+  jwt: string;
+  device_id: string;
+}
+
+async function authenticate(
   username: string,
   password: string,
-  deviceId: string
-): Promise<any> {
+  device_id: string
+) {
   const user = await getRepository(User).findOne({ user_id: username });
   if (!user) {
     throw new UnauthorizedError('user does not exist');
   }
   const [_, salt, hash] = user!.password_hash.split('$', 3);
 
-  return new Promise<any>((resolve, reject) => {
+  return new Promise<SignedIn>((resolve, reject) => {
     auth.verify(password, { salt, hash }, passwordOptions, function(
       err: any,
       verified: boolean
@@ -36,8 +44,8 @@ export async function authenticate(
       if (err || !verified) {
         reject(new UnauthorizedError('bad password')); // bad username or password
       }
-      const jwt = newToken(user, deviceId);
-      resolve({ user, jwt });
+      const jwt = newToken(user, device_id);
+      resolve({ user, jwt, device_id });
     });
   });
 }
@@ -49,7 +57,7 @@ function hashPassword(password: string) {
         reject('bad username or password');
       }
       const { salt, hash } = hashed;
-      resolve(`pbkdf2:sha256:50000$${salt}$${hash}`);
+      resolve(`pbkdf2:sha256:${passwordOptions.iterations}$${salt}$${hash}`);
     });
   });
 }
@@ -66,34 +74,56 @@ export async function newUser(
   return getRepository(User).save(user);
 }
 
-export interface SignedIn {
-  user: User;
-  jwt: string;
-}
-
-export async function signup(
+async function signup(
   username: string,
   password: string,
-  deviceId: string
+  device_id: string
 ): Promise<SignedIn> {
   const exists = await getRepository(User).count({ user_id: username });
   if (exists !== 0) {
-    throw ErrorTypes.M_USER_IN_USE;
+    throw new UnauthorizedError(ErrorTypes.M_USER_IN_USE);
   }
   const user = await newUser(username, password);
-  const jwt = newToken(user, deviceId);
-  return { user, jwt };
+  const jwt = newToken(user, device_id);
+  return { user, jwt, device_id };
 }
 
-export function tokenUser(token: string): Promise<User | undefined> {
-  try {
-    const { user_id } = verifyToken(token);
-    return getRepository(User).findOneOrFail(
-      { user_id },
-      { select: ['id', 'user_id'] }
-    );
-  } catch (ex) {
-    debug(ex.message);
-    throw new UnauthorizedError(ex.message);
+async function loginOrRegister(
+  isLogin: boolean,
+  user: string,
+  pass: string,
+  device_id?: string
+): Promise<SignedIn> {
+  user = normalizeUser(user);
+  device_id = device_id || rand(); // TODO - store, check device_id
+  let signedIn;
+  if (isLogin) {
+    signedIn = await authenticate(user, pass, device_id);
+  } else {
+    signedIn = await signup(user, pass, device_id);
   }
+  // set in redis, overwrite old key
+  await redisAsync().setAsync(
+    `${signedIn.user.home_server}:${user}:${device_id}`,
+    signedIn.user.id!,
+    'EX',
+    24 * 60 * 60
+  );
+  return signedIn;
+}
+
+export async function loginUser(
+  user: string,
+  pass: string,
+  device_id?: string
+): Promise<SignedIn> {
+  return loginOrRegister(true, user, pass, device_id);
+}
+
+export async function registerUser(
+  user: string,
+  pass: string,
+  device_id?: string
+): Promise<SignedIn> {
+  return loginOrRegister(false, user, pass, device_id);
 }

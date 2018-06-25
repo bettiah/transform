@@ -43,7 +43,7 @@ export class MatrixClientR0ProfileUserIdDisplayname {
     @CurrentUser() user?: User
   ): Promise<dto.SetDisplayNameResponse429 | any> {
     //  make sure user is not setting someone else's presence
-    if (userId != user!.user_id) {
+    if (userId !== user!.user_id) {
       throw new UnauthorizedError("cannot set other's name");
     }
 

@@ -22,7 +22,9 @@ describe('/_matrix/client/r0/register', () => {
     const reg2: RegisterBody = {
       auth: {
         type: LoginType.dummy,
-        session: result1.session
+        session: result1.session,
+        username: 'vm',
+        password: 'vm'
       }
     };
     const result2 = await client.register('', reg2);

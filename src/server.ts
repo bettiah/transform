@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 import express = require('express');
 import bodyParser = require('body-parser');
 const bearerToken = require('express-bearer-token');
@@ -12,12 +14,12 @@ import {
 } from 'routing-controllers';
 
 import routes from './client-server/routes';
-import { initDb } from './model';
+import { initDb, User } from './model';
 import { verifyToken } from './jwt';
-import { tokenUser } from './auth';
-import { initRedis } from './redis';
+import { initRedis, redisAsync } from './redis';
 
 import { requestLogger, errorLogger } from './logging';
+import { ErrorTypes } from './types';
 
 const debug = require('debug')('server');
 
@@ -48,7 +50,7 @@ class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
   error(error: any, request: any, response: any, next: (err: any) => any) {
     switch (error.httpCode) {
       case 501:
-        response.status(error.httpCode).json({ error: 'unimplemented' });
+        response.status(501).json({ error: 'unimplemented' });
         break;
       default:
         debug(error);
@@ -65,14 +67,14 @@ useExpressServer(app, {
   defaultErrorHandler: false,
   cors: true,
   validation: { whitelist: true, skipMissingProperties: true },
-  authorizationChecker: (action: Action, roles: string[]) => {
+  authorizationChecker: async (action: Action, roles: string[]) => {
     const token = action.request.token;
     if (!token) {
       debug('missing token');
       return false;
     }
     try {
-      verifyToken(token);
+      await verifyToken(token);
     } catch (ex) {
       debug(ex.message);
       return false;
@@ -84,7 +86,23 @@ useExpressServer(app, {
     if (!token) {
       throw new UnauthorizedError('missing token');
     }
-    return await tokenUser(token);
+    const verified = await verifyToken(token);
+    // debug('verified', verified);
+    // get from redis
+    const key = `${verified.home_server}:${verified.user_id}:${
+      verified.device_id
+    }`;
+    const user = await redisAsync().getAsync(key);
+    // debug('key:', key, 'user:', user);
+    if (!user) {
+      throw new UnauthorizedError(ErrorTypes.M_INVALID_USERNAME);
+    }
+    return Object.assign(new User(), {
+      id: user,
+      user_id: verified.user_id,
+      home_server: verified.home_server,
+      password_hash: ''
+    });
   },
   controllers: routes
 });

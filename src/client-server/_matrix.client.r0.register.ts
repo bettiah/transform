@@ -20,9 +20,9 @@ import {
 import * as dto from './types';
 import { LoginType } from '../types';
 
-import { rand, normalizeUser } from '../utils';
+import { rand } from '../utils';
 import { redisAsync, redisGetAndDel } from '../redis';
-import { signup } from '../auth';
+import { registerUser } from '../auth';
 const config = require('../../config.json');
 const debug = require('debug')('server:register');
 
@@ -49,11 +49,10 @@ export class MatrixClientR0Register {
       }
       // get user / pass from session
       const [user, pass] = session.split(':');
-      const device_id = body.device_id || rand(); // TODO - store, check device_id
-      const signedIn = await signup(normalizeUser(user), pass, device_id);
+      const signedIn = await registerUser(user, pass, body.device_id);
       const resp: dto.RegisterResponse = {
         access_token: signedIn.jwt,
-        device_id,
+        device_id: signedIn.device_id,
         home_server: signedIn.user.home_server,
         user_id: signedIn.user.user_id
       };

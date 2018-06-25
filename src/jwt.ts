@@ -2,13 +2,23 @@ import * as jwt from 'jsonwebtoken';
 
 import { User } from './model';
 
-const JWT_SECRET = 'secret';
-const JWT_ALGORITHM = 'HS256';
-const JWT_EXP_DELTA_SECONDS = 60 * 60 * 60;
+// const JWT_ALGORITHM = 'HS256'; // default
 
-export function verifyToken(token: string): any {
-  return jwt.verify(token, JWT_SECRET, {
-    algorithms: [JWT_ALGORITHM]
+export interface JwtSigned {
+  home_server: string;
+  user_id: string;
+  device_id: string;
+}
+
+export function verifyToken(token: string) {
+  return new Promise<JwtSigned>((resolve, reject) => {
+    jwt.verify(token, process.env.JWT_SECRET as string, (error, decoded) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve(decoded as JwtSigned);
+    });
   });
 }
 
@@ -19,7 +29,7 @@ export function newToken(user: User, deviceId: string): string {
       user_id: user.user_id,
       device_id: deviceId
     },
-    JWT_SECRET,
-    { expiresIn: JWT_EXP_DELTA_SECONDS }
+    process.env.JWT_SECRET as string,
+    { expiresIn: process.env.JWT_EXP_DELTA_SECONDS }
   );
 }
