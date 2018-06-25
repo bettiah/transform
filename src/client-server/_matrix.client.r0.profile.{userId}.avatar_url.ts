@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0ProfileUserIdAvatarUrl {
@@ -33,7 +33,7 @@ export class MatrixClientR0ProfileUserIdAvatarUrl {
     @Param('userId') userId: string,
     @Body({ required: true })
     body: dto.SetAvatarUrlBody,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.SetAvatarUrlResponse429 | any> {
     throw new HttpError(501);
   }

@@ -17,29 +17,25 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0PublicRooms {
   @Get('/_matrix/client/r0/publicRooms')
   async getPublicRooms(
-    @QueryParam('limit', { required: true })
-    limit: number,
-    @QueryParam('since', { required: true })
-    since: string,
-    @QueryParam('server', { required: true })
-    server: string
+    @QueryParam('limit') limit: number,
+    @QueryParam('since') since: string,
+    @QueryParam('server') server: string
   ): Promise<dto.GetPublicRoomsResponse | any> {
     throw new HttpError(501);
   }
 
   @Post('/_matrix/client/r0/publicRooms')
   async queryPublicRooms(
-    @QueryParam('server', { required: true })
-    server: string,
+    @QueryParam('server') server: string,
     @Body({ required: true })
     body: dto.QueryPublicRoomsBody,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.QueryPublicRoomsResponse | any> {
     throw new HttpError(501);
   }

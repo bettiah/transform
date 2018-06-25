@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0PresenceListUserId {
@@ -33,7 +33,7 @@ export class MatrixClientR0PresenceListUserId {
     @Param('userId') userId: string,
     @Body({ required: true })
     body: dto.ModifyPresenceListBody,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.ModifyPresenceListResponse429 | any> {
     throw new HttpError(501);
   }

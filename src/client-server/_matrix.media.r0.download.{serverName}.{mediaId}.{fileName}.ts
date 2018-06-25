@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixMediaR0DownloadServerNameMediaIdFileName {

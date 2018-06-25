@@ -17,17 +17,15 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0KeysUpload {
   @Post('/_matrix/client/r0/keys/upload')
   async uploadKeys(
-    @Body({ required: true })
-    body: dto.UploadKeysBody,
-    @CurrentUser() user?: User
+    @Body() body: dto.UploadKeysBody,
+    @CurrentUser() session: Session
   ): Promise<dto.UploadKeysResponse | any> {
-    // TODO - implement properly
-    return { one_time_key_counts: {} };
+    throw new HttpError(501);
   }
 }

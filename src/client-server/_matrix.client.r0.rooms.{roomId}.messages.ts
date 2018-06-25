@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdMessages {
@@ -29,11 +29,9 @@ export class MatrixClientR0RoomsRoomIdMessages {
     @QueryParam('to') to: string,
     @QueryParam('dir', { required: true })
     dir: string,
-    @QueryParam('limit', { required: true })
-    limit: number,
-    @QueryParam('filter', { required: true })
-    filter: string,
-    @CurrentUser() user?: User
+    @QueryParam('limit') limit: number,
+    @QueryParam('filter') filter: string,
+    @CurrentUser() session: Session
   ): Promise<dto.GetRoomEventsResponse | any> {
     throw new HttpError(501);
   }

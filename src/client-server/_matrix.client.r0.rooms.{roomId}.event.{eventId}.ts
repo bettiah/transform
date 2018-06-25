@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdEventEventId {
@@ -25,7 +25,7 @@ export class MatrixClientR0RoomsRoomIdEventEventId {
   async getOneRoomEvent(
     @Param('roomId') roomId: string,
     @Param('eventId') eventId: string,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto._EventResponse | any> {
     throw new HttpError(501);
   }

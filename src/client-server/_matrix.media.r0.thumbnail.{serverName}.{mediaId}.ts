@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixMediaR0ThumbnailServerNameMediaId {
@@ -25,12 +25,9 @@ export class MatrixMediaR0ThumbnailServerNameMediaId {
   async getContentThumbnail(
     @Param('serverName') serverName: string,
     @Param('mediaId') mediaId: string,
-    @QueryParam('width', { required: true })
-    width: number,
-    @QueryParam('height', { required: true })
-    height: number,
-    @QueryParam('method', { required: true })
-    method: string
+    @QueryParam('width') width: number,
+    @QueryParam('height') height: number,
+    @QueryParam('method') method: string
   ): Promise<dto.GetContentThumbnailResponse429 | any> {
     throw new HttpError(501);
   }

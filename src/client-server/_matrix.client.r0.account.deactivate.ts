@@ -17,15 +17,14 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0AccountDeactivate {
   @Post('/_matrix/client/r0/account/deactivate')
   async deactivateAccount(
-    @Body({ required: true })
-    body: dto.DeactivateAccountBody,
-    @CurrentUser() user?: User
+    @Body() body: dto.DeactivateAccountBody,
+    @CurrentUser() session: Session
   ): Promise<
     dto.AuthenticationResponse | dto.DeactivateAccountResponse429 | any
   > {

@@ -17,13 +17,13 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0AccountWhoami {
   @Get('/_matrix/client/r0/account/whoami')
   async getTokenOwner(
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<
     | dto.GetTokenOwnerResponse
     | dto.GetTokenOwnerResponse401

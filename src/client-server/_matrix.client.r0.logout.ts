@@ -17,14 +17,19 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 import { redisAsync } from '../redis';
 
 @JsonController('')
 export class MatrixClientR0Logout {
   @Post('/_matrix/client/r0/logout')
-  async logout(@CurrentUser() user?: User): Promise<dto.LogoutResponse | any> {
-    // const key = `${user!.home_server}:${user!.user_id}:${user.dev}`;
-    // await redisAsync().delAsync(key);
+  async logout(
+    @CurrentUser() session: Session
+  ): Promise<dto.LogoutResponse | any> {
+    const key = `${session.home_server}:${session.username}:${
+      session.device_id
+    }`;
+    await redisAsync().delAsync(key);
+    return {};
   }
 }

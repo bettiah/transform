@@ -17,15 +17,14 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0Pushers {
   @Get('/_matrix/client/r0/pushers')
   async getPushers(
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.GetPushersResponse | any> {
-    // TODO - implement properly
-    return { pushers: [] };
+    throw new HttpError(501);
   }
 }

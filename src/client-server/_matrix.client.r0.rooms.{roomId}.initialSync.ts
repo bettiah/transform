@@ -17,14 +17,14 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdInitialSync {
   @Get('/_matrix/client/r0/rooms/:roomId/initialSync')
   async roomInitialSync(
     @Param('roomId') roomId: string,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto._RoomInfoResponse | any> {
     throw new HttpError(501);
   }

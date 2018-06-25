@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdStateEventTypeStateKey {
@@ -26,7 +26,7 @@ export class MatrixClientR0RoomsRoomIdStateEventTypeStateKey {
     @Param('roomId') roomId: string,
     @Param('eventType') eventType: string,
     @Param('stateKey') stateKey: string,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -36,9 +36,8 @@ export class MatrixClientR0RoomsRoomIdStateEventTypeStateKey {
     @Param('roomId') roomId: string,
     @Param('eventType') eventType: string,
     @Param('stateKey') stateKey: string,
-    @Body({ required: true })
-    body: any,
-    @CurrentUser() user?: User
+    @Body() body: any,
+    @CurrentUser() session: Session
   ): Promise<dto.SetRoomStateWithKeyResponse | any> {
     throw new HttpError(501);
   }

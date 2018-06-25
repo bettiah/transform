@@ -17,16 +17,15 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0JoinRoomIdOrAlias {
   @Post('/_matrix/client/r0/join/:roomIdOrAlias')
   async joinRoom(
     @Param('roomIdOrAlias') roomIdOrAlias: string,
-    @Body({ required: true })
-    body: dto.JoinRoomBody,
-    @CurrentUser() user?: User
+    @Body() body: dto.JoinRoomBody,
+    @CurrentUser() session: Session
   ): Promise<dto.JoinRoomResponse429 | any> {
     throw new HttpError(501);
   }

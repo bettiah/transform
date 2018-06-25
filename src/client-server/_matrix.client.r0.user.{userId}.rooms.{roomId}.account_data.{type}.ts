@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0UserUserIdRoomsRoomIdAccountDataType {
@@ -28,7 +28,7 @@ export class MatrixClientR0UserUserIdRoomsRoomIdAccountDataType {
     @Param('type') type: string,
     @Body({ required: true })
     body: any,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<any> {
     throw new HttpError(501);
   }

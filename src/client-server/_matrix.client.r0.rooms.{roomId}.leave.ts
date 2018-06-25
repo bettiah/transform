@@ -17,14 +17,14 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdLeave {
   @Post('/_matrix/client/r0/rooms/:roomId/leave')
   async leaveRoom(
     @Param('roomId') roomId: string,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.LeaveRoomResponse429 | any> {
     throw new HttpError(501);
   }

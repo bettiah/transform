@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 import { redisAsync, RedisKeys } from '../redis';
 import { ErrorTypes } from '../types';
 
@@ -27,7 +27,7 @@ export class MatrixClientR0UserUserIdFilterFilterId {
   async getFilter(
     @Param('userId') userId: string,
     @Param('filterId') filterId: string,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.GetFilterResponse | any> {
     const key = RedisKeys.USER_FILTER + filterId;
     const filter = await redisAsync().getAsync(key);

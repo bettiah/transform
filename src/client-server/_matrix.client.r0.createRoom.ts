@@ -16,17 +16,12 @@ import {
   UnauthorizedError
 } from 'routing-controllers';
 
-import { User } from '../model';
 import * as dto from './types';
+import { Session } from '../auth';
+import { normalizeAlias, normalizeRoom, rand } from '../utils';
+import { RedisKeys, redisAsync } from '../redis';
 import { ErrorTypes } from '../types';
-import { normalizeRoom, normalizeAlias, rand } from '../utils';
-import {
-  StateEventType,
-  CreateRoomEvent,
-  MemberEvent,
-  PowerLevelsEvent
-} from './events';
-import { redisAsync, RedisKeys } from '../redis';
+import { CreateRoomEvent, StateEventType, MemberEvent } from './events';
 import { processEvent } from '../roomevents';
 
 const debug = require('debug')('server:createRoom');
@@ -35,7 +30,7 @@ const debug = require('debug')('server:createRoom');
 export class MatrixClientR0CreateRoom {
   @Post('/_matrix/client/r0/createRoom')
   async createRoom(
-    @CurrentUser() user: User,
+    @CurrentUser() session: Session,
     @Body() body: dto.CreateRoomBody
   ): Promise<dto.CreateRoomResponse> {
     // TODO - check if room can be created
@@ -68,11 +63,11 @@ export class MatrixClientR0CreateRoom {
     // m.room.create event
     // visibility & is_direct cannot be accomodated in events TODO - file bug
     const createEvent: CreateRoomEvent = {
-      content: { creator: user.user_id, 'm.federate': true },
+      content: { creator: session.username, 'm.federate': true },
       type: StateEventType.create,
       event_id: rand(),
       room_id,
-      sender: user.user_id,
+      sender: session.username,
       origin_server_ts: ts,
       state_key: ''
     };
@@ -84,9 +79,9 @@ export class MatrixClientR0CreateRoom {
       content: { membership: 'join' },
       type: StateEventType.member,
       event_id: rand(),
-      state_key: user.user_id,
+      state_key: session.username,
       room_id,
-      sender: user.user_id,
+      sender: session.username,
       origin_server_ts: Date.now()
     };
     await processEvent(joinEvent);
@@ -120,7 +115,7 @@ export class MatrixClientR0CreateRoom {
         event_id: rand(),
         state_key: invitee,
         room_id,
-        sender: user.user_id,
+        sender: session.username,
         origin_server_ts: Date.now()
       };
       await processEvent(inviteEvent);

@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdContextEventId {
@@ -25,9 +25,8 @@ export class MatrixClientR0RoomsRoomIdContextEventId {
   async getEventContext(
     @Param('roomId') roomId: string,
     @Param('eventId') eventId: string,
-    @QueryParam('limit', { required: true })
-    limit: number,
-    @CurrentUser() user?: User
+    @QueryParam('limit') limit: number,
+    @CurrentUser() session: Session
   ): Promise<dto.GetEventContextResponse | any> {
     throw new HttpError(501);
   }

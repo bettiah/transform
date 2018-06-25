@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixMediaR0PreviewUrl {
@@ -25,9 +25,8 @@ export class MatrixMediaR0PreviewUrl {
   async getUrlPreview(
     @QueryParam('url', { required: true })
     url: string,
-    @QueryParam('ts', { required: true })
-    ts: number,
-    @CurrentUser() user?: User
+    @QueryParam('ts') ts: number,
+    @CurrentUser() session: Session
   ): Promise<dto.GetUrlPreviewResponse | dto.GetUrlPreviewResponse429 | any> {
     throw new HttpError(501);
   }

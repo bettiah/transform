@@ -17,22 +17,21 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0Account3pid {
   @Get('/_matrix/client/r0/account/3pid')
   async getAccount3PIDs(
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.GetAccount3PIDsResponse | any> {
     throw new HttpError(501);
   }
 
   @Post('/_matrix/client/r0/account/3pid')
   async post3PIDs(
-    @Body({ required: true })
-    body: dto.Post3PIDsBody,
-    @CurrentUser() user?: User
+    @Body() body: dto.Post3PIDsBody,
+    @CurrentUser() session: Session
   ): Promise<any> {
     throw new HttpError(501);
   }

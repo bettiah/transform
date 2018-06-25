@@ -64,7 +64,7 @@ export class RoomEvent {
 
   type!: EventType; //	Required. The type of event. This SHOULD be namespaced similar to Java package naming conventions e.g. 'com.example.subdomain.event.type'}
 
-  @Length(10, 256)
+  @Length(5, 256)
   event_id!: string; //	Required. The globally unique event identifier.
 
   @Length(5, 256)

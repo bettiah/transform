@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User, userRooms } from '../model';
+import { userRooms } from '../model';
 import { QueueTimelines } from '../types';
 import { setPresence as setPresenceFn, getPresence } from '../presence';
 
@@ -28,6 +28,7 @@ import {
   redisReadQueue
 } from '../redis';
 import { rand } from '../utils';
+import { Session } from '../auth';
 
 const debug = require('debug')('server:sync');
 
@@ -40,14 +41,14 @@ export class MatrixClientR0Sync {
     @QueryParam('full_state') fullState: boolean,
     @QueryParam('set_presence') setPresence: string,
     @QueryParam('timeout') timeout: number,
-    @CurrentUser() user: User
+    @CurrentUser() session: Session
   ): Promise<dto.SyncResponse | any> {
     // TODO - timeout, set_presence, filter
     fullState = fullState || false;
-    const _presence = await getPresence(user.user_id);
+    const _presence = await getPresence(session.username);
 
     const { rooms, next_batch } = await getUsersEvents(
-      user,
+      session.uid,
       since,
       fullState,
       timeout
@@ -67,7 +68,7 @@ export class MatrixClientR0Sync {
               presence: _presence.presence
             },
             type: 'm.presence',
-            sender: user.user_id
+            sender: session.username
           }
         ]
       },
@@ -75,7 +76,7 @@ export class MatrixClientR0Sync {
       rooms
     };
 
-    await setPresenceFn(user.user_id, setPresence);
+    await setPresenceFn(session.username, setPresence);
     return resp;
   }
 }
@@ -85,24 +86,24 @@ class Hash {
 }
 
 async function getUsersEvents(
-  user: User,
+  uid: number,
   since: string,
   fullState: boolean,
   timeout: number
 ) {
   // find user's rooms => {<start timeline>, membership}
-  const usersRooms = (await userRooms(user)).reduce((acc, it) => {
+  const usersRooms = (await userRooms(uid)).reduce((acc, it) => {
     acc[it.room!.room_id] = {
       timeline: it.timeline,
       membership: it.membership
     };
     return acc;
   }, new QueueTimelines());
-  // debug('usersRooms', usersRooms);
+  debug('usersRooms', usersRooms, 'uid', uid);
 
   // get usable timelines for query
   const timelines = await getTimelines(usersRooms, since, fullState);
-  // debug(timelines);
+  debug(timelines);
 
   // may return after timeout
   const responses =
@@ -110,7 +111,7 @@ async function getUsersEvents(
       flattenRequest(timelines),
       fullState === true ? 0 : timeout // return immediately if fullstate
     )) || [];
-  // debug('response', responses);
+  debug('response', responses);
 
   const rooms = { invite: new Hash(), join: new Hash(), leave: new Hash() };
   for (const response of responses) {
@@ -119,13 +120,13 @@ async function getUsersEvents(
       .split(':')
       .slice(2)
       .join(':');
-    // debug('room_id', room_id);
-    const timeline = { events: [{}], prev_batch: '' };
+    debug('room_id', room_id);
+    const timeline: dto.Timeline = { events: [], prev_batch: '' };
     for (const timestamped of response[1]) {
       // debug('timestamped', timestamped);
       const ts = timestamped[0] as string;
       const [, msg] = timestamped[1] as Array<string>;
-      timeline.events.push(JSON.parse(msg));
+      timeline.events!.push(JSON.parse(msg) as dto.Event);
       // overwrite timestamps
       timelines[response[0]].timeline = ts;
     }

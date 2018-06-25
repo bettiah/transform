@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdReceiptReceiptTypeEventId {
@@ -26,9 +26,8 @@ export class MatrixClientR0RoomsRoomIdReceiptReceiptTypeEventId {
     @Param('roomId') roomId: string,
     @Param('receiptType') receiptType: string,
     @Param('eventId') eventId: string,
-    @Body({ required: true })
-    body: any,
-    @CurrentUser() user?: User
+    @Body() body: any,
+    @CurrentUser() session: Session
   ): Promise<dto.PostReceiptResponse429 | any> {
     throw new HttpError(501);
   }

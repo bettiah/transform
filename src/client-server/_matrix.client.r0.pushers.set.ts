@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0PushersSet {
@@ -25,7 +25,7 @@ export class MatrixClientR0PushersSet {
   async postPusher(
     @Body({ required: true })
     body: dto.PostPusherBody,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.PostPusherResponse429 | any> {
     throw new HttpError(501);
   }

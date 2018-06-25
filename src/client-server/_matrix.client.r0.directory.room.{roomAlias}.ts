@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0DirectoryRoomRoomAlias {
@@ -33,7 +33,7 @@ export class MatrixClientR0DirectoryRoomRoomAlias {
     @Param('roomAlias') roomAlias: string,
     @Body({ required: true })
     body: dto.SetRoomAliasBody,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<any> {
     throw new HttpError(501);
   }
@@ -41,7 +41,7 @@ export class MatrixClientR0DirectoryRoomRoomAlias {
   @Delete('/_matrix/client/r0/directory/room/:roomAlias')
   async deleteRoomAlias(
     @Param('roomAlias') roomAlias: string,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<any> {
     throw new HttpError(501);
   }

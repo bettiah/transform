@@ -124,13 +124,9 @@ async function loginOrRegister(
   } else {
     signedIn = await signup(user, pass, device_id);
   }
+  const key = `${signedIn.session.home_server}:${user}:${device_id}`;
   // set in redis, overwrite old key
-  await redisAsync().setAsync(
-    `${signedIn.session.home_server}:${user}:${device_id}`,
-    signedIn.session.uid!,
-    'EX',
-    24 * 60 * 60
-  );
+  await redisAsync().setAsync(key, signedIn.session.uid!, 'EX', 24 * 60 * 60);
   return signedIn;
 }
 

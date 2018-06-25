@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0SendToDeviceEventTypeTxnId {
@@ -27,7 +27,7 @@ export class MatrixClientR0SendToDeviceEventTypeTxnId {
     @Param('txnId') txnId: string,
     @Body({ required: true })
     body: dto.SendToDeviceBody,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<any> {
     throw new HttpError(501);
   }

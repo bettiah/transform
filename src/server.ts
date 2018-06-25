@@ -19,7 +19,7 @@ import { verifyToken } from './jwt';
 import { initRedis, redisAsync } from './redis';
 
 import { requestLogger, errorLogger } from './logging';
-import { ErrorTypes } from './types';
+import { Session } from './auth';
 
 const debug = require('debug')('server');
 
@@ -48,6 +48,7 @@ init().catch(error => {
 @Middleware({ type: 'after' })
 class CustomErrorHandler implements ExpressErrorMiddlewareInterface {
   error(error: any, request: any, response: any, next: (err: any) => any) {
+    error.httpCode = error.httpCode || 500;
     switch (error.httpCode) {
       case 501:
         response.status(501).json({ error: 'unimplemented' });
@@ -97,12 +98,13 @@ useExpressServer(app, {
     if (!user) {
       throw new UnauthorizedError('logged out');
     }
-    return Object.assign(new User(), {
-      id: user,
-      user_id: verified.user_id,
+    const session: Session = {
+      uid: user,
+      username: verified.user_id,
       home_server: verified.home_server,
-      password_hash: ''
-    });
+      device_id: verified.device_id
+    };
+    return session;
   },
   controllers: routes
 });

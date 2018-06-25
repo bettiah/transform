@@ -17,13 +17,13 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0Devices {
   @Get('/_matrix/client/r0/devices')
   async getDevices(
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.GetDevicesResponse | any> {
     throw new HttpError(501);
   }

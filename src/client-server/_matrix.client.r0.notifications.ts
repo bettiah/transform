@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0Notifications {
@@ -26,7 +26,7 @@ export class MatrixClientR0Notifications {
     @QueryParam('from') from: string,
     @QueryParam('limit') limit: number,
     @QueryParam('only') only: string,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.GetNotificationsResponse | any> {
     throw new HttpError(501);
   }

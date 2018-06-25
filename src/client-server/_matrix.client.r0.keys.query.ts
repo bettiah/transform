@@ -17,15 +17,14 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0KeysQuery {
   @Post('/_matrix/client/r0/keys/query')
   async queryKeys(
-    @Body({ required: true })
-    body: dto.QueryKeysBody,
-    @CurrentUser() user?: User
+    @Body() body: dto.QueryKeysBody,
+    @CurrentUser() session: Session
   ): Promise<dto.QueryKeysResponse | any> {
     throw new HttpError(501);
   }

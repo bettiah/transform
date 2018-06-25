@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 import { rand } from '../utils';
 import { redisAsync, RedisKeys } from '../redis';
 
@@ -28,7 +28,7 @@ export class MatrixClientR0UserUserIdFilter {
     @Param('userId') userId: string,
     @Body({ required: true })
     body: dto.DefineFilterBody,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.DefineFilterResponse | any> {
     // TODO - handle properly
     const filter_id = rand();

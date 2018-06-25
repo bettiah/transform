@@ -13,12 +13,11 @@ import {
   CurrentUser,
   QueryParam,
   HeaderParam,
-  UnauthorizedError,
-  InternalServerError
+  UnauthorizedError
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 import { setPresence, getPresence } from '../presence';
 import { ErrorTypes } from '../types';
 
@@ -43,10 +42,10 @@ export class MatrixClientR0PresenceUserIdStatus {
     @Param('userId') userId: string,
     @Body({ required: true })
     body: dto.SetPresenceBody,
-    @CurrentUser() user: User
+    @CurrentUser() session: Session
   ): Promise<dto.SetPresenceResponse429 | any> {
     //  make sure user is not setting someone else's presence
-    if (userId != user!.user_id) {
+    if (userId !== session.username) {
       throw new UnauthorizedError("cannot set other's presence");
     }
     await setPresence(userId, body.presence, body.status_msg);

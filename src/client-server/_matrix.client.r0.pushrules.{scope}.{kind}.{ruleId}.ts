@@ -17,7 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0PushrulesScopeKindRuleId {
@@ -26,7 +26,7 @@ export class MatrixClientR0PushrulesScopeKindRuleId {
     @Param('scope') scope: string,
     @Param('kind') kind: string,
     @Param('ruleId') ruleId: string,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.PushRuleResponse | any> {
     throw new HttpError(501);
   }
@@ -40,7 +40,7 @@ export class MatrixClientR0PushrulesScopeKindRuleId {
     @QueryParam('after') after: string,
     @Body({ required: true })
     body: dto.SetPushRuleBody,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.SetPushRuleResponse429 | any> {
     throw new HttpError(501);
   }
@@ -50,7 +50,7 @@ export class MatrixClientR0PushrulesScopeKindRuleId {
     @Param('scope') scope: string,
     @Param('kind') kind: string,
     @Param('ruleId') ruleId: string,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<any> {
     throw new HttpError(501);
   }

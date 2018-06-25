@@ -17,13 +17,13 @@ import {
   ForbiddenError
 } from 'routing-controllers';
 
-import { User } from '../model';
 import * as dto from './types';
-import { redisEnque, RedisKeys, redisAsync, existsInRedis } from '../redis';
+import { RedisKeys, existsInRedis } from '../redis';
 import { rand } from '../utils';
 import * as events from './events';
 import { validate } from 'class-validator';
 import { processEvent } from '../roomevents';
+import { Session } from '../auth';
 
 const debug = require('debug')('server:sendMessage');
 
@@ -31,12 +31,11 @@ const debug = require('debug')('server:sendMessage');
 export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
   @Put('/_matrix/client/r0/rooms/:roomId/send/:eventType/:txnId')
   async sendMessage(
-    @CurrentUser() user: User,
     @Param('roomId') roomId: string,
     @Param('eventType') eventType: string,
     @Param('txnId') txnId: string,
-    @Body({ required: true })
-    body: any
+    @Body() body: any,
+    @CurrentUser() session: Session
   ): Promise<dto.SendMessageResponse | any> {
     const event_id = rand();
     // validate other event parms
@@ -44,7 +43,7 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
       type: eventType,
       event_id,
       room_id: roomId,
-      sender: user.user_id,
+      sender: session.username,
       origin_server_ts: Date.now()
     });
     // validate content

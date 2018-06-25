@@ -161,7 +161,9 @@ export function checkUserInRoom(user: User, room: Room) {
     .getCount();
 }
 
-export function userRooms(user: User) {
+export async function userRooms(uid: number) {
+  const user = await getRepository(User).findOneOrFail({ id: uid });
+  debug('user', user);
   return getRepository(UserInRoom).find({
     where: { user },
     relations: ['room'],

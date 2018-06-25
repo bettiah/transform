@@ -17,17 +17,15 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
-import { User } from '../model';
+import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0Search {
   @Post('/_matrix/client/r0/search')
   async search(
-    @QueryParam('next_batch', { required: true })
-    nextBatch: string,
-    @Body({ required: true })
-    body: dto.SearchBody,
-    @CurrentUser() user?: User
+    @QueryParam('next_batch') nextBatch: string,
+    @Body() body: dto.SearchBody,
+    @CurrentUser() session: Session
   ): Promise<dto.ResultsResponse | dto.SearchResponse429 | any> {
     throw new HttpError(501);
   }

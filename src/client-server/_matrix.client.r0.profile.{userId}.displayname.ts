@@ -17,6 +17,7 @@ import {
 } from 'routing-controllers';
 
 import * as dto from './types';
+import { Session } from '../auth';
 import { User } from '../model';
 import { getRepository } from 'typeorm';
 
@@ -40,16 +41,16 @@ export class MatrixClientR0ProfileUserIdDisplayname {
     @Param('userId') userId: string,
     @Body({ required: true })
     body: dto.SetDisplayNameBody,
-    @CurrentUser() user?: User
+    @CurrentUser() session: Session
   ): Promise<dto.SetDisplayNameResponse429 | any> {
     //  make sure user is not setting someone else's presence
-    if (userId !== user!.user_id) {
+    if (userId !== session.username) {
       throw new UnauthorizedError("cannot set other's name");
     }
 
     if (body.displayname) {
       await getRepository(User).save({
-        id: user!.id,
+        id: session.uid,
         display_name: body.displayname
       });
     }
