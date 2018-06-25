@@ -14,7 +14,7 @@ import {
 } from 'routing-controllers';
 
 import routes from './client-server/routes';
-import { initDb, User } from './model';
+import { initDb } from './model';
 import { verifyToken } from './jwt';
 import { initRedis, redisAsync } from './redis';
 
@@ -87,14 +87,14 @@ useExpressServer(app, {
     if (!token) {
       throw new UnauthorizedError('missing token');
     }
-    const verified = await verifyToken(token);
-    // debug('verified', verified);
+    const verified = await verifyToken(token).catch(() => {
+      throw new UnauthorizedError('token expired');
+    });
     // get from redis
     const key = `${verified.home_server}:${verified.user_id}:${
       verified.device_id
     }`;
     const uid = await redisAsync().getAsync(key);
-    // debug('key:', key, 'user:', user);
     if (!uid) {
       throw new UnauthorizedError('logged out');
     }

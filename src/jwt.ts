@@ -30,6 +30,6 @@ export function newToken(user: User, deviceId: string): string {
       device_id: deviceId
     },
     process.env.JWT_SECRET as string,
-    { expiresIn: process.env.JWT_EXP_DELTA_SECONDS }
+    { expiresIn: parseInt(process.env.JWT_EXP_DELTA_SECONDS!) }
   );
 }

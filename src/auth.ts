@@ -8,7 +8,6 @@ import { redisAsync } from './redis';
 
 const auth = require('passport-local-authenticate');
 
-const config = require('../config.json');
 const debug = require('debug')('server:auth');
 
 const passwordOptions = {
@@ -84,7 +83,7 @@ export async function newUser(
 ): Promise<User> {
   const pw = await hashPassword(password);
   let user = new User();
-  user.home_server = config.server;
+  user.home_server = process.env.HOMSERVER_NAME as string;
   user.user_id = username;
   user.password_hash = pw;
   return getRepository(User).save(user);
@@ -126,7 +125,12 @@ async function loginOrRegister(
   }
   const key = `${signedIn.session.home_server}:${user}:${device_id}`;
   // set in redis, overwrite old key
-  await redisAsync().setAsync(key, signedIn.session.uid!, 'EX', 24 * 60 * 60);
+  await redisAsync().setAsync(
+    key,
+    signedIn.session.uid!,
+    'EX',
+    process.env.JWT_EXP_DELTA_SECONDS
+  );
   return signedIn;
 }
 

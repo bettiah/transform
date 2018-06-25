@@ -14,8 +14,7 @@ import {
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { SqliteConnectionOptions } from 'typeorm/driver/sqlite/SqliteConnectionOptions';
 import { newUser } from './auth';
-
-const config = require('../config.json');
+import { normalizeUser } from './utils';
 
 const debug = require('debug')('server:model');
 
@@ -134,14 +133,14 @@ const sqlite: SqliteConnectionOptions = {
 
 export function initDb() {
   return createConnection(sqlite)
-    .then(() => {
+    .then(async () => {
       debug('db connected');
       // create users
-      newUser(config.default.bot.username, config.default.bot.password).catch(
-        ex => {
-          debug('default user exists:', ex.message);
-        }
-      );
+      const botName = normalizeUser(process.env.DEFAULT_BOT_USER as string);
+      const exists = await getRepository(User).count({ user_id: botName });
+      if (exists == 0) {
+        newUser(botName, process.env.DEFAULT_BOT_PASS as string);
+      }
     })
     .catch(ex => {
       debug('db', ex);
