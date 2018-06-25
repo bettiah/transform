@@ -20,12 +20,14 @@ In addition to the server endpoints, a REST api consumer is also available in `c
 
 ## Getting started
 
-> I use the latest node 10, but 8.0+ outght to work
+- I use the latest node 10, but 8.0+ outght to work
 
-> Redis 5.0 rc needs to be runnning: `brew install redis --HEAD`
+- Redis 5.0 rc needs to be runnning: `brew install redis --HEAD`
 
-> Clone & `yarn` to install dependencies
+- Clone & `yarn` to install dependencies
 
-> `yarn dev` to start the server
+- `cp dot_env .env`
 
-> Riot ui can be used to interact with the server. I have found it easiest to use a release tarball from `https://github.com/vector-im/riot-web/releases` and run it using `serve -l tcp://127.0.0.1:1233` or equivalnt mechanism.
+- `yarn dev` to start the server
+
+- Riot ui can be used to interact with the server. I have found it easiest to use a release tarball from `https://github.com/vector-im/riot-web/releases` and run it using `serve -l tcp://127.0.0.1:1233` or equivalnt mechanism.
