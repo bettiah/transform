@@ -63,11 +63,11 @@ export class MatrixClientR0CreateRoom {
     // m.room.create event
     // visibility & is_direct cannot be accomodated in events TODO - file bug
     const createEvent: CreateRoomEvent = {
-      content: { creator: session.username, 'm.federate': true },
+      content: { creator: session.user_id, 'm.federate': true },
       type: StateEventType.create,
       event_id: rand(),
       room_id,
-      sender: session.username,
+      sender: session.user_id,
       origin_server_ts: ts,
       state_key: ''
     };
@@ -79,9 +79,9 @@ export class MatrixClientR0CreateRoom {
       content: { membership: 'join' },
       type: StateEventType.member,
       event_id: rand(),
-      state_key: session.username,
+      state_key: session.user_id,
       room_id,
-      sender: session.username,
+      sender: session.user_id,
       origin_server_ts: Date.now()
     };
     await processEvent(joinEvent);
@@ -115,7 +115,7 @@ export class MatrixClientR0CreateRoom {
         event_id: rand(),
         state_key: invitee,
         room_id,
-        sender: session.username,
+        sender: session.user_id,
         origin_server_ts: Date.now()
       };
       await processEvent(inviteEvent);

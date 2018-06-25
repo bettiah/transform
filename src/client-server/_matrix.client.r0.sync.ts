@@ -45,7 +45,7 @@ export class MatrixClientR0Sync {
   ): Promise<dto.SyncResponse | any> {
     // TODO - timeout, set_presence, filter
     fullState = fullState || false;
-    const _presence = await getPresence(session.username);
+    const _presence = await getPresence(session.user_id);
 
     const { rooms, next_batch } = await getUsersEvents(
       session.uid,
@@ -68,7 +68,7 @@ export class MatrixClientR0Sync {
               presence: _presence.presence
             },
             type: 'm.presence',
-            sender: session.username
+            sender: session.user_id
           }
         ]
       },
@@ -76,13 +76,9 @@ export class MatrixClientR0Sync {
       rooms
     };
 
-    await setPresenceFn(session.username, setPresence);
+    await setPresenceFn(session.user_id, setPresence);
     return resp;
   }
-}
-
-class Hash {
-  [key: string]: any;
 }
 
 async function getUsersEvents(
@@ -99,11 +95,11 @@ async function getUsersEvents(
     };
     return acc;
   }, new QueueTimelines());
-  debug('usersRooms', usersRooms, 'uid', uid);
+  // debug('usersRooms', usersRooms, 'uid', uid);
 
   // get usable timelines for query
   const timelines = await getTimelines(usersRooms, since, fullState);
-  debug(timelines);
+  // debug(timelines);
 
   // may return after timeout
   const responses =
@@ -111,16 +107,16 @@ async function getUsersEvents(
       flattenRequest(timelines),
       fullState === true ? 0 : timeout // return immediately if fullstate
     )) || [];
-  debug('response', responses);
+  // debug('response', responses);
 
-  const rooms = { invite: new Hash(), join: new Hash(), leave: new Hash() };
+  const rooms = { invite: {}, join: {}, leave: {} };
   for (const response of responses) {
     // convert room:state:!w5v2fc2dblo:my.matrix.host => !w5v2fc2dblo:my.matrix.host
     const room_id = response[0]
       .split(':')
       .slice(2)
       .join(':');
-    debug('room_id', room_id);
+    // debug('room_id', room_id);
     const timeline: dto.Timeline = { events: [], prev_batch: '' };
     for (const timestamped of response[1]) {
       // debug('timestamped', timestamped);

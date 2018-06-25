@@ -45,7 +45,7 @@ export class MatrixClientR0PresenceUserIdStatus {
     @CurrentUser() session: Session
   ): Promise<dto.SetPresenceResponse429 | any> {
     //  make sure user is not setting someone else's presence
-    if (userId !== session.username) {
+    if (userId !== session.user_id) {
       throw new UnauthorizedError("cannot set other's presence");
     }
     await setPresence(userId, body.presence, body.status_msg);

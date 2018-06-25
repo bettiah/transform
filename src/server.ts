@@ -93,14 +93,14 @@ useExpressServer(app, {
     const key = `${verified.home_server}:${verified.user_id}:${
       verified.device_id
     }`;
-    const user = await redisAsync().getAsync(key);
+    const uid = await redisAsync().getAsync(key);
     // debug('key:', key, 'user:', user);
-    if (!user) {
+    if (!uid) {
       throw new UnauthorizedError('logged out');
     }
     const session: Session = {
-      uid: user,
-      username: verified.user_id,
+      uid,
+      user_id: verified.user_id,
       home_server: verified.home_server,
       device_id: verified.device_id
     };

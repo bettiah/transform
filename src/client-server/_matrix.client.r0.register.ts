@@ -54,7 +54,7 @@ export class MatrixClientR0Register {
         access_token: signedIn.jwt,
         device_id: signedIn.session.device_id,
         home_server: signedIn.session.home_server,
-        user_id: signedIn.session.username
+        user_id: signedIn.session.user_id
       };
       return resp;
     } else if (body.username && body.password) {

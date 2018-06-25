@@ -26,7 +26,7 @@ export class MatrixClientR0Logout {
   async logout(
     @CurrentUser() session: Session
   ): Promise<dto.LogoutResponse | any> {
-    const key = `${session.home_server}:${session.username}:${
+    const key = `${session.home_server}:${session.user_id}:${
       session.device_id
     }`;
     await redisAsync().delAsync(key);

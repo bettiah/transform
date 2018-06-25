@@ -43,7 +43,7 @@ export class MatrixClientR0RoomsRoomIdSendEventTypeTxnId {
       type: eventType,
       event_id,
       room_id: roomId,
-      sender: session.username,
+      sender: session.user_id,
       origin_server_ts: Date.now()
     });
     // validate content

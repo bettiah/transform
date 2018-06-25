@@ -21,7 +21,7 @@ const passwordOptions = {
 
 export interface Session {
   uid: number;
-  username: string;
+  user_id: string;
   home_server: string;
   device_id: string;
 }
@@ -58,7 +58,7 @@ async function authenticate(
       const session = {
         device_id,
         uid: user.id!,
-        username: user.user_id,
+        user_id: user.user_id,
         home_server: user.home_server
       };
       resolve(new SignedIn(jwt, session));
@@ -104,7 +104,7 @@ async function signup(
   const session = {
     device_id,
     uid: user.id!,
-    username: user.user_id,
+    user_id: user.user_id,
     home_server: user.home_server
   };
   return new SignedIn(jwt, session);
