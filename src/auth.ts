@@ -19,10 +19,20 @@ const passwordOptions = {
   encoding: 'hex'
 };
 
-export interface SignedIn {
-  user: User;
-  jwt: string;
+export interface Session {
+  uid: number;
+  username: string;
+  home_server: string;
   device_id: string;
+}
+
+export class SignedIn {
+  jwt!: string;
+  session!: Session;
+  constructor(jwt: string, session: Session) {
+    this.jwt = jwt;
+    this.session = session;
+  }
 }
 
 async function authenticate(
@@ -45,7 +55,13 @@ async function authenticate(
         reject(new UnauthorizedError('bad password')); // bad username or password
       }
       const jwt = newToken(user, device_id);
-      resolve({ user, jwt, device_id });
+      const session = {
+        device_id,
+        uid: user.id!,
+        username: user.user_id,
+        home_server: user.home_server
+      };
+      resolve(new SignedIn(jwt, session));
     });
   });
 }
@@ -85,7 +101,13 @@ async function signup(
   }
   const user = await newUser(username, password);
   const jwt = newToken(user, device_id);
-  return { user, jwt, device_id };
+  const session = {
+    device_id,
+    uid: user.id!,
+    username: user.user_id,
+    home_server: user.home_server
+  };
+  return new SignedIn(jwt, session);
 }
 
 async function loginOrRegister(
@@ -104,8 +126,8 @@ async function loginOrRegister(
   }
   // set in redis, overwrite old key
   await redisAsync().setAsync(
-    `${signedIn.user.home_server}:${user}:${device_id}`,
-    signedIn.user.id!,
+    `${signedIn.session.home_server}:${user}:${device_id}`,
+    signedIn.session.uid!,
     'EX',
     24 * 60 * 60
   );

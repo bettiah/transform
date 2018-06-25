@@ -18,11 +18,13 @@ import {
 
 import * as dto from './types';
 import { User } from '../model';
+import { redisAsync } from '../redis';
 
 @JsonController('')
 export class MatrixClientR0Logout {
   @Post('/_matrix/client/r0/logout')
   async logout(@CurrentUser() user?: User): Promise<dto.LogoutResponse | any> {
-    throw new HttpError(501);
+    // const key = `${user!.home_server}:${user!.user_id}:${user.dev}`;
+    // await redisAsync().delAsync(key);
   }
 }

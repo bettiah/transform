@@ -95,7 +95,7 @@ useExpressServer(app, {
     const user = await redisAsync().getAsync(key);
     // debug('key:', key, 'user:', user);
     if (!user) {
-      throw new UnauthorizedError(ErrorTypes.M_INVALID_USERNAME);
+      throw new UnauthorizedError('logged out');
     }
     return Object.assign(new User(), {
       id: user,

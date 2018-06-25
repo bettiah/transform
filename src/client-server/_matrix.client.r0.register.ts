@@ -52,9 +52,9 @@ export class MatrixClientR0Register {
       const signedIn = await registerUser(user, pass, body.device_id);
       const resp: dto.RegisterResponse = {
         access_token: signedIn.jwt,
-        device_id: signedIn.device_id,
-        home_server: signedIn.user.home_server,
-        user_id: signedIn.user.user_id
+        device_id: signedIn.session.device_id,
+        home_server: signedIn.session.home_server,
+        user_id: signedIn.session.username
       };
       return resp;
     } else if (body.username && body.password) {

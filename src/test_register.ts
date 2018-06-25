@@ -6,13 +6,13 @@ import { expect } from 'chai';
 
 describe('/_matrix/client/r0/register', () => {
   it('2steps ok', async () => {
-    const rand_ = rand().slice(-2);
+    const rand_ = rand();
 
     console.log('register id:', rand_);
     const reg1: RegisterBody = {
       auth: {},
-      username: 'vm',
-      password: 'vm'
+      username: rand_,
+      password: rand_
     };
     const result1 = await client.register('', reg1);
     console.log(JSON.stringify(result1, null, 2));
@@ -23,8 +23,8 @@ describe('/_matrix/client/r0/register', () => {
       auth: {
         type: LoginType.dummy,
         session: result1.session,
-        username: 'vm',
-        password: 'vm'
+        username: rand_,
+        password: rand_
       }
     };
     const result2 = await client.register('', reg2);

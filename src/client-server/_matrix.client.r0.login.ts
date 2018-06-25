@@ -28,16 +28,16 @@ export class MatrixClientR0Login {
     body: dto.LoginBody
   ): Promise<dto.LoginResponse | dto.LoginResponse429 | any> {
     if (body.type === LoginType.password) {
-      const { user, jwt, device_id } = await loginUser(
+      const signedIn = await loginUser(
         body.user!,
         body.password!,
         body.device_id
       );
       const resp: dto.LoginResponse = {
-        access_token: jwt,
-        device_id: device_id,
-        home_server: user.home_server,
-        user_id: user.user_id
+        access_token: signedIn.jwt,
+        device_id: signedIn.session.device_id,
+        home_server: signedIn.session.home_server,
+        user_id: signedIn.session.username
       };
       return resp;
     }
