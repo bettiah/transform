@@ -41,6 +41,28 @@ export class User {
   })
   userRooms?: UserInRoom[];
 
+  @OneToMany(type => Device, device => device.user, {
+    cascade: true,
+    nullable: true
+  })
+  devices?: Device[];
+
+  @CreateDateColumn() createdAt?: Date;
+
+  @UpdateDateColumn() updatedAt?: Date;
+}
+
+@Entity()
+export class Device {
+  @PrimaryGeneratedColumn('uuid') id?: number;
+
+  @Index({ unique: true })
+  @Column({ length: 128 })
+  name!: string;
+
+  @ManyToOne(type => User, user => user.devices, { nullable: true })
+  user?: User;
+
   @CreateDateColumn() createdAt?: Date;
 
   @UpdateDateColumn() updatedAt?: Date;
@@ -112,7 +134,7 @@ export class RoomAlias {
   room?: Room;
 }
 
-const entities = [User, Room, RoomAlias, UserInRoom];
+const entities = [User, Room, RoomAlias, UserInRoom, Device];
 
 const postgres: PostgresConnectionOptions = {
   type: 'postgres',
@@ -136,10 +158,12 @@ export function initDb() {
     .then(async () => {
       debug('db connected');
       // create users
-      const botName = normalizeUser(process.env.DEFAULT_BOT_USER as string);
-      const exists = await getRepository(User).count({ user_id: botName });
-      if (exists == 0) {
-        newUser(botName, process.env.DEFAULT_BOT_PASS as string);
+      if (process.env.DEFAULT_BOT_USER) {
+        const botName = normalizeUser(process.env.DEFAULT_BOT_USER as string);
+        const exists = await getRepository(User).count({ user_id: botName });
+        if (exists == 0) {
+          newUser(botName, process.env.DEFAULT_BOT_PASS as string);
+        }
       }
     })
     .catch(ex => {

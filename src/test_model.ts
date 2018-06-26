@@ -6,11 +6,11 @@ import {
   initDb,
   User,
   UserInRoom,
-  userRooms,
+  Device,
   removeUsersFromRoom,
   removeUserFromRoom,
   checkUserInRoom,
-  userRooms_bug
+  userRooms
 } from './model';
 import { getRepository, createQueryBuilder } from 'typeorm';
 
@@ -21,16 +21,17 @@ describe('model', () => {
     await initDb();
   });
 
-  describe('room-alias', async () => {
-    beforeEach(async () => {
-      // remove everything from room & room-alias
-      await getRepository(UserInRoom).clear();
-      await getRepository(RoomAlias).clear();
-      await getRepository(Room).clear();
-      // delete everything
-      console.log('init');
-    });
+  beforeEach(async () => {
+    // delete everything
+    await getRepository(UserInRoom).clear();
+    await getRepository(RoomAlias).clear();
+    await getRepository(Room).clear();
+    await getRepository(Device).clear();
+    await getRepository(User).clear();
+    console.log('init');
+  });
 
+  describe('room-alias', async () => {
     it('save room with alias cascade', async () => {
       const room: Room = {
         room_id: 'r1',
@@ -62,19 +63,8 @@ describe('model', () => {
   });
 
   describe('room-users', async () => {
-    beforeEach(async () => {
-      // remove everything from room & room-alias
-      await getRepository(UserInRoom).clear();
-      await getRepository(RoomAlias).clear();
-      await getRepository(User).clear();
-      await getRepository(Room).clear();
-
-      // delete everything
-      console.log('init');
-    });
-
     it('room-users: nonexistent user', async () => {
-      const none = await userRooms_bug('0');
+      const none = await userRooms(0);
       console.dir(none);
       expect(none).to.be.empty;
     });
@@ -87,7 +77,7 @@ describe('model', () => {
       };
       const user_ = await getRepository(User).save(user);
 
-      const none = await userRooms_bug('u1');
+      const none = await userRooms(user.id!);
       console.dir(none);
       expect(none).to.be.empty;
     });
@@ -111,11 +101,13 @@ describe('model', () => {
 
       const rel = await getRepository(UserInRoom).save({
         user: user_,
-        room: room_
+        room: room_,
+        timeline: 't1',
+        membership: 'join'
       });
       console.dir(rel);
 
-      let rooms = await userRooms_bug('u1');
+      let rooms = await userRooms(user_.id!);
       console.dir(rooms);
       expect(rooms).is.not.empty;
       // expect(rooms[0].room_id).equals('r1');
@@ -130,29 +122,76 @@ describe('model', () => {
       });
       await getRepository(UserInRoom).save({
         user: user_,
-        room: room2_
+        room: room2_,
+        timeline: 't2',
+        membership: 'leave'
       });
-      rooms = await userRooms_bug('u1');
+      rooms = await userRooms(user_.id!);
       console.dir(rooms);
       // expect(rooms.map(r => r.room_id)).contains('r2', 'r1');
 
       // delete room - not allowed
-      // const del = await getRepository(Room)
-      //   .createQueryBuilder()
-      //   .delete()
-      //   .where('room_id =:id', { id: room2_.room_id })
-      //   .execute();
+      const ex = await getRepository(Room)
+        .createQueryBuilder()
+        .delete()
+        .where('room_id =:id', { id: room2_.room_id })
+        .execute()
+        .catch(ex => ex);
+      expect(
+        ex.message.startsWith(
+          'SQLITE_CONSTRAINT: FOREIGN KEY constraint failed'
+        )
+      ).is.true;
+
+      // delete user - not allowed
+      const ex2 = await getRepository(User)
+        .delete(user_.id!)
+        .catch(ex => ex);
+      expect(
+        ex2.message.startsWith(
+          'SQLITE_CONSTRAINT: FOREIGN KEY constraint failed'
+        )
+      ).is.true;
+
       let del = await removeUsersFromRoom(room2_);
       console.dir(del);
-      rooms = await userRooms_bug('u1');
+      rooms = await userRooms(user_.id!);
       console.dir(rooms);
       // expect(rooms.map(r => r.room_id)).contains('r1');
 
       del = await removeUserFromRoom(user_, room_);
       console.dir(del);
-      rooms = await userRooms_bug('u1');
+      rooms = await userRooms(user_.id!);
       console.dir(rooms);
       expect(rooms).is.empty;
+    });
+  });
+
+  describe('user-devices', async () => {
+    it('user-devices: create', async () => {
+      const u1 = await getRepository(User).save({
+        user_id: 'u1',
+        home_server: 'h1',
+        password_hash: 'p1',
+        devices: [{ name: 'd1' }]
+      });
+      console.dir(u1);
+
+      const u2 = await getRepository(User).findOneOrFail({
+        where: { user: { user_id: 'u1' } },
+        relations: ['devices'],
+        select: ['id']
+      });
+      console.dir(u2);
+
+      const ex = await getRepository(User)
+        .delete(u2.id!)
+        .catch(ex => ex);
+      expect(
+        ex.message.startsWith(
+          'SQLITE_CONSTRAINT: FOREIGN KEY constraint failed'
+        )
+      ).is.true;
     });
   });
 });
