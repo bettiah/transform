@@ -3,7 +3,7 @@ import { CreateRoomEvent } from './client-server/events';
 import { Room } from './model';
 import { getRepository } from 'typeorm';
 import { VisibilityType } from './types';
-import { normalizeAlias, rand } from './utils';
+import { normalizeAlias } from './utils';
 import { validate } from 'class-validator';
 
 const debug = require('debug')('server:events:createRoom');

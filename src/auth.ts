@@ -34,33 +34,23 @@ export class SignedIn {
   }
 }
 
-async function authenticate(
-  username: string,
-  password: string,
-  device_id: string
-) {
+async function authenticate(username: string, password: string) {
   const user = await getRepository(User).findOne({ user_id: username });
   if (!user) {
     throw new UnauthorizedError('user does not exist');
   }
   const [_, salt, hash] = user!.password_hash.split('$', 3);
 
-  return new Promise<SignedIn>((resolve, reject) => {
+  return new Promise<User>((resolve, reject) => {
     auth.verify(password, { salt, hash }, passwordOptions, function(
       err: any,
       verified: boolean
     ) {
       if (err || !verified) {
-        reject(new UnauthorizedError('bad password')); // bad username or password
+        reject(new UnauthorizedError('bad username or password'));
+        return;
       }
-      const jwt = newToken(user, device_id);
-      const session = {
-        device_id,
-        uid: user.id!,
-        user_id: user.user_id,
-        home_server: user.home_server
-      };
-      resolve(new SignedIn(jwt, session));
+      resolve(user);
     });
   });
 }
@@ -89,16 +79,28 @@ export async function newUser(
   return getRepository(User).save(user);
 }
 
-async function signup(
-  username: string,
-  password: string,
-  device_id: string
-): Promise<SignedIn> {
+async function signup(username: string, password: string): Promise<User> {
   const exists = await getRepository(User).count({ user_id: username });
   if (exists !== 0) {
     throw new UnauthorizedError(ErrorTypes.M_USER_IN_USE);
   }
-  const user = await newUser(username, password);
+  return newUser(username, password);
+}
+
+async function loginOrRegister(
+  isLogin: boolean,
+  user_id: string,
+  pass: string,
+  device_id?: string
+): Promise<SignedIn> {
+  user_id = normalizeUser(user_id);
+  device_id = device_id || rand(); // TODO - store, check device_id
+  let user;
+  if (isLogin) {
+    user = await authenticate(user_id, pass);
+  } else {
+    user = await signup(user_id, pass);
+  }
   const jwt = newToken(user, device_id);
   const session = {
     device_id,
@@ -106,32 +108,16 @@ async function signup(
     user_id: user.user_id,
     home_server: user.home_server
   };
-  return new SignedIn(jwt, session);
-}
+  const signedInUser = new SignedIn(jwt, session);
 
-async function loginOrRegister(
-  isLogin: boolean,
-  user: string,
-  pass: string,
-  device_id?: string
-): Promise<SignedIn> {
-  user = normalizeUser(user);
-  device_id = device_id || rand(); // TODO - store, check device_id
-  let signedIn;
-  if (isLogin) {
-    signedIn = await authenticate(user, pass, device_id);
-  } else {
-    signedIn = await signup(user, pass, device_id);
-  }
-  const key = `${signedIn.session.home_server}:${user}:${device_id}`;
   // set in redis, overwrite old key
   await redisAsync().setAsync(
-    key,
-    signedIn.session.uid!,
+    `${signedInUser.session.home_server}:${user_id}:${device_id}`,
+    signedInUser.session.uid!,
     'EX',
     process.env.JWT_EXP_DELTA_SECONDS
   );
-  return signedIn;
+  return signedInUser;
 }
 
 export async function loginUser(
