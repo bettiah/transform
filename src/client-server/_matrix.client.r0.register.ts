@@ -50,6 +50,7 @@ export class MatrixClientR0Register {
       // get user / pass from session
       const [user, pass] = session.split(':');
       const signedIn = await registerUser(user, pass, body.device_id);
+      // maybe add device_id & initial_device_display_name to db - TODO
       const resp: dto.RegisterResponse = {
         access_token: signedIn.jwt,
         device_id: signedIn.session.device_id,

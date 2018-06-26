@@ -33,6 +33,7 @@ export class MatrixClientR0Login {
         body.password!,
         body.device_id
       );
+      // maybe add device_id & initial_device_display_name to db - TODO
       const resp: dto.LoginResponse = {
         access_token: signedIn.jwt,
         device_id: signedIn.session.device_id,

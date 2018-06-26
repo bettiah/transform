@@ -56,7 +56,10 @@ export class User {
 export class Device {
   @PrimaryGeneratedColumn('uuid') id?: number;
 
-  @Index({ unique: true })
+  @Index()
+  @Column({ length: 128 })
+  device_id!: string;
+
   @Column({ length: 128 })
   name!: string;
 
