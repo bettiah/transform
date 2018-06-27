@@ -21,7 +21,15 @@ import { Session } from '../auth';
 import { normalizeAlias, normalizeRoom, rand } from '../utils';
 import { RedisKeys, redisAsync } from '../redis';
 import { ErrorTypes } from '../types';
-import { CreateRoomEvent, StateEventType, MemberEvent } from './events';
+import {
+  CreateRoomEvent,
+  StateEventType,
+  MemberEvent,
+  JoinRulesEvent,
+  JoinRulesEventContent,
+  HistoryVisibilityContent,
+  HistoryVisibilityEvent
+} from './events';
 import { processEvent } from '../roomevents';
 
 const debug = require('debug')('server:createRoom');
@@ -100,10 +108,47 @@ export class MatrixClientR0CreateRoom {
     // };
     // await processEvent(power);
 
+    const join_rules: JoinRulesEventContent = {
+      join_rule: 'invite'
+    };
+    const history: HistoryVisibilityContent = {
+      history_visibility: 'shared'
+    };
+    switch (body.preset) {
+      case 'private_chat':
+        break;
+      case 'trusted_private_chat':
+        // same power levels
+        break;
+      case 'public_chat':
+        join_rules.join_rule = 'public';
+        break;
+    }
     // m.room.join_rules
+    const joinRulesEvent: JoinRulesEvent = {
+      content: join_rules,
+      type: StateEventType.join_rules,
+      event_id: rand(),
+      state_key: '',
+      room_id,
+      sender: session.user_id,
+      origin_server_ts: Date.now()
+    };
+    await processEvent(joinRulesEvent);
     // TODO - M_INVALID_ROOM_STATE:
 
     // m.room.history_visibility
+    // m.room.join_rules
+    const historyVisibilityEvent: HistoryVisibilityEvent = {
+      content: history,
+      type: StateEventType.history_visibility,
+      event_id: rand(),
+      state_key: '',
+      room_id,
+      sender: session.user_id,
+      origin_server_ts: Date.now()
+    };
+    await processEvent(historyVisibilityEvent);
     // m.room.guest_access
 
     // invite initial lot
