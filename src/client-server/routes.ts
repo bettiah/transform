@@ -39,7 +39,7 @@ import { MatrixClientR0RoomsRoomIdContextEventId } from './_matrix.client.r0.roo
 import { MatrixClientR0RoomsRoomIdEventEventId } from './_matrix.client.r0.rooms.{roomId}.event.{eventId}';
 import { MatrixClientR0RoomsRoomIdForget } from './_matrix.client.r0.rooms.{roomId}.forget';
 import { MatrixClientR0RoomsRoomIdInitialSync } from './_matrix.client.r0.rooms.{roomId}.initialSync';
-import { MatrixClientR0RoomsRoomIdInvite } from './_matrix.client.r0.rooms.{roomId}.invite ';
+import { MatrixClientR0RoomsRoomIdInvite } from './_matrix.client.r0.rooms.{roomId}.invite';
 import { MatrixClientR0RoomsRoomIdJoin } from './_matrix.client.r0.rooms.{roomId}.join';
 import { MatrixClientR0RoomsRoomIdJoinedMembers } from './_matrix.client.r0.rooms.{roomId}.joined_members';
 import { MatrixClientR0RoomsRoomIdKick } from './_matrix.client.r0.rooms.{roomId}.kick';

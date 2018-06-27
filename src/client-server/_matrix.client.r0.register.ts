@@ -43,7 +43,7 @@ export class MatrixClientR0Register {
   > {
     if (body.auth && body.auth.session && body.auth.type === LoginType.dummy) {
       const session = await redisGetAndDel(body.auth.session);
-      debug('session', session);
+      debug('session', session, 'kind', kind);
       if (!session) {
         throw new UnauthorizedError('invalid session');
       }

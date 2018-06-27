@@ -21,13 +21,13 @@ import { Session } from '../auth';
 
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdInvite {
-  @Post('/_matrix/client/r0/rooms/:roomId/invite ')
-  async inviteUser(
+  @Post('/_matrix/client/r0/rooms/:roomId/inviteBy3PID')
+  async inviteBy3PID(
     @Param('roomId') roomId: string,
     @Body({ required: true })
-    body: dto.InviteUserBody,
+    body: dto.InviteBy3PIDBody,
     @CurrentUser() session: Session
-  ): Promise<dto.InviteUserResponse429 | any> {
+  ): Promise<dto.InviteBy3PIDResponse429 | any> {
     throw new HttpError(501);
   }
 }

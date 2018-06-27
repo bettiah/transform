@@ -1,7 +1,7 @@
 import { MemberEvent } from './client-server/events';
 import { getRepository } from 'typeorm';
 import { User, UserInRoom, Room } from './model';
-import { RedisKeys, redisEnque } from './redis';
+import { RedisKeys, redisEnque, existsInRedis } from './redis';
 import { validate } from 'class-validator';
 
 const debug = require('debug')('server:events:join');
@@ -34,11 +34,18 @@ export async function handleMember(event: MemberEvent): Promise<boolean> {
   }
 
   // TODO : checks
-
+  // room q must already be present & this must not be the first event
   const stateQ = RedisKeys.STATE_EVENTS + event.room_id;
+  if (!existsInRedis(stateQ)) {
+    debug(`${stateQ}: missing. cannot enqueue`);
+    return false;
+  }
+
+  // TODO - check previous state in db
   const q = await redisEnque(stateQ, [`${event.type}`, JSON.stringify(event)]);
   debug(`${stateQ}: queued: ${q}`);
 
+  // save invite in db
   await getRepository(UserInRoom).save({
     user,
     room,

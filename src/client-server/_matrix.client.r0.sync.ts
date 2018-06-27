@@ -95,11 +95,11 @@ async function getUsersEvents(
     };
     return acc;
   }, new QueueTimelines());
-  // debug('usersRooms', usersRooms, 'uid', uid);
+  debug('usersRooms', usersRooms, 'uid', uid);
 
   // get usable timelines for query
   const timelines = await getTimelines(usersRooms, since, fullState);
-  // debug(timelines);
+  debug(timelines);
 
   // may return after timeout
   const responses =
@@ -107,7 +107,7 @@ async function getUsersEvents(
       flattenRequest(timelines),
       fullState === true ? 0 : timeout // return immediately if fullstate
     )) || [];
-  // debug('response', responses);
+  debug('response', responses);
 
   const rooms = { invite: {}, join: {}, leave: {} };
   for (const response of responses) {
@@ -119,7 +119,7 @@ async function getUsersEvents(
     // debug('room_id', room_id);
     const timeline: dto.Timeline = { events: [], prev_batch: '' };
     for (const timestamped of response[1]) {
-      // debug('timestamped', timestamped);
+      debug('timestamped', timestamped);
       const ts = timestamped[0] as string;
       const [, msg] = timestamped[1] as Array<string>;
       timeline.events!.push(JSON.parse(msg) as dto.Event);
@@ -130,6 +130,15 @@ async function getUsersEvents(
     const membership_ = usersRooms[room_id].membership;
     switch (membership_) {
       case 'invite':
+        rooms['invite'] = {
+          [room_id]: {
+            account_data: { events: [] },
+            ephemeral: { events: [] },
+            state: { events: [] },
+            timeline
+          }
+        };
+        break;
       case 'join':
         rooms['join'] = {
           [room_id]: {
@@ -139,6 +148,7 @@ async function getUsersEvents(
             timeline
           }
         };
+        break;
       case 'leave':
     }
   }
