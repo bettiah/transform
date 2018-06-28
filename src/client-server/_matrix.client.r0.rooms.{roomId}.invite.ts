@@ -22,6 +22,8 @@ import { MemberEvent, StateEventType } from './events';
 import { rand } from '../utils';
 import { processEvent } from '../roomevents';
 
+const debug = require('debug')('server:inviteUser');
+
 @JsonController('')
 export class MatrixClientR0RoomsRoomIdInvite {
   @Post('/_matrix/client/r0/rooms/:roomId/invite')
@@ -31,6 +33,7 @@ export class MatrixClientR0RoomsRoomIdInvite {
     body: dto.InviteUserBody,
     @CurrentUser() session: Session
   ): Promise<dto.InviteUserResponse429 | any> {
+    debug(`invite ${body.user_id} to ${roomId}`);
     const inviteEvent: MemberEvent = {
       content: { membership: 'invite', is_direct: false },
       type: StateEventType.member,

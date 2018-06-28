@@ -47,7 +47,7 @@ export class MatrixClientR0Sync {
     fullState = fullState || false;
     const _presence = await getPresence(session.user_id);
 
-    const { rooms, next_batch } = await getUsersEvents(
+    const { rooms, next_batch } = await getUserEvents(
       session.uid,
       since,
       fullState,
@@ -81,7 +81,7 @@ export class MatrixClientR0Sync {
   }
 }
 
-async function getUsersEvents(
+async function getUserEvents(
   uid: number,
   since: string,
   fullState: boolean,
@@ -95,10 +95,10 @@ async function getUsersEvents(
     };
     return acc;
   }, new QueueTimelines());
-  debug('usersRooms', usersRooms, 'uid', uid);
+  debug('user', uid, 'rooms', usersRooms);
 
   // get usable timelines for query
-  const timelines = await getTimelines(usersRooms, since, fullState);
+  const timelines = await getUserTimelines(usersRooms, since, fullState);
   debug(timelines);
 
   // may return after timeout
@@ -111,7 +111,8 @@ async function getUsersEvents(
 
   const rooms = { invite: {}, join: {}, leave: {} };
   for (const response of responses) {
-    // convert room:state:!w5v2fc2dblo:my.matrix.host => !w5v2fc2dblo:my.matrix.host
+    // response : [<room>, <timestamped>]
+    // convert room:state:!<room>:<server> => !<room>:<server>
     const room_id = response[0]
       .split(':')
       .slice(2)
@@ -119,6 +120,7 @@ async function getUsersEvents(
     // debug('room_id', room_id);
     const timeline: dto.Timeline = { events: [], prev_batch: '' };
     for (const timestamped of response[1]) {
+      // timestamped: [<ts>, [, msg]]
       debug('timestamped', timestamped);
       const ts = timestamped[0] as string;
       const [, msg] = timestamped[1] as Array<string>;
@@ -132,10 +134,7 @@ async function getUsersEvents(
       case 'invite':
         rooms['invite'] = {
           [room_id]: {
-            account_data: { events: [] },
-            ephemeral: { events: [] },
-            state: { events: [] },
-            timeline
+            invite_state: { events: timeline.events }
           }
         };
         break;
@@ -164,7 +163,7 @@ async function getUsersEvents(
 
 // ensure correct data is fetched from q
 // this depends on membership status and previous fetches
-async function getTimelines(
+async function getUserTimelines(
   baselines: QueueTimelines,
   since: string,
   fullState: boolean

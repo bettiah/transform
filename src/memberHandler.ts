@@ -17,6 +17,12 @@ export async function handleMember(event: MemberEvent): Promise<boolean> {
     return false;
   }
 
+  debug({
+    sender: event.sender,
+    membership: event.content.membership,
+    to: event.state_key,
+    room: event.room_id
+  });
   // user who the event is for
   const user = await getRepository(User).findOne({
     user_id: event.state_key

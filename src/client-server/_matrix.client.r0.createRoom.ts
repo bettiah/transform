@@ -138,7 +138,6 @@ export class MatrixClientR0CreateRoom {
     // TODO - M_INVALID_ROOM_STATE:
 
     // m.room.history_visibility
-    // m.room.join_rules
     const historyVisibilityEvent: HistoryVisibilityEvent = {
       content: history,
       type: StateEventType.history_visibility,
