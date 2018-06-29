@@ -2,6 +2,10 @@
 
 Transform is a matrix homeserver built using Typescript and Redis. It is not fully functional yet.
 
+# Status
+
+Register, Login, CreateRoom, Invite & Join seem to be functional with riot web client. But quite a lot of functionality is missing and the software is definitely not ready for deployment in a public facing role.
+
 # Design
 
 A lot of the code is auto-generated from the excellent swagger specs for the client-server api.
@@ -20,7 +24,7 @@ In addition to the server endpoints, a REST api consumer is also available in `c
 
 ## Getting started
 
-- I use the latest node 10, but 8.0+ outght to work
+- The latest Node 10 is used for development, but 8.0+ outght to work
 
 - Redis 5.0 rc needs to be runnning: `brew install redis --HEAD`
 
