@@ -4,7 +4,7 @@ Transform is a matrix homeserver built using Typescript and Redis. It is not ful
 
 # Status
 
-Register, Login, CreateRoom, Invite & Join seem to be functional with riot web client. But quite a lot of functionality is missing and the software is definitely not ready for deployment in a public facing role.
+Register, Login, CreateRoom, Invite, Join & Sync seem to be functional with riot web client. But quite a lot of functionality is missing and the software is definitely not ready for deployment in a public facing role.
 
 # Design
 
